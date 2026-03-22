@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Tribute {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  recipient   String
+  message     String?
+  closingMessage String? // Mensagem de encerramento
+
+  // JSON configuration for dynamic content
+  config      String   // JSON string containing full page configuration
+  
+  // Template info
+  templateId  String
+  
+  // Media
+  heroImage   String?
+  musicUrl    String?
+  
+  // Metadata
+  isPublished Boolean  @default(false)
+  isPremium   Boolean  @default(false)
+  viewCount   Int      @default(0)
+  packageType String?  @default("basic") // basic, plus, premium
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime?
+  
+  // Relations
+  photos      Photo[]
+  timeline    TimelineItem[]
+  
+  @@index([slug])
+  @@index([templateId])
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  tributeId   String
+  url         String
+  caption     String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  tribute     Tribute  @relation(fields: [tributeId], references: [id], onDelete: Cascade)
+  
+  @@index([tributeId])
+}
+
+model TimelineItem {
+  id          String   @id @default(cuid())
+  tributeId   String
+  title       String
+  description String?
+  year        String?
+  imageUrl    String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  
+  tribute     Tribute  @relation(fields: [tributeId], references: [id], onDelete: Cascade)
+  
+  @@index([tributeId])
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  category    String   // romantic, family, memorial, birthday, etc.
+  
+  // JSON configuration for template styling
+  styleConfig String   // Colors, fonts, animations, decorative elements
+  
+  // Preview
+  previewUrl  String?
+  isPremium   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MediaFile {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  url         String
+  tributeId   String?
+  createdAt   DateTime @default(now())
+  
+  @@index([tributeId])
+}
