@@ -12,6 +12,7 @@ import { Timeline } from './timeline';
 import { ShareSection } from './share-section';
 import { EnvelopeIntro } from './envelope-intro';
 import { CounterSection } from './counter-section';
+import { ReasonsSection } from './reasons-section';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -131,6 +132,13 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         <div data-preview="counter">
           {config.counter?.date && (
             <CounterSection config={config.counter} accentColor={templateStyle.accentColor} />
+          )}
+        </div>
+
+        {/* Reasons to love */}
+        <div data-preview="reasons">
+          {config.reasons && config.reasons.length > 0 && (
+            <ReasonsSection reasons={config.reasons} accentColor={templateStyle.accentColor} />
           )}
         </div>
 

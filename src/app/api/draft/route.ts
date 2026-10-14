@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
       accentColor,
       counterDate,
       counterLabel,
+      reasons,
       photos = [],
       timeline = [],
     } = body;
@@ -93,6 +94,14 @@ export async function POST(request: NextRequest) {
       ...(isValidHex(accentColor) ? { style: styleForColor(accentColor) } : {}),
       ...(typeof counterDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(counterDate)
         ? { counter: { date: counterDate, label: typeof counterLabel === 'string' ? counterLabel.slice(0, 40) : undefined } }
+        : {}),
+      ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
+        ? {
+            reasons: reasons
+              .filter((r: unknown): r is string => typeof r === 'string' && !!r.trim())
+              .slice(0, 12)
+              .map((r: string) => r.trim().slice(0, 160)),
+          }
         : {}),
     };
 

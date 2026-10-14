@@ -92,6 +92,7 @@ export interface TributeConfig {
   timeline?: TimelineItemConfig[];
   closingMessage?: string;
   counter?: CounterConfig;
+  reasons?: string[];
   
   // Styling overrides
   style?: Partial<StyleConfig>;

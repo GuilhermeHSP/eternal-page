@@ -81,6 +81,13 @@ interface MusicFile {
 }
 
 // Steps including plan selection as first step
+const REASON_PLACEHOLDERS = [
+  'Seu sorriso que ilumina o dia',
+  'O jeito como você cuida de todos',
+  'Seu abraço que resolve tudo',
+  'Sua risada no meio do almoço',
+];
+
 const steps = [
   { id: 0, title: 'Plano', icon: Package },
   { id: 1, title: 'Template', icon: Sparkles },
@@ -103,6 +110,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   const [isLoading, setIsLoading] = useState(false);
   // A colour picked by the person; null keeps the template's own colour.
   const [customColor, setCustomColor] = useState<string | null>(null);
+  const [reasons, setReasons] = useState<string[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(initialPackage ?? null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
@@ -154,6 +162,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           setValue('heroImage', data.heroImage || '');
           setValue('musicUrl', data.musicUrl || '');
           setValue('closingMessage', data.closingMessage || '');
+          if (Array.isArray(data.config?.reasons)) setReasons(data.config.reasons);
           if (data.config?.counter?.date) {
             setValue('counterDate', data.config.counter.date);
             setValue('counterLabel', data.config.counter.label || '');
@@ -435,6 +444,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         closingMessage: data.closingMessage || '',
         counterDate: data.counterDate || undefined,
         counterLabel: data.counterLabel || undefined,
+        reasons: reasons.map((r) => r.trim()).filter(Boolean),
         accentColor: customColor || undefined,
         packageType: selectedPackage,
         photos: photos.map((p, i) => ({
@@ -525,6 +535,11 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       .map((t, i) => ({ id: t.id, title: t.title || 'Momento', description: t.description, year: t.year, imageUrl: t.imageUrl, order: i })),
     closingMessage: values.closingMessage || (previewFocus === 'closing' ? 'Sua mensagem de encerramento aparece aqui.' : undefined),
     style: customColor ? (styleForColor(customColor) as TributeConfig['style']) : undefined,
+    reasons: reasons.some((r) => r.trim())
+      ? reasons.map((r) => r.trim()).filter(Boolean)
+      : previewFocus === 'reasons'
+        ? ['Seu sorriso que ilumina o dia', 'O jeito como você cuida de todos', 'Seu abraço que resolve tudo']
+        : undefined,
     counter: values.counterDate
       ? { date: values.counterDate, label: values.counterLabel }
       : previewFocus === 'counter'
@@ -927,6 +942,55 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       <option value="Saudade há" />
                     </datalist>
                   </div>
+                </div>
+
+                {/* Reasons to love */}
+                <div className="rounded-xl border border-gray-100 bg-white p-4">
+                  <Label>Motivos para te amar (opcional)</Label>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Cada motivo vira um cartão que a pessoa toca para descobrir. Até 12.
+                  </p>
+                  <div className="mt-3 space-y-2">
+                    {reasons.map((reason, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <span className="shrink-0 w-7 h-7 rounded-full bg-pink-50 text-pink-600 text-xs font-semibold flex items-center justify-center">
+                          {i + 1}
+                        </span>
+                        <Input
+                          value={reason}
+                          maxLength={160}
+                          placeholder={REASON_PLACEHOLDERS[i % REASON_PLACEHOLDERS.length]}
+                          aria-label={`Motivo ${i + 1}`}
+                          onFocus={focusOn('reasons')}
+                          onChange={(e) => setReasons((prev) => prev.map((r, j) => (j === i ? e.target.value : r)))}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Remover motivo ${i + 1}`}
+                          onClick={() => setReasons((prev) => prev.filter((_, j) => j !== i))}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                  {reasons.length < 12 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 gap-2"
+                      onClick={() => {
+                        setReasons((prev) => [...prev, '']);
+                        setPreviewFocus('reasons');
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                      Adicionar motivo
+                    </Button>
+                  )}
                 </div>
 
                 <div>

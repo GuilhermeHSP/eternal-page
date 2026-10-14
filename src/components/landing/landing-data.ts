@@ -206,6 +206,7 @@ export const DEMO_CONFIG = {
     typingAnimation: false,
   },
   counter: { date: '1938-05-14', label: 'Juntos há' },
+  reasons: ['O cheiro de bolo de fubá aos domingos', 'As histórias da sua infância na roça', 'O colo que nunca faltou', 'Seu jeito de rir de tudo', 'Os bilhetes na lancheira', 'Ensinar a gente a perdoar'],
   gallery: [
     { id: 'g1', url: '/acervo/familia-1942.jpg', caption: 'O almoço de 1942', order: 0 },
     { id: 'g2', url: '/acervo/vestido-floral.jpg', caption: 'O vestido de domingo', order: 1 },

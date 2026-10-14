@@ -16,6 +16,7 @@ import {
   CalendarHeart,
   Music,
   Sparkles,
+  Gift,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PACKAGE_LIST, formatPrice, type PackageType } from '@/lib/packages';
@@ -287,6 +288,7 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
     { key: 'hero', icon: Sparkles, title: 'Abertura com foto', text: 'O nome dela em letra de convite sobre a foto principal.' },
     { key: 'message', icon: Mail, title: 'Uma carta', text: 'Sua mensagem em papel de carta, com selo e assinatura.' },
     { key: 'counter', icon: Clock, title: 'Contador do tempo', text: 'Anos, meses, dias e segundos juntos, contando ao vivo.' },
+    { key: 'reasons', icon: Gift, title: 'Motivos para te amar', text: 'Cartões que viram ao toque, cada um com um motivo.' },
     { key: 'gallery', icon: ImageIcon, title: 'Polaroides', text: 'As fotos de vocês com legendas escritas à mão.' },
     { key: 'timeline', icon: CalendarHeart, title: 'Linha do tempo', text: 'Os momentos importantes, ano a ano.' },
     { key: 'closing', icon: Heart, title: 'Despedida', text: 'Uma frase final sobre a foto, para fechar com emoção.' },

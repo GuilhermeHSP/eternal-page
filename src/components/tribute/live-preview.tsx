@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Eye, X } from 'lucide-react';
 import { TributeConfig } from '@/types/tribute';
 
-export type PreviewSection = 'hero' | 'message' | 'counter' | 'gallery' | 'timeline' | 'closing';
+export type PreviewSection = 'hero' | 'message' | 'counter' | 'reasons' | 'gallery' | 'timeline' | 'closing';
 
 interface LivePreviewProps {
   config: TributeConfig;
