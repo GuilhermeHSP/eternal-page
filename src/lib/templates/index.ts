@@ -3,9 +3,9 @@ import { TemplateStyleConfig } from '@/types/tribute';
 export const templates: Record<string, TemplateStyleConfig> = {
   romantic: {
     name: 'romantic',
-    displayName: 'Romantic Love',
+    displayName: 'Amor',
     category: 'romantic',
-    description: 'A warm, intimate template for expressing love and affection',
+    description: 'Para quem divide a vida com você',
     accentColor: '#e11d48',
     backgroundColor: '#fef7f7',
     textColor: '#1f2937',
@@ -27,9 +27,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   mothersDay: {
     name: 'mothersDay',
-    displayName: "Mother's Day",
+    displayName: 'Dia das Mães',
     category: 'family',
-    description: 'A tender template to honor mothers and mother figures',
+    description: 'Para a mãe, a avó ou quem cuidou de você',
     accentColor: '#db2777',
     backgroundColor: '#fdf2f8',
     textColor: '#1f2937',
@@ -51,9 +51,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   fathersDay: {
     name: 'fathersDay',
-    displayName: "Father's Day",
+    displayName: 'Dia dos Pais',
     category: 'family',
-    description: 'A strong, heartfelt template to celebrate fathers',
+    description: 'Para o pai, o avô ou quem te ensinou o caminho',
     accentColor: '#0369a1',
     backgroundColor: '#f0f9ff',
     textColor: '#1f2937',
@@ -75,9 +75,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   birthday: {
     name: 'birthday',
-    displayName: 'Birthday Celebration',
+    displayName: 'Aniversário',
     category: 'birthday',
-    description: 'A festive, joyful template for birthday tributes',
+    description: 'Para comemorar mais um ano de alguém',
     accentColor: '#f59e0b',
     backgroundColor: '#fffbeb',
     textColor: '#1f2937',
@@ -99,9 +99,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   memorial: {
     name: 'memorial',
-    displayName: 'Memorial',
+    displayName: 'Memória',
     category: 'memorial',
-    description: 'A dignified, peaceful template for honoring loved ones',
+    description: 'Para lembrar de quem partiu, com calma',
     accentColor: '#6366f1',
     backgroundColor: '#faf5ff',
     textColor: '#1f2937',
@@ -123,9 +123,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   friendship: {
     name: 'friendship',
-    displayName: 'Best Friends',
+    displayName: 'Amizade',
     category: 'friendship',
-    description: 'A cheerful template celebrating friendship bonds',
+    description: 'Para a amiga ou o amigo de sempre',
     accentColor: '#10b981',
     backgroundColor: '#ecfdf5',
     textColor: '#1f2937',
@@ -147,9 +147,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   valentine: {
     name: 'valentine',
-    displayName: "Valentine's Day",
+    displayName: 'Namorados',
     category: 'romantic',
-    description: 'A passionate, romantic template for Valentine celebrations',
+    description: 'Para o 12 de junho',
     accentColor: '#be123c',
     backgroundColor: '#fff1f2',
     textColor: '#1f2937',
@@ -171,9 +171,9 @@ export const templates: Record<string, TemplateStyleConfig> = {
   
   anniversary: {
     name: 'anniversary',
-    displayName: 'Anniversary',
+    displayName: 'Bodas',
     category: 'romantic',
-    description: 'An elegant template for celebrating milestones together',
+    description: 'Para os anos de casamento, de papel a ouro',
     accentColor: '#a855f7',
     backgroundColor: '#faf5ff',
     textColor: '#1f2937',
@@ -205,10 +205,10 @@ export function getTemplatesByCategory(category: string): TemplateStyleConfig[] 
 }
 
 export const categories = [
-  { id: 'romantic', label: 'Romantic', icon: '❤️' },
-  { id: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦' },
-  { id: 'birthday', label: 'Birthday', icon: '🎂' },
-  { id: 'memorial', label: 'Memorial', icon: '🕯️' },
-  { id: 'friendship', label: 'Friendship', icon: '🤝' },
-  { id: 'achievement', label: 'Achievement', icon: '🏆' }
+  { id: 'romantic', label: 'Amor', icon: '❤️' },
+  { id: 'family', label: 'Família', icon: '👨‍👩‍👧‍👦' },
+  { id: 'birthday', label: 'Aniversário', icon: '🎂' },
+  { id: 'memorial', label: 'Memória', icon: '🕯️' },
+  { id: 'friendship', label: 'Amizade', icon: '🤝' },
+  { id: 'achievement', label: 'Conquista', icon: '🏆' }
 ];

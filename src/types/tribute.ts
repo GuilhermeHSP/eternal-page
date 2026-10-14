@@ -29,6 +29,12 @@ export interface HeroConfig {
   overlay?: boolean;
 }
 
+// A live counter from a special date ("Juntos há 32 anos, 4 meses..."), or a countdown to it.
+export interface CounterConfig {
+  date: string; // ISO date, e.g. 1992-06-12
+  label?: string;
+}
+
 export interface MessageConfig {
   text: string;
   typingAnimation?: boolean;
@@ -85,6 +91,10 @@ export interface TributeConfig {
   gallery?: PhotoConfig[];
   timeline?: TimelineItemConfig[];
   closingMessage?: string;
+  counter?: CounterConfig;
+  reasons?: string[];
+  guestbook?: boolean; // message wall open to visitors
+  voiceMessage?: string; // audio data URL recorded or uploaded by the giver
   
   // Styling overrides
   style?: Partial<StyleConfig>;
@@ -92,6 +102,8 @@ export interface TributeConfig {
   // Metadata
   createdAt?: string;
   authorName?: string;
+  // False when the giver chose to open straight on the page, without the envelope.
+  envelope?: boolean;
 }
 
 // Form data for creating/updating tributes

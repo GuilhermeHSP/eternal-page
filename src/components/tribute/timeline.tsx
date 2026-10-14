@@ -27,13 +27,6 @@ export function Timeline({ items, accentColor }: TimelineProps) {
 
   return (
     <section ref={containerRef} className="py-16 px-4 relative overflow-hidden">
-      {/* Background decoration */}
-      <div 
-        className="absolute inset-0 opacity-30"
-        style={{
-          background: `radial-gradient(circle at 50% 50%, ${accentColor}08 0%, transparent 50%)`,
-        }}
-      />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -45,12 +38,12 @@ export function Timeline({ items, accentColor }: TimelineProps) {
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 text-gray-500 mb-3">
             <Clock className="h-5 w-5" style={{ color: accentColor }} />
-            <span className="text-sm font-medium tracking-wide uppercase">
-              Our Story
+            <span className="font-title text-sm tracking-[0.18em] uppercase">
+              Nossa história
             </span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-medium text-gray-800">
-            Through the Years
+          <h2 className="font-script text-5xl md:text-6xl leading-tight text-gray-800">
+            Ao longo dos anos
           </h2>
         </div>
 
@@ -151,7 +144,7 @@ function TimelineItem({ item, index, accentColor, isLeft, isInView }: TimelineIt
             )}
 
             {/* Title */}
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            <h3 className="font-title text-lg font-semibold text-gray-800 mb-2">
               {item.title}
             </h3>
 

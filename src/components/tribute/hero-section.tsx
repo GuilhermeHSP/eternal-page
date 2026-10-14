@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView, useReducedMotion } from 'framer-motion';
 import { HeroConfig } from '@/types/tribute';
 
 interface HeroSectionProps {
@@ -25,13 +25,16 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
 
+  const reduceMotion = useReducedMotion();
   const hasImage = config?.image;
   const gradientColor = config?.gradient || accentColor;
 
   return (
     <section 
       ref={containerRef}
-      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden"
+      className={`relative min-h-[85vh] flex justify-center overflow-hidden ${
+        hasImage ? 'items-end pt-24 pb-28 md:pb-32' : 'items-center py-24'
+      }`}
     >
       {/* Background */}
       {hasImage ? (
@@ -39,25 +42,35 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
           style={{ y }}
           className="absolute inset-0"
         >
-          <img
+          {/* Slow push-in, like the opening shot of a film */}
+          <motion.img
             src={config.image}
             alt=""
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[center_30%]"
+            initial={{ scale: 1 }}
+            animate={reduceMotion ? { scale: 1 } : { scale: 1.12 }}
+            transition={{ duration: 20, ease: 'easeOut' }}
           />
-          {/* Overlay */}
-          <div 
+          {/* Darken from the bottom up only, so the face stays clear and the text reads */}
+          <div
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%)`,
+              background:
+                'linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.45) 32%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.05) 100%)',
             }}
           />
+          {/* A light veil in the template's colour gives each template its own mood */}
           {config.overlay !== false && (
-            <div 
-              className="absolute inset-0 opacity-30"
-              style={{
-                background: `linear-gradient(135deg, ${gradientColor}40 0%, transparent 50%, ${gradientColor}20 100%)`,
-              }}
-            />
+            <>
+              <div
+                className="absolute inset-0"
+                style={{ backgroundColor: gradientColor, opacity: 0.35, mixBlendMode: 'soft-light' }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{ background: `linear-gradient(to top, ${gradientColor}55 0%, transparent 55%)` }}
+              />
+            </>
           )}
         </motion.div>
       ) : (
@@ -113,33 +126,37 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
               backdropFilter: hasImage ? 'blur(10px)' : 'none',
             }}
           >
-            A tribute for
+            Uma homenagem para
           </span>
         </motion.div>
 
-        {/* Recipient name */}
-        <motion.h2
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-xl md:text-2xl font-medium mb-4 tracking-wide"
-          style={{ 
-            color: hasImage ? 'rgba(255,255,255,0.85)' : `${accentColor}`,
-          }}
-        >
-          {recipient}
-        </motion.h2>
-
-        {/* Main title */}
+        {/* Recipient name, large and handwritten like an invitation */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="font-script text-6xl md:text-8xl lg:text-9xl leading-[1.05] mb-5 px-2"
+          style={{
+            color: hasImage ? '#fff' : accentColor,
+            textShadow: hasImage ? '0 2px 24px rgba(0,0,0,0.35)' : undefined,
+          }}
+        >
+          {recipient}
+        </motion.h1>
+
+        {/* Main title, light and spaced underneath */}
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-serif font-medium leading-tight mb-8"
-          style={{ color: hasImage ? '#fff' : '#1f2937' }}
+          className="font-title font-light uppercase text-xl md:text-3xl tracking-[0.14em] leading-snug mb-8 mx-auto max-w-[24ch] [text-wrap:balance]"
+          style={{
+            color: hasImage ? 'rgba(255,255,255,0.92)' : '#1f2937',
+            textShadow: hasImage ? '0 2px 16px rgba(0,0,0,0.35)' : undefined,
+          }}
         >
           {title}
-        </motion.h1>
+        </motion.p>
 
         {/* Decorative line */}
         <motion.div
@@ -154,38 +171,39 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
           />
         </motion.div>
 
-        {/* Scroll indicator */}
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : {}}
+        transition={{ duration: 0.6, delay: 0.8 }}
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10"
+      >
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.6, delay: 0.8 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="flex flex-col items-center gap-2"
         >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="flex flex-col items-center gap-2"
+          <span 
+            className="text-xs tracking-wider uppercase"
+            style={{ color: hasImage ? 'rgba(255,255,255,0.6)' : '#9ca3af' }}
           >
-            <span 
-              className="text-xs tracking-wider uppercase"
-              style={{ color: hasImage ? 'rgba(255,255,255,0.6)' : '#9ca3af' }}
-            >
-              Scroll
-            </span>
-            <div 
-              className="w-5 h-8 rounded-full border-2 flex justify-center pt-1.5"
-              style={{ 
-                borderColor: hasImage ? 'rgba(255,255,255,0.4)' : '#d1d5db',
-              }}
-            >
-              <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-1 h-2 rounded-full"
-                style={{ backgroundColor: hasImage ? 'rgba(255,255,255,0.6)' : accentColor }}
-              />
-            </div>
-          </motion.div>
+            Role
+          </span>
+          <div 
+            className="w-5 h-8 rounded-full border-2 flex justify-center pt-1.5"
+            style={{ 
+              borderColor: hasImage ? 'rgba(255,255,255,0.4)' : '#d1d5db',
+            }}
+          >
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-1 h-2 rounded-full"
+              style={{ backgroundColor: hasImage ? 'rgba(255,255,255,0.6)' : accentColor }}
+            />
+          </div>
         </motion.div>
       </motion.div>
     </section>

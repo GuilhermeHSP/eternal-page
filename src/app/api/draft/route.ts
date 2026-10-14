@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { nanoid } from 'nanoid';
+import { isValidHex, styleForColor } from '@/lib/colors';
 
 // GET - Retrieve a draft by ID
 export async function GET(request: NextRequest) {
@@ -69,6 +70,15 @@ export async function POST(request: NextRequest) {
       musicUrl,
       packageType,
       closingMessage,
+      accentColor,
+      counterDate,
+      counterLabel,
+      reasons,
+      voiceMessage,
+      guestbook,
+      authorName,
+      musicTitle,
+      envelope,
       photos = [],
       timeline = [],
     } = body;
@@ -82,9 +92,33 @@ export async function POST(request: NextRequest) {
     }
 
     // Build config JSON
+    // Voice messages are audio data URLs; anything else is dropped
+    const voice =
+      typeof voiceMessage === 'string' && voiceMessage.startsWith('data:audio/') && voiceMessage.length < 12_000_000
+        ? voiceMessage
+        : undefined;
+
+    // A colour the person picked overrides the template's own
     const config = {
       message: message || null,
       closingMessage: closingMessage || null,
+      ...(isValidHex(accentColor) ? { style: styleForColor(accentColor) } : {}),
+      ...(typeof counterDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(counterDate)
+        ? { counter: { date: counterDate, label: typeof counterLabel === 'string' ? counterLabel.slice(0, 40) : undefined } }
+        : {}),
+      ...(voice ? { voiceMessage: voice } : {}),
+      ...(guestbook === true ? { guestbook: true } : {}),
+      ...(typeof authorName === 'string' && authorName.trim() ? { authorName: authorName.trim().slice(0, 50) } : {}),
+      ...(typeof musicTitle === 'string' && musicTitle.trim() ? { musicTitle: musicTitle.trim().slice(0, 80) } : {}),
+      ...(envelope === false ? { envelope: false } : {}),
+      ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
+        ? {
+            reasons: reasons
+              .filter((r: unknown): r is string => typeof r === 'string' && !!r.trim())
+              .slice(0, 12)
+              .map((r: string) => r.trim().slice(0, 160)),
+          }
+        : {}),
     };
 
     // Generate slug if creating new draft

@@ -1,6 +1,8 @@
 'use client';
 
+import { SiteHeader } from '@/components/site-header';
 import { Suspense, useEffect, useState, useMemo } from 'react';
+import { QrCard } from '@/components/tribute/qr-card';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
@@ -21,12 +23,15 @@ function FinalizeContent() {
   const [error, setError] = useState<string | null>(null);
   const [slug, setSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [recipient, setRecipient] = useState<string | undefined>();
+  const [origin, setOrigin] = useState('');
+  useEffect(() => setOrigin(window.location.origin), []);
 
   const draftId = searchParams.get('draft_id');
-  const packageType = (searchParams.get('package') || 'plus') as PackageType;
+  const packageType = (searchParams.get('package') || 'premium') as PackageType;
 
   const pkg = useMemo(() => {
-    return PACKAGES[packageType] || PACKAGES.plus;
+    return PACKAGES[packageType] || PACKAGES.premium;
   }, [packageType]);
 
   useEffect(() => {
@@ -50,6 +55,11 @@ function FinalizeContent() {
         if (response.ok) {
           const data = await response.json();
           setSlug(data.slug);
+          // The name goes on the printable QR card
+          fetch(`/api/draft?id=${draftId}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => d?.recipient && setRecipient(d.recipient))
+            .catch(() => {});
         } else {
           const data = await response.json();
           setError(data.error || 'Failed to finalize tribute');
@@ -84,14 +94,15 @@ function FinalizeContent() {
 
   if (finalizing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24 px-4">
+        <SiteHeader />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md"
         >
-          <div className="w-20 h-20 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-          <h2 className="text-2xl font-serif font-medium text-gray-800 mb-2">
+          <div className="w-20 h-20 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <h2 className="text-2xl font-title font-semibold text-gray-800 mb-2">
             Finalizando sua Eternal Page...
           </h2>
           <p className="text-gray-500">
@@ -104,7 +115,8 @@ function FinalizeContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-red-50/30 to-white px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24 px-4">
+        <SiteHeader />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -115,7 +127,7 @@ function FinalizeContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-2xl font-serif font-medium text-gray-800 mb-2">
+          <h2 className="text-2xl font-title font-semibold text-gray-800 mb-2">
             Algo deu errado
           </h2>
           <p className="text-gray-500 mb-6">{error}</p>
@@ -128,7 +140,8 @@ function FinalizeContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24 px-4 py-12">
+      <SiteHeader />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -137,14 +150,14 @@ function FinalizeContent() {
         {/* Success card */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Success header */}
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-8 text-center">
+          <div className="bg-rose-500 p-8 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
               className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4"
             >
-              <CheckCircle className="h-10 w-10 text-green-500" />
+              <CheckCircle className="h-10 w-10 text-rose-500" />
             </motion.div>
             
             <motion.div
@@ -152,7 +165,7 @@ function FinalizeContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h1 className="text-2xl font-serif font-medium text-white mb-2">
+              <h1 className="text-2xl font-title font-semibold text-white mb-2">
                 Pagamento Confirmado!
               </h1>
               <p className="text-white/80">
@@ -201,7 +214,7 @@ function FinalizeContent() {
                   className="shrink-0"
                 >
                   {copied ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-rose-500" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
@@ -231,6 +244,12 @@ function FinalizeContent() {
               </Button>
             </div>
 
+            {slug && origin && (
+              <div className="mt-6">
+                <QrCard url={origin + "/" + slug} recipient={recipient} />
+              </div>
+            )}
+
             {/* Tips */}
             <div className="mt-6 pt-6 border-t border-gray-100">
               <div className="flex items-start gap-3 text-left">
@@ -238,7 +257,7 @@ function FinalizeContent() {
                 <div>
                   <p className="text-sm font-medium text-gray-800">Dica</p>
                   <p className="text-xs text-gray-500">
-                    Salve este link! Sua Eternal Page estará disponível permanentemente neste endereço.
+                    Salve este link! É nele que sua Eternal Page fica disponível durante o período do seu pacote.
                     Compartilhe com amigos e família.
                   </p>
                 </div>
@@ -265,14 +284,15 @@ function FinalizeContent() {
 export default function FinalizePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24 px-4">
+        <SiteHeader />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md"
         >
-          <div className="w-20 h-20 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-          <h2 className="text-2xl font-serif font-medium text-gray-800 mb-2">
+          <div className="w-20 h-20 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <h2 className="text-2xl font-title font-semibold text-gray-800 mb-2">
             Carregando...
           </h2>
         </motion.div>

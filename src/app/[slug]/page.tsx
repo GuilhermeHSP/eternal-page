@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
+import { getPackage, type PackageType } from '@/lib/packages';
 import { TributeViewer } from '@/components/tribute/tribute-viewer';
 import { TributeConfig } from '@/types/tribute';
 
@@ -22,25 +24,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
 
     if (!tribute) {
-      return { title: 'Tribute Not Found | EternalPage' };
+      return { title: 'Homenagem não encontrada' };
     }
 
     const config = JSON.parse(tribute.config) as TributeConfig;
     const heroImage = config.hero?.image || tribute.heroImage;
 
     return {
-      title: `${tribute.title} | EternalPage`,
-      description: `A heartfelt tribute for ${tribute.recipient}`,
+      title: tribute.title,
+      description: `Uma homenagem para ${tribute.recipient}`,
       openGraph: {
         title: tribute.title,
-        description: `A heartfelt tribute for ${tribute.recipient}`,
+        description: `Uma homenagem para ${tribute.recipient}`,
         images: heroImage ? [{ url: heroImage }] : [],
         type: 'website',
       },
     };
   } catch (e) {
     console.error('Error in generateMetadata:', e);
-    return { title: 'Tribute | EternalPage' };
+    return { title: 'Homenagem' };
   }
 }
 
@@ -71,7 +73,59 @@ export default async function TributePage({ params }: PageProps) {
     data: { viewCount: { increment: 1 } },
   }).catch((e) => console.error('Failed to increment view count:', e));
 
-  const config = JSON.parse(tribute.config) as TributeConfig;
+  // The tap-to-open envelope is part of the Completo package,
+  // and can be turned off by the giver.
+  const config = buildConfig(tribute);
+  const showIntro = getPackage((tribute.packageType as PackageType) || 'basic').limits.envelope && config.envelope !== false;
 
-  return <TributeViewer config={config} slug={tribute.slug} />;
+  return <TributeViewer config={config} slug={tribute.slug} showIntro={showIntro} />;
+}
+
+type TributeWithRelations = Prisma.TributeGetPayload<{ include: { photos: true; timeline: true } }>;
+
+// Seeded tributes store the whole page in `config`; pages made in the creator keep their content
+// in the columns and relations (and only message/closing in `config`), so build it from those.
+function buildConfig(tribute: TributeWithRelations): TributeConfig {
+  let stored: Partial<TributeConfig> = {};
+  try {
+    stored = JSON.parse(tribute.config) || {};
+  } catch {
+    // ignore malformed config
+  }
+  if (typeof stored.title === 'string' && typeof stored.template === 'string') {
+    return stored as TributeConfig;
+  }
+
+  return {
+    title: tribute.title,
+    recipient: tribute.recipient,
+    template: tribute.templateId,
+    hero: tribute.heroImage ? { image: tribute.heroImage, overlay: true } : undefined,
+    music: tribute.musicUrl
+      ? { url: tribute.musicUrl, autoplay: false, title: (stored as { musicTitle?: string }).musicTitle }
+      : undefined,
+    message: tribute.message ? { text: tribute.message } : undefined,
+    gallery: tribute.photos.map((p, i) => ({
+      id: p.id,
+      url: p.url,
+      caption: p.caption ?? undefined,
+      order: p.order ?? i,
+    })),
+    timeline: tribute.timeline.map((t, i) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description ?? undefined,
+      year: t.year ?? undefined,
+      imageUrl: t.imageUrl ?? undefined,
+      order: t.order ?? i,
+    })),
+    closingMessage: tribute.closingMessage ?? undefined,
+    style: stored.style,
+    counter: stored.counter,
+    reasons: stored.reasons,
+    voiceMessage: stored.voiceMessage,
+    guestbook: stored.guestbook,
+    authorName: stored.authorName,
+    envelope: stored.envelope,
+  };
 }

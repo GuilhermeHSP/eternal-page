@@ -1,244 +1,204 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Music, Pause, Play, Volume2, VolumeX } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { MusicConfig } from '@/types/tribute';
+
+const MUSIC_VOLUME = 0.5;
+const MUSIC_UNDER_VOICE = 0.08;
 
 interface MusicPlayerProps {
   config: MusicConfig;
   accentColor: string;
 }
 
+// The page's song, as a slim bar along the bottom: play, what's playing, mute, and a thin
+// progress line you can tap to jump.
 export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  const [volume, setVolume] = useState(0.5);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    const handleTimeUpdate = () => {
-      setProgress(audio.currentTime);
-    };
-
-    const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setProgress(0);
-    };
-
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('ended', handleEnded);
-
+    audio.volume = MUSIC_VOLUME;
+    const onTime = () => setProgress(audio.currentTime);
+    const onMeta = () => setDuration(audio.duration);
+    const onPlay = () => setIsPlaying(true);
+    const onPause = () => setIsPlaying(false);
+    audio.addEventListener('timeupdate', onTime);
+    audio.addEventListener('loadedmetadata', onMeta);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onPause);
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener('timeupdate', onTime);
+      audio.removeEventListener('loadedmetadata', onMeta);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onPause);
     };
   }, []);
 
+  // While the voice message plays the song fades down to a whisper, then back up after.
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume;
-    }
-  }, [volume]);
+    let frame = 0;
+    const fadeTo = (target: number) => {
+      cancelAnimationFrame(frame);
+      const step = () => {
+        const audio = audioRef.current;
+        if (!audio) return;
+        const diff = target - audio.volume;
+        if (Math.abs(diff) < 0.02) {
+          audio.volume = target;
+          return;
+        }
+        audio.volume = Math.min(1, Math.max(0, audio.volume + Math.sign(diff) * 0.02));
+        frame = requestAnimationFrame(step);
+      };
+      step();
+    };
+    // iPhones don't let a page change the volume; there the song pauses and resumes instead.
+    let pausedForVoice = false;
+    const onVoice = (e: Event) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      const voiceOn = (e as CustomEvent<boolean>).detail;
+      const before = audio.volume;
+      audio.volume = before > 0.25 ? before - 0.01 : before + 0.01;
+      const canSetVolume = audio.volume !== before;
+      audio.volume = before;
+      if (canSetVolume) {
+        fadeTo(voiceOn ? MUSIC_UNDER_VOICE : MUSIC_VOLUME);
+      } else if (voiceOn && !audio.paused) {
+        pausedForVoice = true;
+        audio.pause();
+      } else if (!voiceOn && pausedForVoice) {
+        pausedForVoice = false;
+        audio.play().catch(() => {});
+      }
+    };
+    window.addEventListener('eternalpage:voice', onVoice);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('eternalpage:voice', onVoice);
+    };
+  }, []);
 
-  const togglePlay = async () => {
+  // Opening the envelope is a tap, so the browser allows the music to start right then.
+  useEffect(() => {
+    const onOpen = () => {
+      const audio = audioRef.current;
+      if (!audio || !audio.paused) return;
+      audio.play().catch(() => {});
+    };
+    window.addEventListener('eternalpage:open', onOpen);
+    return () => window.removeEventListener('eternalpage:open', onOpen);
+  }, []);
+
+  const togglePlay = () => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    try {
-      if (isPlaying) {
-        audio.pause();
-      } else {
-        await audio.play();
-      }
-      setIsPlaying(!isPlaying);
-    } catch (error) {
-      console.log('Audio playback failed:', error);
-    }
+    if (audio.paused) audio.play().catch(() => {});
+    else audio.pause();
   };
 
   const toggleMute = () => {
-    if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
-    }
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.muted = !isMuted;
+    setIsMuted(!isMuted);
   };
 
-  const handleSeek = (value: number[]) => {
+  const seek = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
-    if (audio) {
-      audio.currentTime = value[0];
-      setProgress(value[0]);
-    }
+    if (!audio || !duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    audio.currentTime = ((e.clientX - rect.left) / rect.width) * duration;
   };
 
   const formatTime = (time: number) => {
+    if (!Number.isFinite(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const percent = duration ? (progress / duration) * 100 : 0;
+
   return (
     <>
       <audio ref={audioRef} src={config.url} preload="metadata" loop />
 
-      {/* Floating music player */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed bottom-4 right-4 z-50"
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md shadow-[0_-4px_20px_rgba(0,0,0,0.06)]"
+        role="region"
+        aria-label="Música da homenagem"
       >
-        <motion.div
-          layout
-          className="bg-white/95 backdrop-blur-md rounded-full shadow-lg border border-gray-100 overflow-hidden"
-          style={{ borderColor: `${accentColor}20` }}
-        >
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="px-4 pt-3 pb-2"
-              >
-                {/* Progress bar */}
-                <div className="mb-2 w-48">
-                  <Slider
-                    value={[progress]}
-                    max={duration || 100}
-                    step={0.1}
-                    onValueChange={handleSeek}
-                    className="cursor-pointer"
-                    style={{
-                      // @ts-expect-error custom style
-                      '--slider-color': accentColor,
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1 font-mono">
-                    <span>{formatTime(progress)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
+        {/* Progress: a thin line along the top edge, tap to jump */}
+        <div className="relative h-1.5 -mt-0.5 cursor-pointer group" onClick={seek}>
+          <div className="absolute inset-x-0 top-0.5 h-1 bg-gray-100" />
+          <div
+            className="absolute left-0 top-0.5 h-1 transition-[width] duration-200"
+            style={{ width: `${percent}%`, backgroundColor: accentColor }}
+          />
+        </div>
 
-                {/* Volume control */}
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={toggleMute}
-                  >
-                    {isMuted ? (
-                      <VolumeX className="h-4 w-4" />
-                    ) : (
-                      <Volume2 className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Slider
-                    value={[isMuted ? 0 : volume * 100]}
-                    max={100}
-                    step={1}
-                    onValueChange={(v) => {
-                      setVolume(v[0] / 100);
-                      if (v[0] > 0) setIsMuted(false);
-                    }}
-                    className="w-20 cursor-pointer"
-                  />
-                </div>
-
-                {/* Song info */}
-                {config.title && (
-                  <div className="mt-2 text-xs text-gray-500 text-center">
-                    <span className="font-medium" style={{ color: accentColor }}>
-                      {config.title}
-                    </span>
-                    {config.artist && <span> • {config.artist}</span>}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Main controls */}
-          <div className="flex items-center p-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={togglePlay}
-              className="h-10 w-10 rounded-full transition-all"
-              style={{
-                backgroundColor: isPlaying ? `${accentColor}15` : 'transparent',
-                color: accentColor,
-              }}
-            >
-              {isPlaying ? (
-                <Pause className="h-5 w-5" />
-              ) : (
-                <Play className="h-5 w-5 ml-0.5" />
-              )}
-            </Button>
-
-            <motion.div
-              className="flex items-center gap-1 cursor-pointer px-2"
-              onClick={() => setIsExpanded(!isExpanded)}
-              whileHover={{ scale: 1.02 }}
-            >
-              <Music
-                className="h-4 w-4"
-                style={{ color: accentColor }}
-              />
-              <span className="text-xs text-gray-500 font-medium">
-                {isPlaying ? 'Playing' : 'Music'}
-              </span>
-            </motion.div>
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* Visual playing indicator */}
-      <AnimatePresence>
-        {isPlaying && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed bottom-20 right-4 z-40"
+        <div className="max-w-2xl mx-auto flex items-center gap-3 px-4 py-2.5">
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={isPlaying ? 'Pausar música' : 'Tocar música'}
+            className="press shrink-0 h-11 w-11 rounded-full flex items-center justify-center text-white shadow-md"
+            style={{ backgroundColor: accentColor }}
           >
-            <div className="flex items-end gap-0.5 h-4">
-              {[1, 2, 3, 4].map((i) => (
-                <motion.div
-                  key={i}
-                  className="w-1 rounded-full"
-                  style={{ backgroundColor: accentColor }}
-                  animate={{
-                    height: ['100%', '40%', '100%'],
-                  }}
-                  transition={{
-                    duration: 0.5,
-                    repeat: Infinity,
-                    delay: i * 0.1,
-                    ease: 'easeInOut',
-                  }}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            {isPlaying ? <Pause className="h-5 w-5" fill="currentColor" /> : <Play className="h-5 w-5 ml-0.5" fill="currentColor" />}
+          </button>
+
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 text-[11px] font-title uppercase tracking-[0.18em]" style={{ color: accentColor }}>
+              {isPlaying ? (
+                <span className="flex items-end gap-0.5 h-3" aria-hidden="true">
+                  {[0, 1, 2, 3].map((i) => (
+                    <motion.span
+                      key={i}
+                      className="w-0.5 rounded-full"
+                      style={{ backgroundColor: accentColor }}
+                      animate={{ height: ['100%', '35%', '100%'] }}
+                      transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.12, ease: 'easeInOut' }}
+                    />
+                  ))}
+                </span>
+              ) : (
+                <Music className="h-3 w-3" />
+              )}
+              {isPlaying ? 'Tocando agora' : 'Toque para ouvir'}
+            </p>
+            <p className="truncate text-sm text-gray-800">
+              <span className="font-semibold">{config.title || 'Nossa música'}</span>
+              {config.artist && <span className="text-gray-500"> · {config.artist}</span>}
+            </p>
+          </div>
+
+          <span className="hidden sm:block shrink-0 text-xs text-gray-400 tabular-nums">
+            {formatTime(progress)} / {formatTime(duration)}
+          </span>
+
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={isMuted ? 'Ativar som' : 'Silenciar'}
+            className="shrink-0 h-9 w-9 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100"
+          >
+            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </button>
+        </div>
+      </motion.div>
     </>
   );
 }

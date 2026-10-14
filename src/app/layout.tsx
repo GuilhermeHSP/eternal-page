@@ -15,24 +15,25 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "EternalPage - Create Beautiful Tribute Pages",
+    default: "EternalPage · Páginas de homenagem para presentear",
     template: "%s | EternalPage",
   },
-  description: "Create beautiful, personalized tribute pages for your loved ones. Add photos, music, messages, and share with a unique link. Perfect for birthdays, anniversaries, Mother's Day, Father's Day, and more.",
-  keywords: ["tribute page", "memorial", "birthday tribute", "anniversary", "personalized gift", "digital tribute", "memory page"],
+  description: "Crie uma página de homenagem para quem você ama, com fotos, música, mensagens e linha do tempo, e envie o link de presente. Perfeito para Dia das Mães, Dia dos Pais, aniversários, bodas e mais.",
+  keywords: ["página de homenagem", "presente personalizado", "homenagem dia das mães", "homenagem dia dos pais", "bodas", "aniversário", "presente digital"],
   authors: [{ name: "EternalPage" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
-    title: "EternalPage - Create Beautiful Tribute Pages",
-    description: "Create beautiful, personalized tribute pages for your loved ones in minutes.",
+    title: "EternalPage · Páginas de homenagem para presentear",
+    description: "Crie uma página de homenagem para quem você ama em poucos minutos.",
     type: "website",
+    locale: "pt_BR",
   },
   twitter: {
     card: "summary_large_image",
-    title: "EternalPage - Create Beautiful Tribute Pages",
-    description: "Create beautiful, personalized tribute pages for your loved ones in minutes.",
+    title: "EternalPage · Páginas de homenagem para presentear",
+    description: "Crie uma página de homenagem para quem você ama em poucos minutos.",
   },
 };
 
@@ -42,11 +43,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Josefin+Sans:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}

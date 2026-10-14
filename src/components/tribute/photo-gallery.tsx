@@ -28,12 +28,12 @@ export function PhotoGallery({ photos, accentColor }: PhotoGalleryProps) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 text-gray-500 mb-3">
             <Camera className="h-5 w-5" style={{ color: accentColor }} />
-            <span className="text-sm font-medium tracking-wide uppercase">
-              Memories
+            <span className="font-title text-sm tracking-[0.18em] uppercase">
+              Memórias
             </span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-medium text-gray-800">
-            Captured Moments
+          <h2 className="font-script text-5xl md:text-6xl leading-tight text-gray-800">
+            Momentos guardados
           </h2>
         </div>
 
@@ -98,7 +98,7 @@ function PolaroidPhoto({ photo, index, accentColor, isInView }: PolaroidPhotoPro
         <div className="relative aspect-square overflow-hidden bg-gray-100">
           <img
             src={photo.url}
-            alt={photo.caption || 'Memory photo'}
+            alt={photo.caption || 'Foto de lembrança'}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           
@@ -115,8 +115,8 @@ function PolaroidPhoto({ photo, index, accentColor, isInView }: PolaroidPhotoPro
         <div className="absolute bottom-2 left-3 right-3">
           {photo.caption ? (
             <p 
-              className="text-center text-sm text-gray-600 font-handwriting truncate"
-              style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic' }}
+              className="font-script text-center text-gray-700 truncate"
+              style={{ fontSize: '1.25rem', lineHeight: 1.2 }}
             >
               {photo.caption}
             </p>
@@ -172,12 +172,12 @@ export function PhotoCarousel({ photos, accentColor }: PhotoCarouselProps) {
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 text-gray-500 mb-3">
             <Camera className="h-5 w-5" style={{ color: accentColor }} />
-            <span className="text-sm font-medium tracking-wide uppercase">
-              Gallery
+            <span className="font-title text-sm tracking-[0.18em] uppercase">
+              Galeria
             </span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-serif font-medium text-gray-800">
-            Our Journey Together
+          <h2 className="font-script text-5xl md:text-6xl leading-tight text-gray-800">
+            Nossa jornada juntos
           </h2>
         </div>
 
@@ -197,7 +197,7 @@ export function PhotoCarousel({ photos, accentColor }: PhotoCarouselProps) {
               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg group">
                 <img
                   src={photo.url}
-                  alt={photo.caption || 'Memory photo'}
+                  alt={photo.caption || 'Foto de lembrança'}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 {/* Gradient overlay */}
