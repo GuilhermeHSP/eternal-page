@@ -47,6 +47,7 @@ import { PACKAGES, PACKAGE_LIST, formatPrice, getPackage } from '@/lib/packages'
 import { LivePreview, type PreviewSection } from './live-preview';
 import { PlanCard } from '@/components/pricing/plan-card';
 import { VoiceRecorder } from './voice-recorder';
+import { CoachMarks } from './coach-marks';
 import { fileToResizedDataUrl } from '@/lib/image';
 import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
@@ -547,6 +548,28 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   const [navEl, setNavEl] = useState<HTMLDivElement | null>(null);
   const [navOnScreen, setNavOnScreen] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  // First time a phone visitor reaches the occasion step, a short tour points at the preview
+  // button and at Continuar/Próximo. Shown once per browser.
+  const [showTour, setShowTour] = useState(false);
+  useEffect(() => {
+    if (currentStep !== 1 || window.innerWidth >= 1024) return;
+    try {
+      if (localStorage.getItem('eternalpage-tour-done')) return;
+    } catch {
+      return;
+    }
+    const t = window.setTimeout(() => setShowTour(true), 700);
+    return () => window.clearTimeout(t);
+  }, [currentStep]);
+  const endTour = () => {
+    setShowTour(false);
+    try {
+      localStorage.setItem('eternalpage-tour-done', '1');
+    } catch {
+      // private mode: the tour may show again next time
+    }
+  };
   useEffect(() => {
     if (!navEl || !('IntersectionObserver' in window)) return;
     const io = new IntersectionObserver(([entry]) => setNavOnScreen(entry.isIntersecting));
@@ -1685,6 +1708,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               type="button"
               variant="outline"
               onClick={() => setPreviewOpen(true)}
+              data-tour="preview"
               className="lg:hidden gap-1.5 text-rose-600 border-rose-200"
             >
               <Eye className="h-4 w-4" />
@@ -1695,6 +1719,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           {currentStep < steps.length - 1 ? (
             <Button
               type="button"
+              data-tour="continue"
               onClick={goNext}
               className="bg-rose-500 hover:bg-rose-600 gap-2"
             >
@@ -1728,12 +1753,31 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     {!navOnScreen && (
       <button
         type="button"
+        data-tour="continue"
         onClick={continueDown}
         className="fixed bottom-6 left-4 lg:left-[calc(50%-10rem)] lg:-translate-x-1/2 z-40 inline-flex items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
       >
         Continuar
         <ChevronDown className="h-4 w-4 animate-bounce" />
       </button>
+    )}
+
+    {showTour && (
+      <CoachMarks
+        onDone={endTour}
+        marks={[
+          {
+            target: 'preview',
+            title: 'Veja como está ficando',
+            text: 'Toque em "Ver prévia" depois de cada escolha para ver a página exatamente como a pessoa vai receber.',
+          },
+          {
+            target: 'continue',
+            title: 'Siga pela etapa',
+            text: 'O "Continuar" desce até o próximo campo. No fim da etapa aparece o "Próximo" para seguir.',
+          },
+        ]}
+      />
     )}
 
     {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} open={previewOpen} onOpenChange={setPreviewOpen} hideButton={navOnScreen} />}
