@@ -205,6 +205,7 @@ export const DEMO_CONFIG = {
       'Vó, obrigado por **cada domingo** na sua cozinha, pelas histórias antes de dormir e pelo colo que nunca faltou. Esta página guarda um pouco de tudo o que você construiu.',
     typingAnimation: false,
   },
+  counter: { date: '1938-05-14', label: 'Juntos há' },
   gallery: [
     { id: 'g1', url: '/acervo/familia-1942.jpg', caption: 'O almoço de 1942', order: 0 },
     { id: 'g2', url: '/acervo/vestido-floral.jpg', caption: 'O vestido de domingo', order: 1 },

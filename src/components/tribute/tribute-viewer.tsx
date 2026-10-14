@@ -11,6 +11,7 @@ import { PhotoGallery, PhotoCarousel } from './photo-gallery';
 import { Timeline } from './timeline';
 import { ShareSection } from './share-section';
 import { EnvelopeIntro } from './envelope-intro';
+import { CounterSection } from './counter-section';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -124,6 +125,13 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
             recipient={config.recipient}
           />
         )}
+        </div>
+
+        {/* Time together */}
+        <div data-preview="counter">
+          {config.counter?.date && (
+            <CounterSection config={config.counter} accentColor={templateStyle.accentColor} />
+          )}
         </div>
 
         {/* Photo Gallery */}

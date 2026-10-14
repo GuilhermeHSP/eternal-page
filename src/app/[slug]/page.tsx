@@ -113,5 +113,6 @@ function buildConfig(tribute: TributeWithRelations): TributeConfig {
     })),
     closingMessage: tribute.closingMessage ?? undefined,
     style: stored.style,
+    counter: stored.counter,
   };
 }

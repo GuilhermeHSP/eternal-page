@@ -147,6 +147,7 @@ function PreviewContent() {
       })) || [],
       closingMessage: draft.closingMessage,
       style: (draft.config?.style as TributeConfig['style']) || undefined,
+      counter: (draft.config?.counter as TributeConfig['counter']) || undefined,
     };
   }, [draft]);
 

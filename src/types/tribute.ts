@@ -29,6 +29,12 @@ export interface HeroConfig {
   overlay?: boolean;
 }
 
+// A live counter from a special date ("Juntos há 32 anos, 4 meses..."), or a countdown to it.
+export interface CounterConfig {
+  date: string; // ISO date, e.g. 1992-06-12
+  label?: string;
+}
+
 export interface MessageConfig {
   text: string;
   typingAnimation?: boolean;
@@ -85,6 +91,7 @@ export interface TributeConfig {
   gallery?: PhotoConfig[];
   timeline?: TimelineItemConfig[];
   closingMessage?: string;
+  counter?: CounterConfig;
   
   // Styling overrides
   style?: Partial<StyleConfig>;

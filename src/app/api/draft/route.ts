@@ -71,6 +71,8 @@ export async function POST(request: NextRequest) {
       packageType,
       closingMessage,
       accentColor,
+      counterDate,
+      counterLabel,
       photos = [],
       timeline = [],
     } = body;
@@ -89,6 +91,9 @@ export async function POST(request: NextRequest) {
       message: message || null,
       closingMessage: closingMessage || null,
       ...(isValidHex(accentColor) ? { style: styleForColor(accentColor) } : {}),
+      ...(typeof counterDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(counterDate)
+        ? { counter: { date: counterDate, label: typeof counterLabel === 'string' ? counterLabel.slice(0, 40) : undefined } }
+        : {}),
     };
 
     // Generate slug if creating new draft

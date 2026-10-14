@@ -52,6 +52,8 @@ const tributeSchema = z.object({
   heroImage: z.string().optional(),
   musicUrl: z.string().optional(),
   closingMessage: z.string().max(500).optional(),
+  counterDate: z.string().optional(),
+  counterLabel: z.string().max(40).optional(),
 });
 
 type FormData = z.infer<typeof tributeSchema>;
@@ -152,6 +154,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           setValue('heroImage', data.heroImage || '');
           setValue('musicUrl', data.musicUrl || '');
           setValue('closingMessage', data.closingMessage || '');
+          if (data.config?.counter?.date) {
+            setValue('counterDate', data.config.counter.date);
+            setValue('counterLabel', data.config.counter.label || '');
+          }
           if (isValidHex(data.config?.style?.accentColor)) setCustomColor(data.config.style.accentColor);
           
           // Set package
@@ -427,6 +433,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         musicUrl: finalMusicUrl,
         musicTitle: finalMusicTitle,
         closingMessage: data.closingMessage || '',
+        counterDate: data.counterDate || undefined,
+        counterLabel: data.counterLabel || undefined,
         accentColor: customColor || undefined,
         packageType: selectedPackage,
         photos: photos.map((p, i) => ({
@@ -517,6 +525,11 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       .map((t, i) => ({ id: t.id, title: t.title || 'Momento', description: t.description, year: t.year, imageUrl: t.imageUrl, order: i })),
     closingMessage: values.closingMessage || (previewFocus === 'closing' ? 'Sua mensagem de encerramento aparece aqui.' : undefined),
     style: customColor ? (styleForColor(customColor) as TributeConfig['style']) : undefined,
+    counter: values.counterDate
+      ? { date: values.counterDate, label: values.counterLabel }
+      : previewFocus === 'counter'
+        ? { date: '2000-01-01', label: values.counterLabel || 'Juntos há' }
+        : undefined,
   };
   const focusOn = (section: PreviewSection) => () => setPreviewFocus(section);
 
@@ -880,6 +893,40 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       <span className="text-xs">JPG ou PNG, até 15 MB</span>
                     </button>
                   )}
+                </div>
+
+                {/* Time-together counter */}
+                <div className="rounded-xl border border-gray-100 bg-white p-4">
+                  <Label htmlFor="counterDate">Contador de tempo (opcional)</Label>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    Uma data especial: o dia em que se conheceram, o casamento, o nascimento. A página mostra o tempo
+                    passando ao vivo. Se a data for no futuro, vira uma contagem regressiva.
+                  </p>
+                  <div className="mt-3 grid sm:grid-cols-[180px_1fr] gap-3">
+                    <Input
+                      id="counterDate"
+                      type="date"
+                      {...register('counterDate')}
+                      onFocus={focusOn('counter')}
+                    />
+                    <Input
+                      id="counterLabel"
+                      placeholder="Juntos há"
+                      maxLength={40}
+                      list="counter-labels"
+                      aria-label="Frase do contador"
+                      {...register('counterLabel')}
+                      onFocus={focusOn('counter')}
+                    />
+                    <datalist id="counter-labels">
+                      <option value="Juntos há" />
+                      <option value="Casados há" />
+                      <option value="Te amo há" />
+                      <option value="Você chegou há" />
+                      <option value="Amigos há" />
+                      <option value="Saudade há" />
+                    </datalist>
+                  </div>
                 </div>
 
                 <div>
