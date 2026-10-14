@@ -67,7 +67,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
         <Templates onPick={(templateId) => start({ templateId })} />
         <Pricing onPick={(packageType) => start({ packageType })} />
         <Faq />
-        <FinalCta name={name} onNameChange={setName} onStart={() => start()} />
+        <FinalCta onStart={() => start()} />
       </main>
       <Footer />
       <MobileCta onStart={() => start()} />
@@ -159,18 +159,7 @@ function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: 
           </p>
 
           <form data-cta-anchor onSubmit={submit} className="mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
-            <label htmlFor="hero-name" className="block text-sm font-semibold text-gray-700">
-              Para quem é a homenagem?
-            </label>
-            <input
-              id="hero-name"
-              value={name}
-              onChange={(e) => onNameChange(e.target.value)}
-              placeholder="Digite o nome"
-              maxLength={50}
-              autoComplete="off"
-              className="mt-2 w-full h-12 px-4 rounded-xl border border-gray-200 bg-white text-gray-800 placeholder:text-gray-400 outline-none focus-visible:border-rose-400 focus-visible:ring-4 focus-visible:ring-rose-100"
-            />
+            <p className="text-sm font-semibold text-gray-700">Qual é a ocasião?</p>
             <div role="group" aria-label="Ocasião" className="mt-3 flex flex-wrap gap-2">
               {OCCASIONS.map((o, i) => (
                 <button
@@ -195,7 +184,7 @@ function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: 
             </button>
             <p className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-gray-500">
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Prévia grátis</span>
-              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pagamento único a partir de {formatPrice(LOWEST_PRICE)}</span>
+              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pagamento único</span>
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pronta em minutos</span>
             </p>
           </form>
@@ -204,7 +193,7 @@ function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: 
         <div className="flex flex-col items-center" data-reveal style={delay(1)}>
           <PhoneFrame config={config} focus="hero" width={280} />
           <p className="mt-4 text-sm text-gray-500 text-center max-w-[260px]">
-            Assim abre a página que {recipient} vai receber. Mude o nome e a ocasião para ver.
+            Assim abre a página que a pessoa vai receber. Troque a ocasião para ver.
           </p>
         </div>
       </div>
@@ -462,32 +451,22 @@ function Faq() {
 
 /* ------------------------------------------------------------------ */
 
-function FinalCta({ name, onNameChange, onStart }: { name: string; onNameChange: (v: string) => void; onStart: () => void }) {
-  const submit = (e: FormEvent) => {
-    e.preventDefault();
-    onStart();
-  };
+function FinalCta({ onStart }: { onStart: () => void }) {
   return (
     <section className="px-4 py-20">
       <div className="max-w-4xl mx-auto rounded-[2rem] bg-rose-500 px-6 py-14 md:px-14 text-center text-white relative overflow-hidden">
         <Heart className="absolute -right-10 -bottom-10 h-56 w-56 text-white/10" fill="currentColor" aria-hidden="true" />
         <h2 className="font-script text-5xl md:text-6xl leading-tight">Faça alguém se emocionar hoje</h2>
         <p className="mt-4 text-white/90 max-w-xl mx-auto">Comece agora. Você só paga quando a página estiver do jeito que você quer.</p>
-        <form data-cta-anchor onSubmit={submit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto relative">
-          <label htmlFor="final-name" className="sr-only">Nome de quem vai receber</label>
-          <input
-            id="final-name"
-            value={name}
-            onChange={(e) => onNameChange(e.target.value)}
-            placeholder="Nome de quem você ama"
-            maxLength={50}
-            autoComplete="off"
-            className="flex-1 h-14 px-5 rounded-full bg-white text-gray-800 placeholder:text-gray-400 outline-none focus-visible:ring-4 focus-visible:ring-white/40"
-          />
-          <button type="submit" className="press h-14 px-8 rounded-full bg-gray-900 hover:bg-black text-white font-semibold">
-            Criar homenagem
-          </button>
-        </form>
+        <button
+          data-cta-anchor
+          type="button"
+          onClick={onStart}
+          className="press relative mt-8 inline-flex items-center gap-2 h-14 px-10 rounded-full bg-white text-rose-600 text-lg font-semibold hover:bg-rose-50"
+        >
+          <Heart className="h-5 w-5" fill="currentColor" />
+          Criar minha homenagem
+        </button>
       </div>
     </section>
   );

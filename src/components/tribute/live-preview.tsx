@@ -44,6 +44,18 @@ export function PhoneFrame({ config, focus, width }: { config: TributeConfig; fo
     if (ready) send();
   }, [ready, send]);
 
+  // If the frame finished loading before this page hydrated, both its "ready" message and the
+  // load event were missed; keep offering the page for a few seconds until it shows.
+  useEffect(() => {
+    let tries = 0;
+    const timer = window.setInterval(() => {
+      tries += 1;
+      send();
+      if (tries >= 10) window.clearInterval(timer);
+    }, 400);
+    return () => window.clearInterval(timer);
+  }, [send]);
+
   return (
     <div
       className="relative mx-auto rounded-[2.4rem] bg-gray-900 p-2.5 shadow-2xl"
