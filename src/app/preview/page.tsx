@@ -146,6 +146,7 @@ function PreviewContent() {
         order: t.order ?? i,
       })) || [],
       closingMessage: draft.closingMessage,
+      style: (draft.config?.style as TributeConfig['style']) || undefined,
     };
   }, [draft]);
 

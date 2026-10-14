@@ -33,10 +33,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { templateList, categories } from '@/lib/templates';
-import { TemplateStyleConfig, PackageType } from '@/types/tribute';
+import { TemplateStyleConfig } from '@/types/tribute';
+import type { PackageType } from '@/lib/packages';
 import { PACKAGES, PACKAGE_LIST, formatPrice, getPackage } from '@/lib/packages';
 import { LivePreview, type PreviewSection } from './live-preview';
 import { fileToResizedDataUrl } from '@/lib/image';
+import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
 
 const tributeSchema = z.object({
@@ -87,13 +89,16 @@ interface TributeCreatorProps {
   editDraftId?: string | null;
   initialRecipient?: string;
   initialTemplateId?: string;
+  initialPackage?: PackageType;
 }
 
-export function TributeCreator({ editDraftId, initialRecipient, initialTemplateId }: TributeCreatorProps) {
+export function TributeCreator({ editDraftId, initialRecipient, initialTemplateId, initialPackage }: TributeCreatorProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(null);
+  // A colour picked by the person; null keeps the template's own colour.
+  const [customColor, setCustomColor] = useState<string | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(initialPackage ?? null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
   const [musicFile, setMusicFile] = useState<MusicFile | null>(null);
@@ -144,6 +149,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           setValue('heroImage', data.heroImage || '');
           setValue('musicUrl', data.musicUrl || '');
           setValue('closingMessage', data.closingMessage || '');
+          if (isValidHex(data.config?.style?.accentColor)) setCustomColor(data.config.style.accentColor);
           
           // Set package
           if (data.packageType) {
@@ -418,6 +424,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         musicUrl: finalMusicUrl,
         musicTitle: finalMusicTitle,
         closingMessage: data.closingMessage || '',
+        accentColor: customColor || undefined,
         packageType: selectedPackage,
         photos: photos.map((p, i) => ({
           url: p.url,
@@ -506,6 +513,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       .filter((t) => t.title || t.year)
       .map((t, i) => ({ id: t.id, title: t.title || 'Momento', description: t.description, year: t.year, imageUrl: t.imageUrl, order: i })),
     closingMessage: values.closingMessage || (previewFocus === 'closing' ? 'Sua mensagem de encerramento aparece aqui.' : undefined),
+    style: customColor ? (styleForColor(customColor) as TributeConfig['style']) : undefined,
   };
   const focusOn = (section: PreviewSection) => () => setPreviewFocus(section);
 
@@ -734,6 +742,59 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               {errors.templateId && (
                 <p className="text-sm text-red-500">{errors.templateId.message}</p>
               )}
+
+              {/* Colour: each person has their own taste, whatever the occasion */}
+              <div className="mt-10 rounded-2xl border border-gray-100 bg-white p-5">
+                <div className="flex items-baseline justify-between gap-4">
+                  <h3 className="font-medium text-gray-800">Cor da homenagem</h3>
+                  {customColor && (
+                    <button type="button" onClick={() => setCustomColor(null)} className="text-sm text-gray-500 hover:text-pink-600">
+                      Usar a cor do modelo
+                    </button>
+                  )}
+                </div>
+                <p className="text-sm text-gray-500 mt-1">Escolha a cor que combina com quem vai receber. Ela muda os detalhes, o fundo e os efeitos da página.</p>
+                <div role="radiogroup" aria-label="Cor da homenagem" className="mt-4 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={!customColor}
+                    onClick={() => setCustomColor(null)}
+                    title="Cor do modelo"
+                    className={`h-10 px-3 rounded-full text-xs font-medium border transition-colors ${!customColor ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-500 hover:border-gray-400'}`}
+                  >
+                    <span className="inline-block w-3 h-3 rounded-full mr-1.5 align-middle" style={{ backgroundColor: selectedTemplate?.accentColor }} />
+                    Do modelo
+                  </button>
+                  {TRIBUTE_COLORS.map((c) => (
+                    <button
+                      key={c.hex}
+                      type="button"
+                      role="radio"
+                      aria-checked={customColor === c.hex}
+                      aria-label={c.name}
+                      title={c.name}
+                      onClick={() => setCustomColor(c.hex)}
+                      className={`w-10 h-10 rounded-full transition-transform hover:scale-110 ${customColor === c.hex ? 'ring-2 ring-offset-2 ring-gray-900' : ''}`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                  <label
+                    title="Outra cor"
+                    className={`relative w-10 h-10 rounded-full cursor-pointer overflow-hidden border-2 border-dashed border-gray-300 hover:border-gray-500 flex items-center justify-center ${customColor && !TRIBUTE_COLORS.some((c) => c.hex === customColor) ? 'ring-2 ring-offset-2 ring-gray-900' : ''}`}
+                    style={customColor && !TRIBUTE_COLORS.some((c) => c.hex === customColor) ? { backgroundColor: customColor, borderStyle: 'solid' } : undefined}
+                  >
+                    <Plus className="h-4 w-4 text-gray-500" />
+                    <span className="sr-only">Outra cor</span>
+                    <input
+                      type="color"
+                      value={customColor || selectedTemplate?.accentColor || '#e11d48'}
+                      onChange={(e) => setCustomColor(e.target.value)}
+                      className="absolute inset-0 opacity-0 cursor-pointer"
+                    />
+                  </label>
+                </div>
+              </div>
             </motion.div>
           )}
 

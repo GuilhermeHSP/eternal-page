@@ -112,5 +112,6 @@ function buildConfig(tribute: TributeWithRelations): TributeConfig {
       order: t.order ?? i,
     })),
     closingMessage: tribute.closingMessage ?? undefined,
+    style: stored.style,
   };
 }

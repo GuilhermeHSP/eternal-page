@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { nanoid } from 'nanoid';
+import { isValidHex, styleForColor } from '@/lib/colors';
 
 // GET - Retrieve a draft by ID
 export async function GET(request: NextRequest) {
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
       musicUrl,
       packageType,
       closingMessage,
+      accentColor,
       photos = [],
       timeline = [],
     } = body;
@@ -82,9 +84,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Build config JSON
+    // A colour the person picked overrides the template's own
     const config = {
       message: message || null,
       closingMessage: closingMessage || null,
+      ...(isValidHex(accentColor) ? { style: styleForColor(accentColor) } : {}),
     };
 
     // Generate slug if creating new draft
