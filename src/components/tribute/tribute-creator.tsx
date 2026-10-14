@@ -30,6 +30,9 @@ import {
   CircleDot,
   Mic,
   Mail,
+  PenLine,
+  ChevronDown,
+  Eye,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,11 +99,12 @@ const REASON_PLACEHOLDERS = [
 const steps = [
   { id: 0, title: 'Plano', icon: Package },
   { id: 1, title: 'Template', icon: Sparkles },
-  { id: 2, title: 'Dados', icon: Heart },
-  { id: 3, title: 'Fotos', icon: ImagePlus },
-  { id: 4, title: 'Timeline', icon: Calendar },
-  { id: 5, title: 'Voz', icon: Mic },
-  { id: 6, title: 'Música', icon: Music },
+  { id: 2, title: 'Para quem', icon: Heart },
+  { id: 3, title: 'Detalhes', icon: PenLine },
+  { id: 4, title: 'Fotos', icon: ImagePlus },
+  { id: 5, title: 'Timeline', icon: Calendar },
+  { id: 6, title: 'Voz', icon: Mic },
+  { id: 7, title: 'Música', icon: Music },
 ];
 
 interface TributeCreatorProps {
@@ -315,7 +319,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   // The timeline step opens with one empty moment already showing, so it's clear what to fill in.
   // Empty moments are dropped when the page is saved.
   useEffect(() => {
-    if (currentStep !== 4) return;
+    if (currentStep !== 5) return;
     setTimelineItems((prev) =>
       prev.length ? prev : [{ id: `timeline-${Date.now()}`, title: '', description: '', year: '', imageUrl: '' }]
     );
@@ -536,6 +540,27 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   };
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
+  // Until the step's Voltar/Próximo row is on screen, a "Continuar" button takes the person
+  // down to the next field, so nobody moves on without seeing everything the step asks.
+  const formRef = useRef<HTMLFormElement>(null);
+  // The row only exists once a loaded draft has rendered, so it's tracked through a callback ref.
+  const [navEl, setNavEl] = useState<HTMLDivElement | null>(null);
+  const [navOnScreen, setNavOnScreen] = useState(true);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  useEffect(() => {
+    if (!navEl || !('IntersectionObserver' in window)) return;
+    const io = new IntersectionObserver(([entry]) => setNavOnScreen(entry.isIntersecting));
+    io.observe(navEl);
+    return () => io.disconnect();
+  }, [navEl]);
+  const continueDown = () => {
+    const fields = Array.from(formRef.current?.querySelectorAll<HTMLElement>('label, h3') ?? []);
+    const next = fields.find((el) => el.getBoundingClientRect().top > window.innerHeight * 0.7);
+    const target = next ?? navEl;
+    if (!target) return;
+    window.scrollTo({ top: window.scrollY + target.getBoundingClientRect().top - 96, behavior: 'smooth' });
+  };
+
   // Scroll to top when step changes (for mobile UX)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -544,7 +569,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   // Live preview: the page as it stands, with placeholders where nothing is written yet.
   const [previewFocus, setPreviewFocus] = useState<PreviewSection>('hero');
   useEffect(() => {
-    const byStep: Record<number, PreviewSection> = { 1: 'hero', 2: 'hero', 3: 'gallery', 4: 'timeline', 5: 'voice', 6: 'hero' };
+    const byStep: Record<number, PreviewSection> = { 1: 'hero', 2: 'hero', 3: 'message', 4: 'gallery', 5: 'timeline', 6: 'voice', 7: 'hero' };
     setPreviewFocus(byStep[currentStep] ?? 'hero');
   }, [currentStep]);
   const values = watch();
@@ -604,7 +629,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between relative">
-          <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-100">
+          <div className="absolute top-4 sm:top-5 left-0 right-0 h-0.5 bg-gray-100">
             <motion.div
               className="h-full bg-rose-500"
               initial={{ width: '0%' }}
@@ -624,16 +649,16 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="relative z-10 flex flex-col items-center"
             >
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all ${
                   currentStep >= step.id
                     ? 'bg-rose-500 text-white'
                     : 'bg-gray-100 text-gray-400'
                 }`}
               >
-                <step.icon className="h-5 w-5" />
+                <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <span
-                className={`text-xs mt-2 font-medium ${
+                className={`text-[10px] sm:text-xs mt-1.5 sm:mt-2 font-medium leading-tight text-center max-w-[3.25rem] sm:max-w-none ${
                   currentStep >= step.id ? 'text-gray-700' : 'text-gray-400'
                 }`}
               >
@@ -645,7 +670,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       </div>
 
       {/* Form */}
-      <form 
+      <form
+        ref={formRef}
         onSubmit={(e) => {
           // Prevent any automatic form submission
           e.preventDefault();
@@ -813,7 +839,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             </motion.div>
           )}
 
-          {/* Step 2: Basic Details */}
+          {/* Step 2: Who it is for */}
           {currentStep === 2 && (
             <motion.div
               key="step2"
@@ -824,10 +850,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-title font-semibold text-gray-800">
-                  Conte sua História
+                  Para quem é a homenagem
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Compartilhe os detalhes da sua homenagem
+                  O nome, o título e a foto que abrem a página
                 </p>
               </div>
 
@@ -873,21 +899,6 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     className="mt-1.5"
                   />
                   <p className="text-xs text-gray-400 mt-1">Assina a carta e a despedida: "Com amor, Raquel".</p>
-                </div>
-
-                <div>
-                  <Label htmlFor="message">Sua Mensagem</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Escreva sua mensagem de carinho aqui..."
-                    rows={6}
-                    {...register('message')}
-                    onFocus={focusOn('message')}
-                    className="mt-1.5 resize-none"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Dica: Use **texto** para destacar frases importantes
-                  </p>
                 </div>
 
                 <div>
@@ -937,6 +948,45 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     </button>
                   )}
                 </div>
+
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3: The letter and the details */}
+          {currentStep === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-title font-semibold text-gray-800">
+                  Conte sua história
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  A carta e os detalhes que deixam a página única
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="message">Sua Mensagem</Label>
+                  <Textarea
+                    id="message"
+                    placeholder="Escreva sua mensagem de carinho aqui..."
+                    rows={6}
+                    {...register('message')}
+                    onFocus={focusOn('message')}
+                    className="mt-1.5 resize-none"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    Dica: Use **texto** para destacar frases importantes
+                  </p>
+                </div>
+
 
                 {/* Time-together counter */}
                 <div className="rounded-xl border border-gray-100 bg-white p-4">
@@ -1057,10 +1107,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             </motion.div>
           )}
 
-          {/* Step 3: Photos */}
-          {currentStep === 3 && (
+          {/* Step 4: Photos */}
+          {currentStep === 4 && (
             <motion.div
-              key="step3"
+              key="step4"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -1160,10 +1210,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             </motion.div>
           )}
 
-          {/* Step 4: Timeline */}
-          {currentStep === 4 && (
+          {/* Step 5: Timeline */}
+          {currentStep === 5 && (
             <motion.div
-              key="step4"
+              key="step5"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -1325,10 +1375,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             </motion.div>
           )}
 
-          {/* Step 5: Voice message */}
-          {currentStep === 5 && (
+          {/* Step 6: Voice message */}
+          {currentStep === 6 && (
             <motion.div
-              key="step5"
+              key="step6"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -1375,10 +1425,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             </motion.div>
           )}
 
-          {/* Step 6: Music */}
-          {currentStep === 6 && (
+          {/* Step 7: Music */}
+          {currentStep === 7 && (
             <motion.div
-              key="step6"
+              key="step7"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -1617,7 +1667,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
         {/* Navigation sits at the end of each step, on phones too, so moving on means having
             scrolled past everything the step asks for. */}
-        <div className="flex justify-between mt-8 pt-6 border-t">
+        <div ref={setNavEl} className="flex items-center justify-between gap-2 mt-8 pt-6 border-t">
           <Button
             type="button"
             variant="ghost"
@@ -1628,6 +1678,19 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             <ChevronLeft className="h-4 w-4" />
             Voltar
           </Button>
+
+          {/* On phones the preview button joins this row instead of floating over it */}
+          {currentStep >= 1 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPreviewOpen(true)}
+              className="lg:hidden gap-1.5 text-rose-600 border-rose-200"
+            >
+              <Eye className="h-4 w-4" />
+              Prévia
+            </Button>
+          )}
 
           {currentStep < steps.length - 1 ? (
             <Button
@@ -1662,7 +1725,18 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       </form>
     </div>
 
-    {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} />}
+    {!navOnScreen && (
+      <button
+        type="button"
+        onClick={continueDown}
+        className="fixed bottom-6 left-4 lg:left-[calc(50%-10rem)] lg:-translate-x-1/2 z-40 inline-flex items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
+      >
+        Continuar
+        <ChevronDown className="h-4 w-4 animate-bounce" />
+      </button>
+    )}
+
+    {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} open={previewOpen} onOpenChange={setPreviewOpen} hideButton={navOnScreen} />}
     </div>
   );
 }

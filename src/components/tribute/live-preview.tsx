@@ -10,6 +10,12 @@ interface LivePreviewProps {
   config: TributeConfig;
   focus: PreviewSection;
   accentColor: string;
+  // On phones the preview opens as an overlay; the creator controls it so it can also offer
+  // the button in its own Voltar/Próximo row.
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  // Hides the floating "Ver prévia" button (while the creator shows its own).
+  hideButton?: boolean;
 }
 
 // The real tribute page in a phone frame, so the person sees what each field builds while
@@ -83,8 +89,7 @@ export function PhoneFrame({ config, focus, width }: { config: TributeConfig; fo
   );
 }
 
-export function LivePreview({ config, focus, accentColor }: LivePreviewProps) {
-  const [open, setOpen] = useState(false);
+export function LivePreview({ config, focus, accentColor, open, onOpenChange: setOpen, hideButton = false }: LivePreviewProps) {
   const [isDesktop, setIsDesktop] = useState(false);
 
   // Only one frame is mounted at a time: beside the form on wide screens, in an overlay on phones.
@@ -110,6 +115,7 @@ export function LivePreview({ config, focus, accentColor }: LivePreviewProps) {
 
   return (
     <>
+      {!hideButton && (
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -119,6 +125,7 @@ export function LivePreview({ config, focus, accentColor }: LivePreviewProps) {
         <Eye className="h-4 w-4" />
         Ver prévia
       </button>
+      )}
       {open && (
         <div
           className="fixed inset-0 z-[60] bg-black/70 flex flex-col items-center justify-center p-4"
