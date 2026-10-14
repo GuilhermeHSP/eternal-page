@@ -1,6 +1,7 @@
 'use client';
 
 import { Suspense, useEffect, useState, useMemo } from 'react';
+import { QrCard } from '@/components/tribute/qr-card';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
@@ -21,6 +22,9 @@ function FinalizeContent() {
   const [error, setError] = useState<string | null>(null);
   const [slug, setSlug] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [recipient, setRecipient] = useState<string | undefined>();
+  const [origin, setOrigin] = useState('');
+  useEffect(() => setOrigin(window.location.origin), []);
 
   const draftId = searchParams.get('draft_id');
   const packageType = (searchParams.get('package') || 'plus') as PackageType;
@@ -50,6 +54,11 @@ function FinalizeContent() {
         if (response.ok) {
           const data = await response.json();
           setSlug(data.slug);
+          // The name goes on the printable QR card
+          fetch(`/api/draft?id=${draftId}`)
+            .then((r) => (r.ok ? r.json() : null))
+            .then((d) => d?.recipient && setRecipient(d.recipient))
+            .catch(() => {});
         } else {
           const data = await response.json();
           setError(data.error || 'Failed to finalize tribute');
@@ -230,6 +239,12 @@ function FinalizeContent() {
                 Compartilhar no WhatsApp
               </Button>
             </div>
+
+            {slug && origin && (
+              <div className="mt-6">
+                <QrCard url={origin + "/" + slug} recipient={recipient} />
+              </div>
+            )}
 
             {/* Tips */}
             <div className="mt-6 pt-6 border-t border-gray-100">
