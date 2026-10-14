@@ -107,9 +107,9 @@ export function VoiceRecorder({ value, onChange, onFocus }: VoiceRecorderProps) 
 
   return (
     <div className="rounded-xl border border-gray-100 bg-white p-4">
-      <p className="font-medium text-gray-800">Mensagem de voz (opcional)</p>
+      <p className="font-medium text-gray-800">Sua gravação</p>
       <p className="text-xs text-gray-400 mt-0.5">
-        Grave até 2 minutos com a sua voz. A pessoa ouve na página, num player só para isso.
+        Procure um lugar silencioso e fale com calma, como se ela estivesse ouvindo agora. Ou envie um áudio já gravado.
       </p>
 
       {value ? (

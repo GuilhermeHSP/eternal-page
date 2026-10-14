@@ -77,6 +77,8 @@ export async function POST(request: NextRequest) {
       voiceMessage,
       guestbook,
       authorName,
+      musicTitle,
+      envelope,
       photos = [],
       timeline = [],
     } = body;
@@ -107,6 +109,8 @@ export async function POST(request: NextRequest) {
       ...(voice ? { voiceMessage: voice } : {}),
       ...(guestbook === true ? { guestbook: true } : {}),
       ...(typeof authorName === 'string' && authorName.trim() ? { authorName: authorName.trim().slice(0, 50) } : {}),
+      ...(typeof musicTitle === 'string' && musicTitle.trim() ? { musicTitle: musicTitle.trim().slice(0, 80) } : {}),
+      ...(envelope === false ? { envelope: false } : {}),
       ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
         ? {
             reasons: reasons

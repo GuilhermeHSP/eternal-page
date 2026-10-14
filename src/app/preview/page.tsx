@@ -126,6 +126,7 @@ function PreviewContent() {
       music: draft.musicUrl ? {
         url: draft.musicUrl,
         autoplay: false,
+        title: (draft.config?.musicTitle as string) || undefined,
       } : undefined,
       message: draft.message ? {
         text: draft.message,
@@ -152,6 +153,7 @@ function PreviewContent() {
       voiceMessage: (draft.config?.voiceMessage as string) || undefined,
       guestbook: draft.config?.guestbook === true,
       authorName: (draft.config?.authorName as string) || undefined,
+      envelope: draft.config?.envelope === false ? false : undefined,
     };
   }, [draft]);
 
@@ -210,7 +212,7 @@ function PreviewContent() {
         <div className="relative">
           <WatermarkOverlay />
           {tributeConfig && (
-            <TributeViewer config={tributeConfig} slug={draft.slug || draft.id} showShare={false} showBackButton={false} showIntro={packageInfo.limits.envelope} />
+            <TributeViewer config={tributeConfig} slug={draft.slug || draft.id} showShare={false} showBackButton={false} showIntro={packageInfo.limits.envelope && tributeConfig.envelope !== false} />
           )}
         </div>
 

@@ -28,6 +28,8 @@ import {
   Star,
   Flower2,
   CircleDot,
+  Mic,
+  Mail,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -97,7 +99,8 @@ const steps = [
   { id: 2, title: 'Dados', icon: Heart },
   { id: 3, title: 'Fotos', icon: ImagePlus },
   { id: 4, title: 'Timeline', icon: Calendar },
-  { id: 5, title: 'Música', icon: Music },
+  { id: 5, title: 'Voz', icon: Mic },
+  { id: 6, title: 'Música', icon: Music },
 ];
 
 interface TributeCreatorProps {
@@ -116,6 +119,9 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   const [reasons, setReasons] = useState<string[]>([]);
   const [voiceMessage, setVoiceMessage] = useState<string | null>(null);
   const [guestbook, setGuestbook] = useState(true);
+  // Completo pages open with the envelope unless the giver turns it off.
+  const [envelope, setEnvelope] = useState(true);
+  const [musicTitle, setMusicTitle] = useState('');
   const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(initialPackage ?? null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
@@ -170,6 +176,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           if (Array.isArray(data.config?.reasons)) setReasons(data.config.reasons);
           if (typeof data.config?.voiceMessage === 'string') setVoiceMessage(data.config.voiceMessage);
           setGuestbook(data.config?.guestbook === true);
+          setEnvelope(data.config?.envelope !== false);
+          if (typeof data.config?.musicTitle === 'string') setMusicTitle(data.config.musicTitle);
           if (data.config?.authorName) setValue('authorName', data.config.authorName);
           if (data.config?.counter?.date) {
             setValue('counterDate', data.config.counter.date);
@@ -304,6 +312,15 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     ]);
   };
 
+  // The timeline step opens with one empty moment already showing, so it's clear what to fill in.
+  // Empty moments are dropped when the page is saved.
+  useEffect(() => {
+    if (currentStep !== 4) return;
+    setTimelineItems((prev) =>
+      prev.length ? prev : [{ id: `timeline-${Date.now()}`, title: '', description: '', year: '', imageUrl: '' }]
+    );
+  }, [currentStep]);
+
   const updateTimelineItem = (id: string, field: keyof TimelineItem, value: string) => {
     setTimelineItems((prev) =>
       prev.map((t) => (t.id === id ? { ...t, [field]: value } : t))
@@ -437,7 +454,6 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     try {
       // Use music URL from either uploaded file or direct URL
       const finalMusicUrl = musicFile?.url || data.musicUrl || '';
-      const finalMusicTitle = musicFile?.name || '';
 
       // Prepare payload for draft
       const payload = {
@@ -448,7 +464,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         message: data.message || '',
         heroImage: data.heroImage || '',
         musicUrl: finalMusicUrl,
-        musicTitle: finalMusicTitle,
+        musicTitle: finalMusicUrl ? musicTitle.trim() || undefined : undefined,
+        envelope: packageLimits?.envelope ? envelope : undefined,
         closingMessage: data.closingMessage || '',
         counterDate: data.counterDate || undefined,
         counterLabel: data.counterLabel || undefined,
@@ -527,7 +544,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   // Live preview: the page as it stands, with placeholders where nothing is written yet.
   const [previewFocus, setPreviewFocus] = useState<PreviewSection>('hero');
   useEffect(() => {
-    const byStep: Record<number, PreviewSection> = { 1: 'hero', 2: 'hero', 3: 'gallery', 4: 'timeline', 5: 'hero' };
+    const byStep: Record<number, PreviewSection> = { 1: 'hero', 2: 'hero', 3: 'gallery', 4: 'timeline', 5: 'voice', 6: 'hero' };
     setPreviewFocus(byStep[currentStep] ?? 'hero');
   }, [currentStep]);
   const values = watch();
@@ -756,6 +773,41 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       className="absolute inset-0 opacity-0 cursor-pointer"
                     />
                   </label>
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-100">
+                <p className="text-sm font-medium text-gray-700 mb-3">Como a página abre</p>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  {[
+                    { value: true, title: 'Com envelope surpresa', text: 'A pessoa toca no envelope para abrir a homenagem.', icon: Mail },
+                    { value: false, title: 'Direto na homenagem', text: 'A página já abre na foto e no nome.', icon: Heart },
+                  ].map((opt) => {
+                    const locked = opt.value && packageLimits && !packageLimits.envelope;
+                    const active = !locked && (packageLimits?.envelope ? envelope === opt.value : !opt.value);
+                    return (
+                      <button
+                        key={opt.title}
+                        type="button"
+                        disabled={!!locked}
+                        onClick={() => setEnvelope(opt.value)}
+                        aria-pressed={active}
+                        className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
+                          active ? 'border-rose-500 bg-rose-50/60 ring-1 ring-rose-500' : 'border-gray-200 hover:border-rose-200'
+                        } ${locked ? 'opacity-60 cursor-not-allowed hover:border-gray-200' : ''}`}
+                      >
+                        <span className={`shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${active ? 'bg-rose-500 text-white' : 'bg-rose-50 text-rose-500'}`}>
+                          <opt.icon className="h-4 w-4" />
+                        </span>
+                        <span>
+                          <span className="block text-sm font-semibold text-gray-800">{opt.title}</span>
+                          <span className="block text-xs text-gray-500 mt-0.5">
+                            {locked ? 'Disponível no pacote Completo.' : opt.text}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </motion.div>
@@ -1133,7 +1185,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 <p className="text-gray-500 text-sm mt-1">
                   {packageLimits && (
                     <>
-                      Adicione até {packageLimits.timelineMoments === 999 ? 'ilimitados' : packageLimits.timelineMoments} momentos especiais
+                      {packageLimits.timelineMoments === 999 ? 'Adicione quantos momentos especiais quiser' : `Adicione até ${packageLimits.timelineMoments} momentos especiais`}
                       {packageLimits.timelineMoments !== 999 && ` (${timelineItems.length}/${packageLimits.timelineMoments} adicionados)`}
                     </>
                   )}
@@ -1273,10 +1325,60 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             </motion.div>
           )}
 
-          {/* Step 5: Music */}
+          {/* Step 5: Voice message */}
           {currentStep === 5 && (
             <motion.div
               key="step5"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-title font-semibold text-gray-800">
+                  Mensagem de voz
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  Grave até 2 minutos com a sua voz. Quem recebe ouve na própria página (opcional)
+                </p>
+              </div>
+
+              {packageLimits && !packageLimits.music ? (
+                <div className="bg-rose-50 border border-rose-100 rounded-xl p-6 text-center">
+                  <Mic className="h-12 w-12 mx-auto text-rose-300 mb-4" />
+                  <h3 className="text-lg font-medium text-rose-700 mb-2">
+                    Mensagem de voz não disponível no plano {getPackage(selectedPackage!).displayName}
+                  </h3>
+                  <p className="text-rose-700 text-sm mb-4">
+                    Escolha o pacote Completo para gravar uma mensagem com a sua voz.
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-rose-500 text-rose-500 hover:bg-rose-100"
+                    onClick={() => setCurrentStep(0)}
+                  >
+                    Ver Planos
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <VoiceRecorder value={voiceMessage} onChange={setVoiceMessage} onFocus={focusOn('voice')} />
+                  <p className="text-center text-gray-400 text-sm">
+                    Quando a pessoa der play na sua voz, a música de fundo abaixa sozinha.
+                  </p>
+                  <p className="text-center text-gray-400 text-sm">
+                    Você pode pular esta etapa se não quiser gravar
+                  </p>
+                </>
+              )}
+            </motion.div>
+          )}
+
+          {/* Step 6: Music */}
+          {currentStep === 6 && (
+            <motion.div
+              key="step6"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -1469,6 +1571,21 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     </TabsContent>
                   </Tabs>
 
+                  <div>
+                    <Label htmlFor="musicTitle">Nome da música (opcional)</Label>
+                    <Input
+                      id="musicTitle"
+                      placeholder="Ex.: Como é grande o meu amor por você"
+                      maxLength={80}
+                      value={musicTitle}
+                      onChange={(e) => setMusicTitle(e.target.value)}
+                      className="mt-1.5"
+                    />
+                    <p className="text-xs text-gray-400 mt-1">
+                      Aparece na faixa da música, embaixo da página. Se deixar em branco, fica "Nossa música".
+                    </p>
+                  </div>
+
                   {/* Tips */}
                   <div className="bg-gray-50 rounded-lg p-4">
                     <p className="text-sm text-gray-600 mb-2">
@@ -1481,8 +1598,6 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       <li>• Mantenha o arquivo abaixo de 10MB para melhor performance</li>
                     </ul>
                   </div>
-
-                  <VoiceRecorder value={voiceMessage} onChange={setVoiceMessage} onFocus={focusOn('voice')} />
 
                   <p className="text-center text-gray-400 text-sm">
                     Você pode pular esta etapa se não quiser música
@@ -1523,35 +1638,24 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <div className="flex gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={prevStep}
-                className="gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                Voltar
-              </Button>
-              <Button
-                type="button"
-                onClick={() => handleSubmit(onSubmit)()}
-                disabled={isSubmitting}
-                className="bg-rose-500 hover:bg-rose-600 gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Criando...
-                  </>
-                ) : (
-                  <>
-                    <Heart className="h-4 w-4" />
-                    Gerar Preview
-                  </>
-                )}
-              </Button>
-            </div>
+            <Button
+              type="button"
+              onClick={() => handleSubmit(onSubmit)()}
+              disabled={isSubmitting}
+              className="bg-rose-500 hover:bg-rose-600 gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Criando...
+                </>
+              ) : (
+                <>
+                  <Heart className="h-4 w-4" />
+                  Gerar prévia
+                </>
+              )}
+            </Button>
           )}
         </div>
       </form>
@@ -1594,7 +1698,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               ) : (
                 <>
                   <Heart className="h-4 w-4" />
-                  Gerar Preview
+                  Gerar prévia
                 </>
               )}
             </Button>

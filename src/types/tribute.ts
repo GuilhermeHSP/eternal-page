@@ -102,6 +102,8 @@ export interface TributeConfig {
   // Metadata
   createdAt?: string;
   authorName?: string;
+  // False when the giver chose to open straight on the page, without the envelope.
+  envelope?: boolean;
 }
 
 // Form data for creating/updating tributes

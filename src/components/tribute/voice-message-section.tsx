@@ -13,7 +13,7 @@ interface VoiceMessageSectionProps {
 const BARS = [18, 30, 22, 40, 26, 46, 32, 20, 38, 28, 44, 24, 34, 16, 30, 42, 22, 36, 26, 18, 32, 40, 24, 30];
 
 // A recorded message from the giver, with one big play button and a simple waveform that fills
-// as it plays. Pauses the background music while the voice plays.
+// as it plays. The background music drops to a whisper while the voice plays.
 export function VoiceMessageSection({ url, accentColor, authorName }: VoiceMessageSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
@@ -29,11 +29,22 @@ export function VoiceMessageSection({ url, accentColor, authorName }: VoiceMessa
       setPlaying(false);
       setProgress(0);
     };
+    // Tell the music player, which lowers itself while the voice plays.
+    const announce = (on: boolean) => () => window.dispatchEvent(new CustomEvent('eternalpage:voice', { detail: on }));
+    const onPlay = announce(true);
+    const onStop = announce(false);
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('ended', onEnd);
+    audio.addEventListener('play', onPlay);
+    audio.addEventListener('pause', onStop);
+    audio.addEventListener('ended', onStop);
     return () => {
       audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('ended', onEnd);
+      audio.removeEventListener('play', onPlay);
+      audio.removeEventListener('pause', onStop);
+      audio.removeEventListener('ended', onStop);
+      onStop();
     };
   }, []);
 
@@ -45,8 +56,6 @@ export function VoiceMessageSection({ url, accentColor, authorName }: VoiceMessa
       setPlaying(false);
       return;
     }
-    // Quiet any other audio on the page (the background music) while the voice plays.
-    document.querySelectorAll('audio').forEach((a) => a !== audio && a.pause());
     try {
       await audio.play();
       setPlaying(true);

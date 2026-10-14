@@ -73,10 +73,12 @@ export default async function TributePage({ params }: PageProps) {
     data: { viewCount: { increment: 1 } },
   }).catch((e) => console.error('Failed to increment view count:', e));
 
-  // The tap-to-open envelope is part of the Completo package
-  const showIntro = getPackage((tribute.packageType as PackageType) || 'basic').limits.envelope;
+  // The tap-to-open envelope is part of the Completo package,
+  // and can be turned off by the giver.
+  const config = buildConfig(tribute);
+  const showIntro = getPackage((tribute.packageType as PackageType) || 'basic').limits.envelope && config.envelope !== false;
 
-  return <TributeViewer config={buildConfig(tribute)} slug={tribute.slug} showIntro={showIntro} />;
+  return <TributeViewer config={config} slug={tribute.slug} showIntro={showIntro} />;
 }
 
 type TributeWithRelations = Prisma.TributeGetPayload<{ include: { photos: true; timeline: true } }>;
@@ -99,7 +101,9 @@ function buildConfig(tribute: TributeWithRelations): TributeConfig {
     recipient: tribute.recipient,
     template: tribute.templateId,
     hero: tribute.heroImage ? { image: tribute.heroImage, overlay: true } : undefined,
-    music: tribute.musicUrl ? { url: tribute.musicUrl, autoplay: false } : undefined,
+    music: tribute.musicUrl
+      ? { url: tribute.musicUrl, autoplay: false, title: (stored as { musicTitle?: string }).musicTitle }
+      : undefined,
     message: tribute.message ? { text: tribute.message } : undefined,
     gallery: tribute.photos.map((p, i) => ({
       id: p.id,
@@ -122,5 +126,6 @@ function buildConfig(tribute: TributeWithRelations): TributeConfig {
     voiceMessage: stored.voiceMessage,
     guestbook: stored.guestbook,
     authorName: stored.authorName,
+    envelope: stored.envelope,
   };
 }

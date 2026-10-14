@@ -5,6 +5,9 @@ import { motion } from 'framer-motion';
 import { Music, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { MusicConfig } from '@/types/tribute';
 
+const MUSIC_VOLUME = 0.5;
+const MUSIC_UNDER_VOICE = 0.08;
+
 interface MusicPlayerProps {
   config: MusicConfig;
   accentColor: string;
@@ -22,7 +25,7 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = 0.5;
+    audio.volume = MUSIC_VOLUME;
     const onTime = () => setProgress(audio.currentTime);
     const onMeta = () => setDuration(audio.duration);
     const onPlay = () => setIsPlaying(true);
@@ -36,6 +39,51 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
       audio.removeEventListener('loadedmetadata', onMeta);
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
+    };
+  }, []);
+
+  // While the voice message plays the song fades down to a whisper, then back up after.
+  useEffect(() => {
+    let frame = 0;
+    const fadeTo = (target: number) => {
+      cancelAnimationFrame(frame);
+      const step = () => {
+        const audio = audioRef.current;
+        if (!audio) return;
+        const diff = target - audio.volume;
+        if (Math.abs(diff) < 0.02) {
+          audio.volume = target;
+          return;
+        }
+        audio.volume = Math.min(1, Math.max(0, audio.volume + Math.sign(diff) * 0.02));
+        frame = requestAnimationFrame(step);
+      };
+      step();
+    };
+    // iPhones don't let a page change the volume; there the song pauses and resumes instead.
+    let pausedForVoice = false;
+    const onVoice = (e: Event) => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      const voiceOn = (e as CustomEvent<boolean>).detail;
+      const before = audio.volume;
+      audio.volume = before > 0.25 ? before - 0.01 : before + 0.01;
+      const canSetVolume = audio.volume !== before;
+      audio.volume = before;
+      if (canSetVolume) {
+        fadeTo(voiceOn ? MUSIC_UNDER_VOICE : MUSIC_VOLUME);
+      } else if (voiceOn && !audio.paused) {
+        pausedForVoice = true;
+        audio.pause();
+      } else if (!voiceOn && pausedForVoice) {
+        pausedForVoice = false;
+        audio.play().catch(() => {});
+      }
+    };
+    window.addEventListener('eternalpage:voice', onVoice);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('eternalpage:voice', onVoice);
     };
   }, []);
 
@@ -129,10 +177,10 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
               ) : (
                 <Music className="h-3 w-3" />
               )}
-              {isPlaying ? 'Tocando agora' : 'Nossa música'}
+              {isPlaying ? 'Tocando agora' : 'Toque para ouvir'}
             </p>
             <p className="truncate text-sm text-gray-800">
-              <span className="font-semibold">{config.title || 'Toque para ouvir'}</span>
+              <span className="font-semibold">{config.title || 'Nossa música'}</span>
               {config.artist && <span className="text-gray-500"> · {config.artist}</span>}
             </p>
           </div>
