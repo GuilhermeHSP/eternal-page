@@ -11,7 +11,7 @@ interface PricingSectionProps {
 
 export function PricingSection({ onSelectPackage }: PricingSectionProps) {
   return (
-    <section className="py-20 px-4 bg-white">
+    <section className="py-20 px-4 bg-tone">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <motion.div
@@ -20,14 +20,14 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-rose-50 text-rose-600 text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tone text-ink text-sm font-medium mb-4">
             <Sparkles className="h-4 w-4" />
             Escolha seu pacote
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-medium text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-medium text-ink mb-4">
             Crie sua Eternal Page
           </h2>
-          <p className="text-gray-500 max-w-xl mx-auto">
+          <p className="text-soft max-w-xl mx-auto">
             Escolha o pacote perfeito para sua homenagem. Cada página é única e permanente.
           </p>
         </motion.div>
@@ -41,16 +41,16 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className={`relative rounded-2xl p-6 ${
+              className={`relative rounded-none p-6 ${
                 pkg.highlighted
-                  ? 'bg-gradient-to-b from-rose-50 to-white border-2 border-rose-200 shadow-xl scale-105'
-                  : 'bg-white border border-gray-200 shadow-lg'
+                  ? 'bg-paper border-2 border-ink  scale-105'
+                  : 'bg-tone border border-border '
               }`}
             >
               {/* Popular badge */}
               {pkg.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-rose-500 text-white text-xs font-semibold">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-ink text-paper text-xs font-semibold">
                     <Crown className="h-3 w-3" />
                     Mais Popular
                   </span>
@@ -59,27 +59,27 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
 
               {/* Package name */}
               <div className="text-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-1">
+                <h3 className="text-xl font-semibold text-ink mb-1">
                   {pkg.name}
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-soft">
                   {pkg.description}
                 </p>
               </div>
 
               {/* Price */}
               <div className="text-center mb-6">
-                <span className="text-4xl font-bold text-gray-900">
+                <span className="text-4xl font-bold text-ink">
                   {formatPrice(pkg.price, pkg.currency)}
                 </span>
-                <span className="text-gray-500 text-sm ml-1">/ único</span>
+                <span className="text-soft text-sm ml-1">/ único</span>
               </div>
 
               {/* Features list */}
               <ul className="space-y-3 mb-6">
                 {pkg.features.map((feature, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                    <Check className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
+                  <li key={i} className="flex items-start gap-2 text-sm text-soft">
+                    <Check className="h-4 w-4 text-ink mt-0.5 shrink-0" />
                     {feature}
                   </li>
                 ))}
@@ -89,8 +89,8 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
               <Button
                 className={`w-full gap-2 ${
                   pkg.highlighted
-                    ? 'bg-rose-500 hover:bg-rose-600 text-white'
-                    : 'bg-gray-900 hover:bg-gray-800 text-white'
+                    ? 'bg-ink hover:bg-deep text-paper'
+                    : 'bg-ink hover:bg-deep text-paper'
                 }`}
                 onClick={() => onSelectPackage(pkg.id)}
               >
@@ -106,9 +106,9 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="bg-gray-50 rounded-2xl p-6 md:p-8"
+          className="bg-tone rounded-none p-6 md:p-8"
         >
-          <h3 className="text-xl font-semibold text-gray-800 text-center mb-8">
+          <h3 className="text-xl font-semibold text-ink text-center mb-8">
             Compare os pacotes
           </h3>
           
@@ -116,11 +116,11 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                  <th className="text-left py-3 px-4 text-sm font-medium text-soft">
                     Recursos
                   </th>
                   {Object.values(PACKAGES).map((pkg) => (
-                    <th key={pkg.id} className="text-center py-3 px-4 text-sm font-semibold text-gray-800">
+                    <th key={pkg.id} className="text-center py-3 px-4 text-sm font-semibold text-ink">
                       {pkg.displayName}
                     </th>
                   ))}
@@ -130,34 +130,34 @@ export function PricingSection({ onSelectPackage }: PricingSectionProps) {
                 {COMPARISON_FEATURES.map((feature, index) => (
                   <tr
                     key={index}
-                    className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                    className={index % 2 === 0 ? 'bg-tone' : 'bg-tone'}
                   >
-                    <td className="py-3 px-4 text-sm text-gray-600 font-medium">
+                    <td className="py-3 px-4 text-sm text-soft font-medium">
                       {feature.name}
                     </td>
                     {(['basic', 'plus', 'premium'] as PackageType[]).map((pkgId) => (
                       <td key={pkgId} className="text-center py-3 px-4">
                         {typeof feature[pkgId] === 'boolean' ? (
                           feature[pkgId] ? (
-                            <Check className="h-5 w-5 text-green-500 mx-auto" />
+                            <Check className="h-5 w-5 text-ink mx-auto" />
                           ) : (
-                            <X className="h-5 w-5 text-gray-300 mx-auto" />
+                            <X className="h-5 w-5 text-soft mx-auto" />
                           )
                         ) : (
-                          <span className="text-sm text-gray-700">{feature[pkgId]}</span>
+                          <span className="text-sm text-ink">{feature[pkgId]}</span>
                         )}
                       </td>
                     ))}
                   </tr>
                 ))}
                 {/* Price row */}
-                <tr className="bg-white border-t border-gray-200">
-                  <td className="py-4 px-4 text-sm text-gray-600 font-semibold">
+                <tr className="bg-tone">
+                  <td className="py-4 px-4 text-sm text-soft font-semibold">
                     Preço
                   </td>
                   {Object.values(PACKAGES).map((pkg) => (
                     <td key={pkg.id} className="text-center py-4 px-4">
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-lg font-bold text-ink">
                         {formatPrice(pkg.price, pkg.currency)}
                       </span>
                     </td>

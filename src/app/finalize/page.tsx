@@ -78,23 +78,23 @@ function FinalizeContent() {
 
   const handleShareWhatsApp = () => {
     const url = `${window.location.origin}/${slug}`;
-    const text = `Confira esta linda página de homenagem que criei! ❤️`;
+    const text = `Confira esta linda página de homenagem que criei para você.`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`, '_blank');
   };
 
   if (finalizing) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4">
+      <div className="min-h-[100svh] flex items-center justify-center bg-paper px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md"
         >
-          <div className="w-20 h-20 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-          <h2 className="text-2xl font-serif font-medium text-gray-800 mb-2">
+          <div className="w-20 h-20 border-4 border-ink border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <h2 className="text-2xl font-medium text-ink mb-2">
             Finalizando sua Eternal Page...
           </h2>
-          <p className="text-gray-500">
+          <p className="text-soft">
             Por favor, aguarde enquanto criamos sua página permanente
           </p>
         </motion.div>
@@ -104,21 +104,21 @@ function FinalizeContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-red-50/30 to-white px-4">
+      <div className="min-h-[100svh] flex items-center justify-center bg-paper px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md"
         >
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-20 h-20 bg-tone rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-2xl font-serif font-medium text-gray-800 mb-2">
+          <h2 className="text-2xl font-medium text-ink mb-2">
             Algo deu errado
           </h2>
-          <p className="text-gray-500 mb-6">{error}</p>
+          <p className="text-soft mb-6">{error}</p>
           <Button onClick={() => router.push('/')} variant="outline">
             Voltar para o início
           </Button>
@@ -128,23 +128,23 @@ function FinalizeContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4 py-12">
+    <div className="min-h-[100svh] flex items-center justify-center bg-paper px-4 py-12">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         className="max-w-lg w-full"
       >
         {/* Success card */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-tone rounded-none overflow-hidden">
           {/* Success header */}
-          <div className="bg-gradient-to-r from-green-500 to-emerald-500 p-8 text-center">
+          <div className="bg-ink p-8 text-center">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: 'spring' }}
-              className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-20 h-20 bg-tone rounded-full flex items-center justify-center mx-auto mb-4"
             >
-              <CheckCircle className="h-10 w-10 text-green-500" />
+              <CheckCircle className="h-10 w-10 text-ink" />
             </motion.div>
             
             <motion.div
@@ -152,10 +152,10 @@ function FinalizeContent() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <h1 className="text-2xl font-serif font-medium text-white mb-2">
+              <h1 className="text-2xl font-medium text-paper mb-2">
                 Pagamento Confirmado!
               </h1>
-              <p className="text-white/80">
+              <p className="text-paper">
                 Sua Eternal Page está pronta para compartilhar
               </p>
             </motion.div>
@@ -163,20 +163,20 @@ function FinalizeContent() {
 
           {/* Package info */}
           <div className="px-6 pt-6">
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
+            <div className="bg-tone rounded-none p-4 mb-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
-                    <Heart className="h-5 w-5 text-rose-500" />
+                  <div className="w-10 h-10 bg-tone rounded-full flex items-center justify-center">
+                    <Heart className="h-5 w-5 text-ink" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800">{pkg.displayName}</p>
-                    <p className="text-sm text-gray-500">Pacote Eternal Page</p>
+                    <p className="font-semibold text-ink">{pkg.displayName}</p>
+                    <p className="text-sm text-soft">Pacote Eternal Page</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-800">{formatPrice(pkg.price)}</p>
-                  <p className="text-xs text-gray-400">pagamento único</p>
+                  <p className="font-bold text-ink">{formatPrice(pkg.price)}</p>
+                  <p className="text-xs text-soft">pagamento único</p>
                 </div>
               </div>
             </div>
@@ -184,13 +184,13 @@ function FinalizeContent() {
 
           {/* Link section */}
           <div className="px-6 pb-6">
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide font-medium">
+            <div className="bg-tone rounded-none p-4 mb-6">
+              <p className="text-xs text-soft mb-2 font-medium">
                 Link da sua Eternal Page
               </p>
               <div className="flex items-center gap-2">
-                <div className="flex-1 bg-white rounded-lg border border-gray-200 px-3 py-2 overflow-hidden">
-                  <p className="text-sm text-gray-600 truncate font-mono">
+                <div className="flex-1 bg-tone rounded-none border border-border px-3 py-2 overflow-hidden">
+                  <p className="text-sm text-soft truncate tabular-nums">
                     {typeof window !== 'undefined' ? window.location.origin : ''}/{slug}
                   </p>
                 </div>
@@ -201,7 +201,7 @@ function FinalizeContent() {
                   className="shrink-0"
                 >
                   {copied ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-ink" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
@@ -212,7 +212,7 @@ function FinalizeContent() {
             {/* Action buttons */}
             <div className="space-y-3">
               <Button
-                className="w-full gap-2 bg-rose-500 hover:bg-rose-600 text-white"
+                className="w-full gap-2 bg-ink hover:bg-deep text-paper"
                 size="lg"
                 onClick={handleViewPage}
               >
@@ -232,13 +232,13 @@ function FinalizeContent() {
             </div>
 
             {/* Tips */}
-            <div className="mt-6 pt-6 border-t border-gray-100">
+            <div className="mt-8">
               <div className="flex items-start gap-3 text-left">
-                <Sparkles className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                <Sparkles className="h-5 w-5 text-ink shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Dica</p>
-                  <p className="text-xs text-gray-500">
-                    Salve este link! Sua Eternal Page estará disponível permanentemente neste endereço.
+                  <p className="text-sm font-medium text-ink">Dica</p>
+                  <p className="text-xs text-soft">
+                    Salve este link: é nele que a página fica disponível durante o período do seu pacote.
                     Compartilhe com amigos e família.
                   </p>
                 </div>
@@ -252,7 +252,7 @@ function FinalizeContent() {
           <Button
             variant="ghost"
             onClick={() => router.push('/')}
-            className="text-gray-500"
+            className="text-soft"
           >
             Criar outra Eternal Page
           </Button>
@@ -265,14 +265,14 @@ function FinalizeContent() {
 export default function FinalizePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4">
+      <div className="min-h-[100svh] flex items-center justify-center bg-paper px-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center max-w-md"
         >
-          <div className="w-20 h-20 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-          <h2 className="text-2xl font-serif font-medium text-gray-800 mb-2">
+          <div className="w-20 h-20 border-4 border-ink border-t-transparent rounded-full animate-spin mx-auto mb-6" />
+          <h2 className="text-2xl font-medium text-ink mb-2">
             Carregando...
           </h2>
         </motion.div>
