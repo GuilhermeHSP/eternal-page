@@ -49,6 +49,7 @@ function HomePageContent() {
             editDraftId={editDraftId}
             initialRecipient={creator.recipient}
             initialTemplateId={creator.templateId}
+            initialPackage={creator.packageType}
           />
         </motion.div>
       </main>

@@ -17,7 +17,7 @@ interface LivePreviewProps {
 // fed the current form by postMessage, and it scrolls to the section being edited.
 const PAGE_WIDTH = 390;
 
-function PhoneFrame({ config, focus, width }: LivePreviewProps & { width: number }) {
+export function PhoneFrame({ config, focus, width }: { config: TributeConfig; focus: string; width: number }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
   const scale = width / PAGE_WIDTH;
@@ -53,6 +53,9 @@ function PhoneFrame({ config, focus, width }: LivePreviewProps & { width: number
         <iframe
           ref={frameRef}
           src="/previa-ao-vivo"
+          // The frame may finish loading before this page listens for its "ready" message,
+          // so the load event also counts as ready.
+          onLoad={() => setReady(true)}
           title="Prévia ao vivo da homenagem"
           className="absolute top-0 left-0 border-0"
           style={{
@@ -87,7 +90,7 @@ export function LivePreview({ config, focus, accentColor }: LivePreviewProps) {
         <p className="mb-3 text-center text-xs font-medium uppercase tracking-[0.2em] text-gray-500">
           Prévia ao vivo
         </p>
-        <PhoneFrame config={config} focus={focus} accentColor={accentColor} width={300} />
+        <PhoneFrame config={config} focus={focus} width={300} />
         <p className="mt-3 text-center text-xs text-gray-400">Assim a pessoa vai ver no celular</p>
       </aside>
     );
@@ -121,7 +124,6 @@ export function LivePreview({ config, focus, accentColor }: LivePreviewProps) {
           <PhoneFrame
             config={config}
             focus={focus}
-            accentColor={accentColor}
             width={Math.min(300, window.innerWidth - 60, Math.round((window.innerHeight - 120) / 2.05))}
           />
         </div>

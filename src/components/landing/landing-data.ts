@@ -5,6 +5,7 @@ export interface Occasion {
   templateId: string;
   label: string;
   title: (name: string) => string;
+  phrase: string;
   when: string;
   photo: string;
   alt: string;
@@ -15,6 +16,7 @@ export const OCCASIONS: Occasion[] = [
     templateId: 'mothersDay',
     label: 'Mãe',
     title: (name) => `Para ${name}, que cuidou de tudo`,
+    phrase: 'A melhor mãe do mundo',
     when: '2º domingo de maio',
     photo: '/acervo/vestido-floral.jpg',
     alt: 'Mulher de vestido florido em frente a uma casa, fotografia dos anos 1940',
@@ -23,6 +25,7 @@ export const OCCASIONS: Occasion[] = [
     templateId: 'fathersDay',
     label: 'Pai',
     title: (name) => `Para ${name}, meu primeiro herói`,
+    phrase: 'Meu primeiro herói',
     when: '2º domingo de agosto',
     photo: '/acervo/pai-1947.jpg',
     alt: 'Pai em pé no jardim ao lado do filho pequeno, fotografia de 1947',
@@ -31,6 +34,7 @@ export const OCCASIONS: Occasion[] = [
     templateId: 'romantic',
     label: 'Amor',
     title: (name) => `Para ${name}, com todo o meu amor`,
+    phrase: 'Com todo o meu amor',
     when: 'Qualquer dia do ano',
     photo: '/acervo/casal-harpa.jpg',
     alt: 'Casal em casa, ela tocando harpa e ele ao lado, fotografia antiga em cores',
@@ -39,6 +43,7 @@ export const OCCASIONS: Occasion[] = [
     templateId: 'birthday',
     label: 'Aniversário',
     title: (name) => `Feliz aniversário, ${name}`,
+    phrase: 'Feliz aniversário',
     when: 'No dia dela ou dele',
     photo: '/acervo/retrato-1930.jpg',
     alt: 'Retrato de estúdio de uma jovem sorrindo, anos 1930',
@@ -47,6 +52,7 @@ export const OCCASIONS: Occasion[] = [
     templateId: 'anniversary',
     label: 'Bodas',
     title: (name) => `${name}, cinquenta anos juntos`,
+    phrase: 'Cinquenta anos juntos',
     when: 'De papel a ouro',
     photo: '/acervo/bodas-1932.jpg',
     alt: 'Casal de idosos sentados com flores no colo nas bodas de ouro, 1932',
@@ -55,6 +61,7 @@ export const OCCASIONS: Occasion[] = [
     templateId: 'friendship',
     label: 'Amizade',
     title: (name) => `${name}, amiga de todas as horas`,
+    phrase: 'Amiga de todas as horas',
     when: '20 de julho',
     photo: '/acervo/amigas-1940.jpg',
     alt: 'Duas amigas de chapéu sorrindo num dia de corrida de cavalos, 1940',
@@ -184,3 +191,29 @@ export const CREDITS = [
   { file: 'familia-1942.jpg', text: '“W.D Hogan and friends at the Keany’s house”, National Library of Ireland, sem restrições conhecidas', href: 'https://commons.wikimedia.org/wiki/File:W.D_Hogan_and_friends_at_the_Keany%27s_house,_Westbrook,_Dundrum_(34843521636).jpg' },
 ];
 
+
+// A complete example tribute, shown in the phone on the landing page. Its photos are
+// archival examples, not a customer's.
+export const DEMO_CONFIG = {
+  title: 'A melhor avó do mundo',
+  recipient: 'Helena',
+  template: 'mothersDay',
+  authorName: 'seus netos',
+  hero: { image: '/acervo/retrato-1930.jpg', overlay: true },
+  message: {
+    text:
+      'Vó, obrigado por **cada domingo** na sua cozinha, pelas histórias antes de dormir e pelo colo que nunca faltou. Esta página guarda um pouco de tudo o que você construiu.',
+    typingAnimation: false,
+  },
+  gallery: [
+    { id: 'g1', url: '/acervo/familia-1942.jpg', caption: 'O almoço de 1942', order: 0 },
+    { id: 'g2', url: '/acervo/vestido-floral.jpg', caption: 'O vestido de domingo', order: 1 },
+    { id: 'g3', url: '/acervo/bodas-1940.jpg', caption: 'Cinquenta anos juntos', order: 2 },
+  ],
+  timeline: [
+    { id: 't1', year: '1938', title: 'O casamento', description: 'Na igrejinha da vila, num sábado de chuva.', order: 0 },
+    { id: 't2', year: '1942', title: 'A casa cheia', description: 'Os primeiros netos chegam para o almoço.', order: 1 },
+    { id: 't3', year: '1988', title: 'Bodas de ouro', description: 'A família inteira reunida no quintal.', order: 2 },
+  ],
+  closingMessage: 'Você é a raiz de tudo o que somos. Te amamos, vó.',
+};
