@@ -213,7 +213,7 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         )}
 
         {/* Footer */}
-        <footer className="pb-12 pt-4 px-4">
+        <footer className={`${config.music?.url ? 'pb-28' : 'pb-12'} pt-4 px-4`}>
           <p className="text-center font-title text-xs uppercase tracking-[0.2em] text-gray-400">
             Feito com{' '}
             <Link href="/" className="hover:underline" style={{ color: templateStyle.accentColor }}>

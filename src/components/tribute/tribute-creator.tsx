@@ -781,21 +781,6 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="title">Título *</Label>
-                  <Input
-                    id="title"
-                    placeholder="A melhor mãe do mundo!"
-                    {...register('title')}
-                    onFocus={focusOn('hero')}
-                    aria-invalid={!!errors.title}
-                    className="mt-1.5"
-                  />
-                  {errors.title && (
-                    <p role="alert" className="text-sm text-red-500 mt-1">{errors.title.message}</p>
-                  )}
-                </div>
-
-                <div>
                   <Label htmlFor="recipient">Nome do Homenageado *</Label>
                   <Input
                     id="recipient"
@@ -807,6 +792,21 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   />
                   {errors.recipient && (
                     <p role="alert" className="text-sm text-red-500 mt-1">{errors.recipient.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="title">Título *</Label>
+                  <Input
+                    id="title"
+                    placeholder="A melhor mãe do mundo!"
+                    {...register('title')}
+                    onFocus={focusOn('hero')}
+                    aria-invalid={!!errors.title}
+                    className="mt-1.5"
+                  />
+                  {errors.title && (
+                    <p role="alert" className="text-sm text-red-500 mt-1">{errors.title.message}</p>
                   )}
                 </div>
 

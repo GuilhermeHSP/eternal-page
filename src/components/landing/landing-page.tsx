@@ -18,6 +18,7 @@ import {
   Sparkles,
   Gift,
   MessageCircleHeart,
+  Mic,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PACKAGE_LIST, LOWEST_PRICE, formatPrice, type PackageType } from '@/lib/packages';
@@ -76,6 +77,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
 /* ------------------------------------------------------------------ */
 
 function Header({ onStart }: { onStart: () => void }) {
+  const hidden = useCtaOnScreen();
   return (
     <SiteHeader
       nav={[
@@ -88,7 +90,9 @@ function Header({ onStart }: { onStart: () => void }) {
         <button
           type="button"
           onClick={onStart}
-          className="press hidden sm:inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold"
+          tabIndex={hidden ? -1 : 0}
+          aria-hidden={hidden}
+          className={'press hidden sm:inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold transition-opacity duration-300 ' + (hidden ? 'opacity-0 pointer-events-none' : 'opacity-100')}
         >
           Criar homenagem
         </button>
@@ -283,10 +287,12 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
     { key: 'hero', icon: Sparkles, title: 'Abertura com foto', text: 'O nome dela em letra de convite sobre a foto principal.' },
     { key: 'message', icon: Mail, title: 'Uma carta', text: 'Sua mensagem em papel de carta, com selo e assinatura.' },
     { key: 'counter', icon: Clock, title: 'Contador do tempo', text: 'Anos, meses, dias e segundos juntos, contando ao vivo.' },
+    { key: 'voice', icon: Mic, title: 'Mensagem de voz', text: 'Sua voz gravada, para ela ouvir quantas vezes quiser.' },
     { key: 'reasons', icon: Gift, title: 'Motivos para te amar', text: 'Cartões que viram ao toque, cada um com um motivo.' },
     { key: 'gallery', icon: ImageIcon, title: 'Polaroides', text: 'As fotos de vocês com legendas escritas à mão.' },
     { key: 'timeline', icon: CalendarHeart, title: 'Linha do tempo', text: 'Os momentos importantes, ano a ano.' },
     { key: 'guestbook', icon: MessageCircleHeart, title: 'Mural de recados', text: 'Família e amigos deixam mensagens na mesma página.' },
+    { key: 'music', icon: Music, title: 'Música de fundo', text: 'A música de vocês tocando enquanto ela rola a página.' },
     { key: 'closing', icon: Heart, title: 'Despedida', text: 'Uma frase final sobre a foto, para fechar com emoção.' },
   ];
   const [focus, setFocus] = useState('hero');
@@ -491,21 +497,31 @@ function Footer() {
   );
 }
 
-// On phones the main action is always one tap away.
-function MobileCta({ onStart }: { onStart: () => void }) {
-  // Only appears while no other "create" form is on screen, so the action is never shown twice.
-  const [show, setShow] = useState(false);
+// True while one of the page's own "create" forms or buttons ([data-cta-anchor]) is on screen.
+// The header and the phone bar hide their button then, so the same action never shows twice.
+function useCtaOnScreen() {
+  const [onScreen, setOnScreen] = useState(true);
   useEffect(() => {
     const anchors = document.querySelectorAll('[data-cta-anchor]');
-    if (!anchors.length || !('IntersectionObserver' in window)) return;
+    if (!anchors.length || !('IntersectionObserver' in window)) {
+      setOnScreen(false);
+      return;
+    }
     const visible = new Set<Element>();
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
-      setShow(visible.size === 0);
+      setOnScreen(visible.size > 0);
     });
     anchors.forEach((a) => io.observe(a));
     return () => io.disconnect();
   }, []);
+  return onScreen;
+}
+
+// On phones the main action is always one tap away.
+function MobileCta({ onStart }: { onStart: () => void }) {
+  // Only appears while no other "create" form is on screen, so the action is never shown twice.
+  const show = !useCtaOnScreen();
 
   return (
     <div
