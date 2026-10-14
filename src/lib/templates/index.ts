@@ -1,107 +1,197 @@
 import { TemplateStyleConfig } from '@/types/tribute';
 
-// Every template is a two-colour print job: one ground and one ink, set in Switzer.
-// The archival photograph next to each one is only an example for the landing page.
-const base = {
-  textColor: '#1d1b1a',
-  secondaryTextColor: '#55504c',
-  headingFont: 'Switzer, system-ui, sans-serif',
-  bodyFont: 'Switzer, system-ui, sans-serif',
-  maxWidth: '800px',
-  borderRadius: '0px',
-  backgroundAnimation: { type: 'none' as const },
-  parallaxEnabled: false,
-  fadeAnimations: true,
-};
-
 export const templates: Record<string, TemplateStyleConfig> = {
   romantic: {
-    ...base,
     name: 'romantic',
     displayName: 'Amor',
     category: 'romantic',
     description: 'Para quem divide a vida com você',
-    accentColor: '#7d0c14',
-    backgroundColor: '#e2e2e2',
-    layoutVariant: 'storybook',
+    accentColor: '#e11d48',
+    backgroundColor: '#fef7f7',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '16px',
+    backgroundAnimation: {
+      type: 'hearts',
+      intensity: 'medium',
+      color: '#fda4af'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['hearts', 'ribbons'],
+    layoutVariant: 'storybook'
   },
-
+  
   mothersDay: {
-    ...base,
     name: 'mothersDay',
     displayName: 'Dia das Mães',
     category: 'family',
     description: 'Para a mãe, a avó ou quem cuidou de você',
-    accentColor: '#8c1d4f',
-    backgroundColor: '#ebe3e6',
-    layoutVariant: 'classic',
+    accentColor: '#db2777',
+    backgroundColor: '#fdf2f8',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '16px',
+    backgroundAnimation: {
+      type: 'petals',
+      intensity: 'low',
+      color: '#fbcfe8'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['flowers', 'ribbons'],
+    layoutVariant: 'classic'
   },
-
+  
   fathersDay: {
-    ...base,
     name: 'fathersDay',
     displayName: 'Dia dos Pais',
     category: 'family',
     description: 'Para o pai, o avô ou quem te ensinou o caminho',
-    accentColor: '#1d3f63',
-    backgroundColor: '#e3e6ea',
-    layoutVariant: 'classic',
+    accentColor: '#0369a1',
+    backgroundColor: '#f0f9ff',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '12px',
+    backgroundAnimation: {
+      type: 'particles',
+      intensity: 'low',
+      color: '#bae6fd'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['stars'],
+    layoutVariant: 'classic'
   },
-
+  
   birthday: {
-    ...base,
     name: 'birthday',
     displayName: 'Aniversário',
     category: 'birthday',
     description: 'Para comemorar mais um ano de alguém',
-    accentColor: '#0f5e5a',
-    backgroundColor: '#e3eae8',
-    layoutVariant: 'modern',
+    accentColor: '#f59e0b',
+    backgroundColor: '#fffbeb',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '20px',
+    backgroundAnimation: {
+      type: 'sparkles',
+      intensity: 'high',
+      color: '#fcd34d'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['balloons', 'confetti'],
+    layoutVariant: 'modern'
   },
-
+  
   memorial: {
-    ...base,
     name: 'memorial',
     displayName: 'Memória',
     category: 'memorial',
     description: 'Para lembrar de quem partiu, com calma',
-    accentColor: '#33363b',
-    backgroundColor: '#e5e4e1',
-    layoutVariant: 'minimal',
+    accentColor: '#6366f1',
+    backgroundColor: '#faf5ff',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '12px',
+    backgroundAnimation: {
+      type: 'stars',
+      intensity: 'low',
+      color: '#c4b5fd'
+    },
+    parallaxEnabled: false,
+    fadeAnimations: true,
+    decorativeElements: ['candles'],
+    layoutVariant: 'minimal'
   },
-
+  
   friendship: {
-    ...base,
     name: 'friendship',
     displayName: 'Amizade',
     category: 'friendship',
     description: 'Para a amiga ou o amigo de sempre',
-    accentColor: '#2f5a1f',
-    backgroundColor: '#e4e8df',
-    layoutVariant: 'modern',
+    accentColor: '#10b981',
+    backgroundColor: '#ecfdf5',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '16px',
+    backgroundAnimation: {
+      type: 'particles',
+      intensity: 'medium',
+      color: '#6ee7b7'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['ribbons'],
+    layoutVariant: 'modern'
   },
-
+  
   valentine: {
-    ...base,
     name: 'valentine',
     displayName: 'Namorados',
     category: 'romantic',
     description: 'Para o 12 de junho',
-    accentColor: '#a3121f',
-    backgroundColor: '#eee2e2',
-    layoutVariant: 'storybook',
+    accentColor: '#be123c',
+    backgroundColor: '#fff1f2',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '16px',
+    backgroundAnimation: {
+      type: 'hearts',
+      intensity: 'high',
+      color: '#fda4af'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['hearts', 'cupids'],
+    layoutVariant: 'storybook'
   },
-
+  
   anniversary: {
-    ...base,
     name: 'anniversary',
     displayName: 'Bodas',
     category: 'romantic',
     description: 'Para os anos de casamento, de papel a ouro',
-    accentColor: '#6b5414',
-    backgroundColor: '#e3e2de',
-    layoutVariant: 'classic',
-  },
+    accentColor: '#a855f7',
+    backgroundColor: '#faf5ff',
+    textColor: '#1f2937',
+    secondaryTextColor: '#6b7280',
+    headingFont: 'Playfair Display, Georgia, serif',
+    bodyFont: 'Plus Jakarta Sans, system-ui, sans-serif',
+    maxWidth: '800px',
+    borderRadius: '16px',
+    backgroundAnimation: {
+      type: 'sparkles',
+      intensity: 'medium',
+      color: '#e9d5ff'
+    },
+    parallaxEnabled: true,
+    fadeAnimations: true,
+    decorativeElements: ['rings', 'ribbons'],
+    layoutVariant: 'classic'
+  }
 };
 
 export const templateList = Object.values(templates);
@@ -115,10 +205,10 @@ export function getTemplatesByCategory(category: string): TemplateStyleConfig[] 
 }
 
 export const categories = [
-  { id: 'romantic', label: 'Amor' },
-  { id: 'family', label: 'Família' },
-  { id: 'birthday', label: 'Aniversário' },
-  { id: 'memorial', label: 'Memória' },
-  { id: 'friendship', label: 'Amizade' },
-  { id: 'achievement', label: 'Conquista' },
+  { id: 'romantic', label: 'Amor', icon: '❤️' },
+  { id: 'family', label: 'Família', icon: '👨‍👩‍👧‍👦' },
+  { id: 'birthday', label: 'Aniversário', icon: '🎂' },
+  { id: 'memorial', label: 'Memória', icon: '🕯️' },
+  { id: 'friendship', label: 'Amizade', icon: '🤝' },
+  { id: 'achievement', label: 'Conquista', icon: '🏆' }
 ];

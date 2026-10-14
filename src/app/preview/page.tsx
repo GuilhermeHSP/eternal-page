@@ -7,7 +7,9 @@ import {
   Eye,
   Edit3,
   CreditCard,
+  Lock,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { TributeViewer } from '@/components/tribute/tribute-viewer';
 import { WatermarkOverlay } from '@/components/preview/watermark-overlay';
 import { PACKAGES, PackageType, formatPrice } from '@/lib/packages';
@@ -153,14 +155,14 @@ function PreviewContent() {
 
   if (loading) {
     return (
-      <div className="min-h-[100svh] flex items-center justify-center bg-tone">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center"
         >
-          <div className="w-12 h-12 border-4 border-ink border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-soft">Carregando preview...</p>
+          <div className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Carregando preview...</p>
         </motion.div>
       </div>
     );
@@ -168,43 +170,36 @@ function PreviewContent() {
 
   if (!draft) {
     return (
-      <div className="min-h-[100svh] flex items-center justify-center bg-tone">
-        <p className="text-soft">Rascunho não encontrado</p>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-gray-600">Rascunho não encontrado</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[100svh] bg-tone">
+    <div className="min-h-screen bg-gray-100">
       {/* Preview Mode Header */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] bg-ink">
-        <div className="max-w-[1376px] mx-auto px-4 md:px-8 py-3 flex items-center justify-between flex-wrap gap-3">
-          <p className="flex items-center gap-2 text-paper text-step-small font-medium">
-            <Eye className="h-4 w-4" />
-            Prévia, ainda não publicada
-          </p>
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={handleEditPage}
-              className="press h-10 px-4 bg-deep text-paper text-step-small font-medium hover:bg-soft"
-            >
-              Editar
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirmAndPay}
-              disabled={processing}
-              className="press h-10 px-4 bg-paper text-ink text-step-small font-medium hover:bg-tone disabled:opacity-60"
-            >
-              Publicar por {formatPrice(packageInfo.price)}
-            </button>
+      <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5">
+                <Eye className="h-4 w-4 text-white" />
+                <span className="text-white font-medium text-sm">
+                  Modo Preview — Revise sua Eternal Page
+                </span>
+              </div>
+              <div className="flex items-center gap-1 bg-black/20 rounded-full px-3 py-1.5">
+                <Lock className="h-3 w-3 text-white/80" />
+                <span className="text-white/80 text-xs">Protegido</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="pt-16">
+      <div className="pt-20 pb-8">
         {/* Preview with watermark */}
         <div className="relative">
           <WatermarkOverlay />
@@ -214,43 +209,48 @@ function PreviewContent() {
         </div>
 
         {/* Action Buttons Section */}
-        <div className="bg-ink text-paper px-4 md:px-8 py-[clamp(72px,9vw,144px)]">
-          <div className="max-w-[1376px] mx-auto grid md:grid-cols-12 gap-8 md:gap-6">
-            <div className="md:col-span-6">
-              <h2 className="text-step-head">Gostou da página?</h2>
-              <p className="mt-4 text-step-body">
-                Pacote {packageInfo.displayName}, {formatPrice(packageInfo.price)} em pagamento único. Ao publicar,
-                a marca d’água sai e você recebe o link para enviar.
+        <div className="max-w-2xl mx-auto px-4 mt-8">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-rose-500 to-pink-500 p-6 text-center">
+              <h2 className="text-2xl font-serif font-medium text-white mb-2">
+                Gostou da sua página?
+              </h2>
+              <p className="text-white/80">
+                Plano selecionado: <strong>{packageInfo.displayName}</strong> — {formatPrice(packageInfo.price)}
               </p>
             </div>
-            <div className="md:col-start-8 md:col-span-5 self-end">
-              <div className="flex flex-col sm:flex-row gap-1">
-                <button
-                  type="button"
+
+            {/* Action Buttons */}
+            <div className="p-6">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  size="lg"
                   onClick={handleEditPage}
-                  className="press h-14 px-6 inline-flex items-center justify-center gap-2 bg-deep text-paper text-step-body font-medium hover:bg-soft"
+                  className="gap-2"
                 >
                   <Edit3 className="h-5 w-5" />
-                  Editar página
-                </button>
-                <button
-                  type="button"
+                  Editar Página
+                </Button>
+                <Button
+                  size="lg"
                   onClick={handleConfirmAndPay}
                   disabled={processing}
-                  className="press h-14 px-6 inline-flex items-center justify-center gap-2 bg-paper text-ink text-step-body font-medium hover:bg-tone disabled:opacity-60"
+                  className="gap-2 bg-rose-500 hover:bg-rose-600 text-white px-8"
                 >
                   {processing ? (
                     <>
-                      <span className="w-5 h-5 border-2 border-ink border-t-transparent rounded-full animate-spin" />
-                      Processando
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Processando...
                     </>
                   ) : (
                     <>
                       <CreditCard className="h-5 w-5" />
-                      Publicar a página
+                      Finalização da Compra
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -263,14 +263,14 @@ function PreviewContent() {
 export default function PreviewPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-[100svh] flex items-center justify-center bg-tone">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="text-center"
         >
-          <div className="w-12 h-12 border-4 border-ink border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-soft">Carregando preview...</p>
+          <div className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-600">Carregando preview...</p>
         </motion.div>
       </div>
     }>

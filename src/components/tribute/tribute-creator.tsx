@@ -432,8 +432,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   if (isLoading) {
     return (
       <div className="max-w-3xl mx-auto py-20 pb-24 md:pb-20 flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-ink border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-soft">Carregando rascunho...</p>
+        <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-gray-500">Carregando rascunho...</p>
       </div>
     );
   }
@@ -443,9 +443,9 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between relative">
-          <div className="absolute top-5 left-0 right-0 h-0.5 bg-tone">
+          <div className="absolute top-5 left-0 right-0 h-0.5 bg-gray-100">
             <motion.div
-              className="h-full bg-ink"
+              className="h-full bg-pink-500"
               initial={{ width: '0%' }}
               animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
             />
@@ -463,17 +463,17 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="relative z-10 flex flex-col items-center"
             >
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                   currentStep >= step.id
-                    ? 'bg-ink text-paper'
-                    : 'bg-tone text-soft'
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-gray-100 text-gray-400'
                 }`}
               >
                 <step.icon className="h-5 w-5" />
               </div>
               <span
                 className={`text-xs mt-2 font-medium ${
-                  currentStep >= step.id ? 'text-ink' : 'text-soft'
+                  currentStep >= step.id ? 'text-gray-700' : 'text-gray-400'
                 }`}
               >
                 {step.title}
@@ -507,10 +507,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-ink">
+                <h2 className="text-2xl font-serif font-medium text-gray-800">
                   Escolha seu Plano
                 </h2>
-                <p className="text-soft text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   Selecione o plano ideal para sua homenagem
                 </p>
               </div>
@@ -522,41 +522,41 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setSelectedPackage(pkg.id)}
-                    className={`relative rounded-none overflow-hidden cursor-pointer transition-colors ${
+                    className={`relative rounded-2xl overflow-hidden cursor-pointer transition-all ${
                       selectedPackage === pkg.id
-                        ? 'ring-2 ring-ink ring-offset-2'
-                        : 'ring-1 ring-border hover:ring-ink'
+                        ? 'ring-2 ring-pink-500 ring-offset-2'
+                        : 'ring-1 ring-gray-200 hover:ring-gray-300'
                     } ${pkg.popular ? 'md:-mt-2 md:mb-2' : ''}`}
                   >
                     {/* Popular badge */}
                     {pkg.popular && (
-                      <div className="absolute top-0 left-0 right-0 bg-ink text-paper text-xs font-medium py-1 text-center">
+                      <div className="absolute top-0 left-0 right-0 bg-pink-500 text-white text-xs font-medium py-1 text-center">
                         Mais Popular
                       </div>
                     )}
 
-                    <div className={`bg-tone p-6 ${pkg.popular ? 'pt-8' : ''}`}>
+                    <div className={`bg-white p-6 ${pkg.popular ? 'pt-8' : ''}`}>
                       {/* Package name */}
-                      <h3 className="text-lg font-semibold text-ink mb-1">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-1">
                         {pkg.displayName}
                       </h3>
-                      <p className="text-sm text-soft mb-4">
+                      <p className="text-sm text-gray-500 mb-4">
                         {pkg.description}
                       </p>
 
                       {/* Price */}
                       <div className="mb-4">
-                        <span className="text-3xl font-bold text-ink">
+                        <span className="text-3xl font-bold text-gray-900">
                           {formatPrice(pkg.price)}
                         </span>
-                        <span className="text-soft text-sm"> / único</span>
+                        <span className="text-gray-500 text-sm"> / único</span>
                       </div>
 
                       {/* Features */}
                       <ul className="space-y-2 mb-6">
                         {pkg.features.map((feature, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-sm text-soft">
-                            <Check className="h-4 w-4 text-ink mt-0.5 shrink-0" />
+                          <li key={idx} className="flex items-start gap-2 text-sm text-gray-600">
+                            <Check className="h-4 w-4 text-pink-500 mt-0.5 shrink-0" />
                             {feature}
                           </li>
                         ))}
@@ -568,8 +568,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                         variant={selectedPackage === pkg.id ? 'default' : 'outline'}
                         className={`w-full ${
                           selectedPackage === pkg.id
-                            ? 'bg-ink hover:bg-deep text-paper'
-                            : 'border-ink text-ink hover:bg-tone'
+                            ? 'bg-pink-500 hover:bg-pink-600 text-white'
+                            : 'border-pink-500 text-pink-500 hover:bg-pink-50'
                         }`}
                       >
                         {selectedPackage === pkg.id ? 'Selecionado' : 'Selecionar'}
@@ -580,7 +580,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               </div>
 
               {error && (
-                <p className="text-sm text-destructive text-center">{error}</p>
+                <p className="text-sm text-red-500 text-center">{error}</p>
               )}
             </motion.div>
           )}
@@ -595,10 +595,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-ink">
+                <h2 className="text-2xl font-serif font-medium text-gray-800">
                   Escolha um Template
                 </h2>
-                <p className="text-soft text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   Selecione um estilo para sua homenagem
                 </p>
               </div>
@@ -607,7 +607,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 <TabsList className="w-full justify-start flex-wrap h-auto gap-2 bg-transparent p-0 mb-6">
                   <TabsTrigger
                     value="all"
-                    className="data-[state=active]:bg-ink data-[state=active]:text-paper"
+                    className="data-[state=active]:bg-gray-900 data-[state=active]:text-white"
                   >
                     Todos
                   </TabsTrigger>
@@ -615,9 +615,9 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     <TabsTrigger
                       key={cat.id}
                       value={cat.id}
-                      className="data-[state=active]:bg-ink data-[state=active]:text-paper"
+                      className="data-[state=active]:bg-gray-900 data-[state=active]:text-white"
                     >
-                      {cat.label}
+                      {cat.icon} {cat.label}
                     </TabsTrigger>
                   ))}
                 </TabsList>
@@ -641,7 +641,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               </Tabs>
 
               {errors.templateId && (
-                <p className="text-sm text-destructive">{errors.templateId.message}</p>
+                <p className="text-sm text-red-500">{errors.templateId.message}</p>
               )}
             </motion.div>
           )}
@@ -656,10 +656,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-ink">
+                <h2 className="text-2xl font-serif font-medium text-gray-800">
                   Conte sua História
                 </h2>
-                <p className="text-soft text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   Compartilhe os detalhes da sua homenagem
                 </p>
               </div>
@@ -669,12 +669,12 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   <Label htmlFor="title">Título *</Label>
                   <Input
                     id="title"
-                    placeholder="Para a melhor mãe do mundo"
+                    placeholder="Para a melhor mãe do mundo ❤️"
                     {...register('title')}
                     className="mt-1.5"
                   />
                   {errors.title && (
-                    <p className="text-sm text-destructive mt-1">{errors.title.message}</p>
+                    <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
                   )}
                 </div>
 
@@ -687,7 +687,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     className="mt-1.5"
                   />
                   {errors.recipient && (
-                    <p className="text-sm text-destructive mt-1">{errors.recipient.message}</p>
+                    <p className="text-sm text-red-500 mt-1">{errors.recipient.message}</p>
                   )}
                 </div>
 
@@ -700,7 +700,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     {...register('message')}
                     className="mt-1.5 resize-none"
                   />
-                  <p className="text-xs text-soft mt-1">
+                  <p className="text-xs text-gray-400 mt-1">
                     Dica: Use **texto** para destacar frases importantes
                   </p>
                 </div>
@@ -739,10 +739,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-ink">
+                <h2 className="text-2xl font-serif font-medium text-gray-800">
                   Adicionar Fotos
                 </h2>
-                <p className="text-soft text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   {packageLimits && (
                     <>
                       Envie até {packageLimits.momentsPhotos === 999 ? 'ilimitadas' : packageLimits.momentsPhotos} fotos
@@ -766,13 +766,13 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               {packageLimits && photos.length < packageLimits.momentsPhotos && (
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-border rounded-none p-8 text-center cursor-pointer hover:border-ink transition-colors"
+                  className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-gray-300 transition-colors"
                 >
-                  <Upload className="h-10 w-10 mx-auto text-soft mb-3" />
-                  <p className="text-soft font-medium">
+                  <Upload className="h-10 w-10 mx-auto text-gray-300 mb-3" />
+                  <p className="text-gray-600 font-medium">
                     Clique para enviar ou arraste e solte
                   </p>
-                  <p className="text-soft text-sm mt-1">
+                  <p className="text-gray-400 text-sm mt-1">
                     PNG, JPG até 10MB cada
                   </p>
                 </div>
@@ -780,8 +780,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
               {/* Photo limit reached message */}
               {packageLimits && photos.length >= packageLimits.momentsPhotos && packageLimits.momentsPhotos !== 999 && (
-                <div className="bg-tone border border-ink rounded-none p-4 text-center">
-                  <p className="text-ink text-sm">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                  <p className="text-amber-700 text-sm">
                     Você atingiu o limite de {packageLimits.momentsPhotos} fotos do plano {getPackage(selectedPackage!).displayName}.
                   </p>
                 </div>
@@ -794,7 +794,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     <Card key={photo.id} className="overflow-hidden">
                       <CardContent className="p-3">
                         <div className="flex gap-3">
-                          <div className="w-20 h-20 rounded-none overflow-hidden bg-tone shrink-0">
+                          <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                             <img
                               src={photo.url}
                               alt=""
@@ -808,14 +808,14 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                               onChange={(e) => updatePhotoCaption(photo.id, e.target.value)}
                               className="mb-2"
                             />
-                            <p className="text-xs text-soft">Foto {index + 1}</p>
+                            <p className="text-xs text-gray-400">Foto {index + 1}</p>
                           </div>
                           <Button
                             type="button"
                             variant="ghost"
                             size="icon"
                             onClick={() => removePhoto(photo.id)}
-                            className="text-soft hover:text-destructive"
+                            className="text-gray-400 hover:text-red-500"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -826,7 +826,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 </div>
               )}
 
-              <p className="text-center text-soft text-sm">
+              <p className="text-center text-gray-400 text-sm">
                 Você pode pular esta etapa se não quiser adicionar fotos
               </p>
             </motion.div>
@@ -851,10 +851,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               />
 
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-ink">
+                <h2 className="text-2xl font-serif font-medium text-gray-800">
                   Criar Timeline
                 </h2>
-                <p className="text-soft text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   {packageLimits && (
                     <>
                       Adicione até {packageLimits.timelineMoments === 999 ? 'ilimitados' : packageLimits.timelineMoments} momentos especiais
@@ -872,7 +872,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       <CardContent className="p-4">
                         <div className="flex items-start gap-3">
                           <div
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-paper text-sm font-semibold shrink-0"
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0"
                             style={{ backgroundColor: accentColor }}
                           >
                             {index + 1}
@@ -917,7 +917,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                     <img
                                       src={item.imageUrl}
                                       alt="Preview"
-                                      className="w-24 h-24 object-cover rounded-none"
+                                      className="w-24 h-24 object-cover rounded-lg"
                                     />
                                     <Button
                                       type="button"
@@ -949,7 +949,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                             variant="ghost"
                             size="icon"
                             onClick={() => removeTimelineItem(item.id)}
-                            className="text-soft hover:text-destructive"
+                            className="text-gray-400 hover:text-red-500"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -975,8 +975,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
               {/* Limit reached message */}
               {packageLimits && timelineItems.length >= packageLimits.timelineMoments && packageLimits.timelineMoments !== 999 && (
-                <div className="bg-tone border border-ink rounded-none p-4 text-center">
-                  <p className="text-ink text-sm">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-center">
+                  <p className="text-amber-700 text-sm">
                     Você atingiu o limite de {packageLimits.timelineMoments} momentos do plano {getPackage(selectedPackage!).displayName}.
                   </p>
                 </div>
@@ -984,14 +984,14 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
               {/* Show upgrade hint if package doesn't allow timeline images */}
               {packageLimits && !packageLimits.timelineImages && (
-                <div className="bg-tone border border-ink rounded-none p-4 text-center">
-                  <p className="text-ink text-sm">
-                    Faça upgrade para o plano Plus ou Premium para adicionar imagens aos momentos da timeline.
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+                  <p className="text-blue-700 text-sm">
+                    💡 Faça upgrade para o plano Plus ou Premium para adicionar imagens aos momentos da timeline.
                   </p>
                 </div>
               )}
 
-              <p className="text-center text-soft text-sm">
+              <p className="text-center text-gray-400 text-sm">
                 Você pode pular esta etapa se não quiser uma timeline
               </p>
             </motion.div>
@@ -1007,28 +1007,28 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               className="space-y-6"
             >
               <div className="text-center mb-8">
-                <h2 className="text-2xl font-medium text-ink">
+                <h2 className="text-2xl font-serif font-medium text-gray-800">
                   Adicionar Música
                 </h2>
-                <p className="text-soft text-sm mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   Defina o clima com música de fundo (opcional)
                 </p>
               </div>
 
               {/* Check if music is allowed */}
               {packageLimits && !packageLimits.music ? (
-                <div className="bg-tone border border-ink rounded-none p-6 text-center">
-                  <Music className="h-12 w-12 mx-auto text-ink mb-4" />
-                  <h3 className="text-lg font-medium text-ink mb-2">
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center">
+                  <Music className="h-12 w-12 mx-auto text-blue-300 mb-4" />
+                  <h3 className="text-lg font-medium text-blue-800 mb-2">
                     Música não disponível no plano {getPackage(selectedPackage!).displayName}
                   </h3>
-                  <p className="text-ink text-sm mb-4">
+                  <p className="text-blue-600 text-sm mb-4">
                     Faça upgrade para o plano Plus ou Premium para adicionar música de fundo à sua homenagem.
                   </p>
                   <Button
                     type="button"
                     variant="outline"
-                    className="border-ink text-ink hover:bg-tone"
+                    className="border-blue-500 text-blue-500 hover:bg-blue-100"
                     onClick={() => setCurrentStep(0)}
                   >
                     Ver Planos
@@ -1073,12 +1073,12 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
                       {isUploadingMusic ? (
                         /* Loading state */
-                        <div className="border-2 border-dashed border-border rounded-none p-8 text-center">
-                          <Loader2 className="h-12 w-12 mx-auto text-soft mb-3 animate-spin" />
-                          <p className="text-soft font-medium mb-1">
+                        <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center">
+                          <Loader2 className="h-12 w-12 mx-auto text-gray-300 mb-3 animate-spin" />
+                          <p className="text-gray-600 font-medium mb-1">
                             Processando arquivo de áudio...
                           </p>
-                          <p className="text-soft text-sm">
+                          <p className="text-gray-400 text-sm">
                             Por favor, aguarde enquanto preparamos sua música
                           </p>
                         </div>
@@ -1086,13 +1086,13 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                         /* Upload area */
                         <div
                           onClick={() => musicInputRef.current?.click()}
-                          className="border-2 border-dashed border-border rounded-none p-8 text-center cursor-pointer hover:border-ink transition-colors"
+                          className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-gray-300 transition-colors"
                         >
-                          <FileAudio className="h-12 w-12 mx-auto text-soft mb-3" />
-                          <p className="text-soft font-medium mb-1">
+                          <FileAudio className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+                          <p className="text-gray-600 font-medium mb-1">
                             Clique para enviar música
                           </p>
-                          <p className="text-soft text-sm">
+                          <p className="text-gray-400 text-sm">
                             MP3, WAV até 10MB
                           </p>
                         </div>
@@ -1105,19 +1105,19 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                 type="button"
                                 size="icon"
                                 onClick={togglePlayMusic}
-                                className="shrink-0 bg-ink hover:bg-deep"
+                                className="shrink-0 bg-pink-500 hover:bg-pink-600"
                               >
                                 {isPlaying ? (
-                                  <Pause className="h-5 w-5 text-paper" />
+                                  <Pause className="h-5 w-5 text-white" />
                                 ) : (
-                                  <Play className="h-5 w-5 text-paper ml-0.5" />
+                                  <Play className="h-5 w-5 text-white ml-0.5" />
                                 )}
                               </Button>
                               <div className="flex-1 min-w-0">
-                                <p className="font-medium text-ink truncate">
+                                <p className="font-medium text-gray-800 truncate">
                                   {musicFile.name}
                                 </p>
-                                <p className="text-xs text-soft">
+                                <p className="text-xs text-gray-400">
                                   Arquivo de música enviado
                                 </p>
                               </div>
@@ -1126,7 +1126,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                 variant="ghost"
                                 size="icon"
                                 onClick={removeMusic}
-                                className="text-soft hover:text-destructive"
+                                className="text-gray-400 hover:text-red-500"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -1146,7 +1146,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                             {...register('musicUrl')}
                             className="mt-1.5"
                           />
-                          <p className="text-xs text-soft mt-1">
+                          <p className="text-xs text-gray-400 mt-1">
                             Link direto para um arquivo MP3
                           </p>
                         </div>
@@ -1160,19 +1160,19 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                   type="button"
                                   size="icon"
                                   onClick={togglePlayMusic}
-                                  className="shrink-0 bg-ink hover:bg-deep"
+                                  className="shrink-0 bg-pink-500 hover:bg-pink-600"
                                 >
                                   {isPlaying ? (
-                                    <Pause className="h-5 w-5 text-paper" />
+                                    <Pause className="h-5 w-5 text-white" />
                                   ) : (
-                                    <Play className="h-5 w-5 text-paper ml-0.5" />
+                                    <Play className="h-5 w-5 text-white ml-0.5" />
                                   )}
                                 </Button>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-sm text-ink truncate">
+                                  <p className="text-sm text-gray-800 truncate">
                                     Arquivo de áudio
                                   </p>
-                                  <p className="text-xs text-soft truncate">
+                                  <p className="text-xs text-gray-400 truncate">
                                     {musicUrlValue}
                                   </p>
                                 </div>
@@ -1181,7 +1181,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => setValue('musicUrl', '')}
-                                  className="text-soft hover:text-destructive"
+                                  className="text-gray-400 hover:text-red-500"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -1194,11 +1194,11 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   </Tabs>
 
                   {/* Tips */}
-                  <div className="bg-tone rounded-none p-4">
-                    <p className="text-sm text-soft mb-2">
-                      Dicas para a música:
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <p className="text-sm text-gray-600 mb-2">
+                      🎵 Dicas para música:
                     </p>
-                    <ul className="text-xs text-soft space-y-1">
+                    <ul className="text-xs text-gray-500 space-y-1">
                       <li>• Envie um arquivo MP3 ou cole um link direto</li>
                       <li>• Considere direitos autorais ao escolher a música</li>
                       <li>• Alguns navegadores podem bloquear reprodução automática</li>
@@ -1206,7 +1206,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     </ul>
                   </div>
 
-                  <p className="text-center text-soft text-sm">
+                  <p className="text-center text-gray-400 text-sm">
                     Você pode pular esta etapa se não quiser música
                   </p>
                 </>
@@ -1217,13 +1217,13 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
         {/* Error message */}
         {error && currentStep !== 0 && (
-          <div className="mt-4 p-4 bg-tone rounded-none text-destructive text-sm">
+          <div className="mt-4 p-4 bg-red-50 rounded-lg text-red-600 text-sm">
             {error}
           </div>
         )}
 
         {/* Navigation - Hidden on mobile, shown on desktop */}
-        <div className="hidden md:flex justify-between mt-10">
+        <div className="hidden md:flex justify-between mt-8 pt-6 border-t">
           <Button
             type="button"
             variant="ghost"
@@ -1247,7 +1247,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 setError(null);
                 nextStep();
               }}
-              className="bg-ink hover:bg-deep gap-2"
+              className="bg-pink-500 hover:bg-pink-600 gap-2"
             >
               Próximo
               <ChevronRight className="h-4 w-4" />
@@ -1267,7 +1267,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 type="button"
                 onClick={() => handleSubmit(onSubmit)()}
                 disabled={isSubmitting}
-                className="bg-ink hover:bg-deep gap-2"
+                className="bg-pink-500 hover:bg-pink-600 gap-2"
               >
                 {isSubmitting ? (
                   <>
@@ -1287,7 +1287,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       </form>
 
       {/* Fixed bottom navigation for mobile */}
-      <div className="fixed bottom-0 left-0 right-0 bg-tone p-4 md:hidden z-50">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:hidden z-50">
         <div className="flex justify-between max-w-3xl mx-auto">
           <Button
             type="button"
@@ -1311,7 +1311,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 setError(null);
                 nextStep();
               }}
-              className="bg-ink hover:bg-deep gap-2"
+              className="bg-pink-500 hover:bg-pink-600 gap-2"
             >
               Próximo
               <ChevronRight className="h-4 w-4" />
@@ -1321,7 +1321,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               type="button"
               disabled={isSubmitting}
               onClick={() => handleSubmit(onSubmit)()}
-              className="bg-ink hover:bg-deep gap-2"
+              className="bg-pink-500 hover:bg-pink-600 gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -1359,10 +1359,10 @@ function TemplateGrid({ templates, selectedId, onSelect }: TemplateGridProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelect(template.name)}
-          className={`relative rounded-none overflow-hidden text-left transition-colors ${
+          className={`relative rounded-xl overflow-hidden text-left transition-all ${
             selectedId === template.name
-              ? 'ring-2 ring-offset-2 ring-ink'
-              : 'ring-1 ring-border hover:ring-ink'
+              ? 'ring-2 ring-offset-2 ring-pink-500'
+              : 'ring-1 ring-gray-200 hover:ring-gray-300'
           }`}
         >
           {/* Preview */}
@@ -1370,21 +1370,25 @@ function TemplateGrid({ templates, selectedId, onSelect }: TemplateGridProps) {
             className="aspect-[4/3] relative"
             style={{ backgroundColor: template.backgroundColor }}
           >
-            {/* A miniature of the tribute's first screen in this template's colours */}
-            <div className="absolute inset-x-0 top-0 h-3 flex overflow-hidden" aria-hidden="true">
-              {Array.from({ length: 24 }).map((_, i) => (
-                <span
-                  key={i}
-                  className="shrink-0 w-3"
-                  style={{ backgroundColor: i % 2 === 0 ? template.accentColor : template.backgroundColor }}
-                />
-              ))}
-            </div>
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center" style={{ color: template.accentColor }}>
-              <span className="text-step-small">Para Maria</span>
-              <span className="mt-1 text-step-lead font-semibold tracking-[-0.04em] leading-none">
-                {template.displayName}
-              </span>
+            {/* Gradient preview */}
+            <div
+              className="absolute inset-0 opacity-50"
+              style={{
+                background: `linear-gradient(135deg, ${template.accentColor}30 0%, transparent 100%)`,
+              }}
+            />
+
+            {/* Content preview */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+              <div
+                className="w-10 h-10 rounded-full mb-2"
+                style={{ backgroundColor: `${template.accentColor}30` }}
+              />
+              <div
+                className="h-2 w-16 rounded mb-1.5"
+                style={{ backgroundColor: template.accentColor }}
+              />
+              <div className="h-1.5 w-12 rounded bg-gray-300" />
             </div>
 
             {/* Selected check */}
@@ -1392,9 +1396,9 @@ function TemplateGrid({ templates, selectedId, onSelect }: TemplateGridProps) {
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center bg-ink"
+                className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center bg-pink-500"
               >
-                <svg className="w-4 h-4 text-paper" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </motion.div>
@@ -1402,9 +1406,9 @@ function TemplateGrid({ templates, selectedId, onSelect }: TemplateGridProps) {
           </div>
 
           {/* Info */}
-          <div className="p-3 bg-tone">
-            <p className="font-medium text-sm text-ink">{template.displayName}</p>
-            <p className="text-step-small text-soft mt-0.5">{template.description}</p>
+          <div className="p-3 bg-white">
+            <p className="font-medium text-sm text-gray-800">{template.displayName}</p>
+            <p className="text-xs text-gray-500 mt-0.5">{template.category}</p>
           </div>
         </motion.button>
       ))}

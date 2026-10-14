@@ -104,7 +104,8 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
       >
         <motion.div
           layout
-          className="bg-white shadow-lg overflow-hidden" /* taste-skill-ignore: the player floats over the page */
+          className="bg-white/95 backdrop-blur-md rounded-full shadow-lg border border-gray-100 overflow-hidden"
+          style={{ borderColor: `${accentColor}20` }}
         >
           <AnimatePresence>
             {isExpanded && (
@@ -127,7 +128,7 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
                       '--slider-color': accentColor,
                     }}
                   />
-                  <div className="flex justify-between text-step-small text-[#55504c] mt-1 tabular-nums">
+                  <div className="flex justify-between text-xs text-gray-400 mt-1 font-mono">
                     <span>{formatTime(progress)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>
@@ -161,7 +162,7 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
 
                 {/* Song info */}
                 {config.title && (
-                  <div className="mt-2 text-step-small text-[#55504c] text-center">
+                  <div className="mt-2 text-xs text-gray-500 text-center">
                     <span className="font-medium" style={{ color: accentColor }}>
                       {config.title}
                     </span>
@@ -178,7 +179,7 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
               variant="ghost"
               size="icon"
               onClick={togglePlay}
-              className="press h-10 w-10"
+              className="h-10 w-10 rounded-full transition-all"
               style={{
                 backgroundColor: isPlaying ? `${accentColor}15` : 'transparent',
                 color: accentColor,
@@ -200,7 +201,7 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
                 className="h-4 w-4"
                 style={{ color: accentColor }}
               />
-              <span className="text-step-small text-[#1d1b1a] font-medium">
+              <span className="text-xs text-gray-500 font-medium">
                 {isPlaying ? 'Tocando' : 'Música'}
               </span>
             </motion.div>
@@ -208,6 +209,36 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
         </motion.div>
       </motion.div>
 
+      {/* Visual playing indicator */}
+      <AnimatePresence>
+        {isPlaying && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed bottom-20 right-4 z-40"
+          >
+            <div className="flex items-end gap-0.5 h-4">
+              {[1, 2, 3, 4].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-1 rounded-full"
+                  style={{ backgroundColor: accentColor }}
+                  animate={{
+                    height: ['100%', '40%', '100%'],
+                  }}
+                  transition={{
+                    duration: 0.5,
+                    repeat: Infinity,
+                    delay: i * 0.1,
+                    ease: 'easeInOut',
+                  }}
+                />
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

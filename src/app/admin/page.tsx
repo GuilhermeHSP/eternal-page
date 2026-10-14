@@ -80,13 +80,13 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-[100svh] bg-tone">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-tone sticky top-0 z-10">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-ink" />
-            <span className="text-xl font-semibold text-ink">
+            <Heart className="h-6 w-6 text-rose-500" />
+            <span className="font-serif text-xl font-semibold text-gray-800">
               EternalPage Admin
             </span>
           </div>
@@ -95,7 +95,7 @@ export default function AdminPage() {
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>
-            <Button asChild size="sm" className="bg-ink hover:bg-deep">
+            <Button asChild size="sm" className="bg-gray-900 hover:bg-gray-800">
               <a href="/">Back to App</a>
             </Button>
           </div>
@@ -108,36 +108,36 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-soft">
+              <CardTitle className="text-sm font-medium text-gray-500">
                 Total Tributes
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-ink tabular-nums">
+              <p className="text-3xl font-bold text-gray-800 tabular-nums">
                 {tributes.length}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-soft">
+              <CardTitle className="text-sm font-medium text-gray-500">
                 Total Views
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-ink tabular-nums">
+              <p className="text-3xl font-bold text-gray-800 tabular-nums">
                 {tributes.reduce((acc, t) => acc + t.viewCount, 0).toLocaleString()}
               </p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-soft">
+              <CardTitle className="text-sm font-medium text-gray-500">
                 Published
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-ink tabular-nums">
+              <p className="text-3xl font-bold text-gray-800 tabular-nums">
                 {tributes.filter((t) => t.isPublished).length}
               </p>
             </CardContent>
@@ -147,7 +147,7 @@ export default function AdminPage() {
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-soft" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder="Search tributes..."
               value={searchTerm}
@@ -160,11 +160,11 @@ export default function AdminPage() {
         {/* Tributes list */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <RefreshCw className="h-8 w-8 animate-spin text-soft" />
+            <RefreshCw className="h-8 w-8 animate-spin text-gray-400" />
           </div>
         ) : filteredTributes.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-soft">No tributes found</p>
+            <p className="text-gray-500">No tributes found</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -173,28 +173,28 @@ export default function AdminPage() {
                 key={tribute.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-tone rounded-none border border-border p-4 hover:border-ink transition-colors"
+                className="bg-white rounded-xl border border-gray-200 p-4 hover:border-gray-300 transition-colors"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-ink truncate">
+                      <h3 className="font-semibold text-gray-800 truncate">
                         {tribute.title}
                       </h3>
                       {tribute.isPublished && (
-                        <Badge variant="secondary" className="bg-tone text-ink">
+                        <Badge variant="secondary" className="bg-green-50 text-green-700">
                           Published
                         </Badge>
                       )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-soft">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <User className="h-3.5 w-3.5" />
                         {tribute.recipient}
                       </div>
                       <div className="flex items-center gap-1">
                         <Hash className="h-3.5 w-3.5" />
-                        <code className="text-xs bg-tone px-1.5 py-0.5 rounded">
+                        <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded">
                           {tribute.slug}
                         </code>
                       </div>
@@ -231,7 +231,7 @@ export default function AdminPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => deleteTribute(tribute.id)}
-                      className="text-soft hover:text-destructive"
+                      className="text-gray-400 hover:text-red-500"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
