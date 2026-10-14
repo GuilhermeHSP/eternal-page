@@ -55,6 +55,17 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
     }
   }, [volume]);
 
+  // Opening the envelope is a tap, so the browser allows the music to start right then.
+  useEffect(() => {
+    const onOpen = () => {
+      const audio = audioRef.current;
+      if (!audio || !audio.paused) return;
+      audio.play().then(() => setIsPlaying(true)).catch(() => {});
+    };
+    window.addEventListener('eternalpage:open', onOpen);
+    return () => window.removeEventListener('eternalpage:open', onOpen);
+  }, []);
+
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio) return;

@@ -10,6 +10,7 @@ import { MessageSection, ClosingMessage } from './message-section';
 import { PhotoGallery, PhotoCarousel } from './photo-gallery';
 import { Timeline } from './timeline';
 import { ShareSection } from './share-section';
+import { EnvelopeIntro } from './envelope-intro';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -26,9 +27,10 @@ interface TributeViewerProps {
   slug: string;
   showShare?: boolean;
   showBackButton?: boolean;
+  showIntro?: boolean;
 }
 
-export function TributeViewer({ config, slug, showShare = true, showBackButton = true }: TributeViewerProps) {
+export function TributeViewer({ config, slug, showShare = true, showBackButton = true, showIntro = true }: TributeViewerProps) {
   // Get template style with overrides
   const templateStyle = useMemo<TemplateStyleConfig>(() => {
     const baseTemplate = getTemplate(config.template) || templates.romantic;
@@ -74,6 +76,14 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
           background: `radial-gradient(60% 50% at 15% 20%, ${templateStyle.accentColor}14 0%, transparent 70%), radial-gradient(55% 45% at 85% 80%, ${templateStyle.accentColor}10 0%, transparent 70%)`,
         }}
       />
+
+      {showIntro && (
+        <EnvelopeIntro
+          recipient={config.recipient}
+          accentColor={templateStyle.accentColor}
+          backgroundColor={templateStyle.backgroundColor}
+        />
+      )}
 
       {/* Background animations - client only */}
       <BackgroundAnimations config={templateStyle.backgroundAnimation} />

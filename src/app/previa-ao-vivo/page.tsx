@@ -35,7 +35,7 @@ export default function LivePreviewFrame() {
   return (
     <>
       <style>{'html{scrollbar-width:none}html::-webkit-scrollbar{display:none}'}</style>
-      <TributeViewer config={config} slug="previa" showShare={false} showBackButton={false} />
+      <TributeViewer config={config} slug="previa" showShare={false} showBackButton={false} showIntro={false} />
     </>
   );
 }
