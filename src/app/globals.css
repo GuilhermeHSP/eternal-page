@@ -189,3 +189,12 @@ html {
     transform: translateY(1px) scale(0.98);
   }
 }
+
+/* Tribute opening: the recipient's name handwritten, the title light and spaced */
+.font-script {
+  font-family: 'Great Vibes', cursive;
+  font-weight: 400;
+}
+.font-title {
+  font-family: 'Josefin Sans', system-ui, sans-serif;
+}

@@ -5,7 +5,7 @@ async function main() {
   console.log('Creating demo tribute...');
 
   const config: TributeConfig = {
-    title: 'Para a melhor mãe do mundo ❤️',
+    title: 'A melhor mãe do mundo!',
     recipient: 'Maria',
     template: 'mothersDay',
     hero: {
