@@ -665,6 +665,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     key={pkg.id}
                     pkg={pkg}
                     selected={selectedPackage === pkg.id}
+                    anySelected={!!selectedPackage}
                     onSelect={() => setSelectedPackage(pkg.id)}
                     ctaLabel={selectedPackage === pkg.id ? 'Selecionado' : 'Escolher ' + pkg.displayName}
                   />

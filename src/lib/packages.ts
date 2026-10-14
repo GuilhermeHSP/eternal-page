@@ -24,6 +24,7 @@ export interface PackageLimits {
   timelineMoments: number;    // Max timeline items
   timelineImages: boolean;    // Can add images to timeline items
   music: boolean;             // Can add background music (and a voice message)
+  envelope: boolean;          // Page opens with the tap-to-open envelope
 }
 
 const COMPLETE: PackageConfig = {
@@ -50,6 +51,7 @@ const COMPLETE: PackageConfig = {
     timelineMoments: 999,
     timelineImages: true,
     music: true,
+    envelope: true,
   },
   popular: true,
 };
@@ -64,19 +66,19 @@ export const PACKAGES: Record<PackageType, PackageConfig> = {
     originalPrice: 37.9,
     features: [
       'Até 5 fotos na galeria',
-      'Até 5 momentos na linha do tempo',
+      'Até 5 momentos na linha do tempo (só texto)',
       'Carta, contador e motivos para te amar',
       'Mural de recados para família e amigos',
-      'Abertura com envelope surpresa',
       'Link e cartão com QR code para imprimir',
       'Página no ar por 1 ano',
     ],
-    missing: ['Música de fundo', 'Mensagem de voz', 'Fotos na linha do tempo'],
+    missing: ['Abertura com envelope surpresa', 'Música de fundo', 'Mensagem de voz'],
     limits: {
       momentsPhotos: 5,
       timelineMoments: 5,
       timelineImages: false,
       music: false,
+      envelope: false,
     },
   },
   plus: { ...COMPLETE, id: 'plus' },

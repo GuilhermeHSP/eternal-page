@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Prisma } from '@prisma/client';
 import { db } from '@/lib/db';
+import { getPackage, type PackageType } from '@/lib/packages';
 import { TributeViewer } from '@/components/tribute/tribute-viewer';
 import { TributeConfig } from '@/types/tribute';
 
@@ -72,7 +73,10 @@ export default async function TributePage({ params }: PageProps) {
     data: { viewCount: { increment: 1 } },
   }).catch((e) => console.error('Failed to increment view count:', e));
 
-  return <TributeViewer config={buildConfig(tribute)} slug={tribute.slug} />;
+  // The tap-to-open envelope is part of the Completo package
+  const showIntro = getPackage((tribute.packageType as PackageType) || 'basic').limits.envelope;
+
+  return <TributeViewer config={buildConfig(tribute)} slug={tribute.slug} showIntro={showIntro} />;
 }
 
 type TributeWithRelations = Prisma.TributeGetPayload<{ include: { photos: true; timeline: true } }>;

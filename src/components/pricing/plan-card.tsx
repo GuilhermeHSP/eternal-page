@@ -8,13 +8,15 @@ interface PlanCardProps {
   onSelect: () => void;
   ctaLabel: string;
   selected?: boolean;
+  // True once the person has picked a package: then only the picked card looks active.
+  anySelected?: boolean;
 }
 
 // One package: name, regular price struck through, today's price, what's in and what isn't.
 // Used on the home page and in the creator's first step so both always show the same thing.
-export function PlanCard({ pkg, onSelect, ctaLabel, selected = false }: PlanCardProps) {
+export function PlanCard({ pkg, onSelect, ctaLabel, selected = false, anySelected = false }: PlanCardProps) {
   const discount = discountLabel(pkg);
-  const highlighted = pkg.popular;
+  const highlighted = pkg.popular && !anySelected;
 
   return (
     <div
@@ -27,7 +29,7 @@ export function PlanCard({ pkg, onSelect, ctaLabel, selected = false }: PlanCard
             : 'ring-1 ring-gray-200 hover:ring-rose-200'
       }`}
     >
-      {highlighted && (
+      {pkg.popular && (
         <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap px-4 py-1 rounded-full bg-rose-500 text-white text-xs font-semibold uppercase tracking-wider">
           Mais escolhido
         </span>
