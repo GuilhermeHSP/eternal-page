@@ -20,10 +20,12 @@ import {
   MessageCircleHeart,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { PACKAGE_LIST, formatPrice, type PackageType } from '@/lib/packages';
+import { PACKAGE_LIST, LOWEST_PRICE, formatPrice, type PackageType } from '@/lib/packages';
+import { PlanCard } from '@/components/pricing/plan-card';
 import { getTemplate } from '@/lib/templates';
 import type { TributeConfig } from '@/types/tribute';
 import { RevealObserver } from '@/components/reveal-observer';
+import { SiteHeader } from '@/components/site-header';
 import { PhoneFrame } from '@/components/tribute/live-preview';
 import { OCCASIONS, GALLERY, FAQ, CREDITS, DEMO_CONFIG } from './landing-data';
 
@@ -78,18 +80,14 @@ export function LandingPage({ onStart }: LandingPageProps) {
 
 function Header({ onStart }: { onStart: () => void }) {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/85 backdrop-blur-md border-b border-gray-100">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <a href="/" className="flex items-center gap-2">
-          <Heart className="h-6 w-6 text-rose-500" fill="currentColor" />
-          <span className="font-title text-xl font-semibold tracking-wide text-gray-800">EternalPage</span>
-        </a>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-gray-600">
-          <a href="#como-funciona" className="hover:text-rose-500">Como funciona</a>
-          <a href="#exemplo" className="hover:text-rose-500">Exemplo</a>
-          <a href="#modelos" className="hover:text-rose-500">Modelos</a>
-          <a href="#precos" className="hover:text-rose-500">Preços</a>
-        </nav>
+    <SiteHeader
+      nav={[
+        { href: '#como-funciona', label: 'Como funciona' },
+        { href: '#exemplo', label: 'Exemplo' },
+        { href: '#modelos', label: 'Modelos' },
+        { href: '#precos', label: 'Preços' },
+      ]}
+      action={
         <button
           type="button"
           onClick={onStart}
@@ -97,8 +95,8 @@ function Header({ onStart }: { onStart: () => void }) {
         >
           Criar homenagem
         </button>
-      </div>
-    </header>
+      }
+    />
   );
 }
 
@@ -138,15 +136,29 @@ function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: 
     <section className="relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 pt-10 md:pt-16 pb-16 grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
         <div>
-          <h1 className="font-title text-4xl md:text-6xl font-semibold leading-[1.08] text-gray-900" data-reveal>
-            Uma página inteira para quem você ama
+          <h1 className="font-title text-[2.6rem] md:text-6xl font-semibold leading-[1.08] tracking-tight text-gray-900" data-reveal>
+            Uma{' '}
+            <span className="relative inline-block whitespace-nowrap text-rose-500">
+              <span className="relative z-10">página eterna</span>
+              {/* brush stroke under the brand words */}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 300 24"
+                preserveAspectRatio="none"
+                className="absolute left-0 -bottom-1 md:-bottom-2 w-full h-3 md:h-4 text-rose-200"
+              >
+                <path d="M4 16 C 60 6, 140 4, 296 12" stroke="currentColor" strokeWidth="10" strokeLinecap="round" fill="none" />
+              </svg>
+            </span>{' '}
+            <br className="hidden md:block" />
+            para quem você ama
           </h1>
           <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-xl leading-relaxed" data-reveal style={delay(1)}>
             Para a mãe, o pai, os avós, o amor, a melhor amiga ou quem deixou saudade. Fotos, carta, linha do
             tempo e música numa homenagem que você monta em minutos e envia de presente.
           </p>
 
-          <form onSubmit={submit} className="mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
+          <form data-cta-anchor onSubmit={submit} className="mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
             <label htmlFor="hero-name" className="block text-sm font-semibold text-gray-700">
               Para quem é a homenagem?
             </label>
@@ -183,7 +195,7 @@ function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: 
             </button>
             <p className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-gray-500">
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Prévia grátis</span>
-              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pagamento único a partir de {formatPrice(29.9)}</span>
+              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pagamento único a partir de {formatPrice(LOWEST_PRICE)}</span>
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pronta em minutos</span>
             </p>
           </form>
@@ -353,7 +365,7 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
             <PhoneFrame config={DEMO_CONFIG as TributeConfig} focus={focus} width={280} />
           </div>
         </div>
-        <p className="mt-6 text-center text-xs text-gray-400">Fotos do exemplo: acervos públicos (créditos no rodapé). Música disponível nos planos Plus e Premium.</p>
+        <p className="mt-6 text-center text-xs text-gray-400">Fotos do exemplo: acervos públicos (créditos no rodapé). Música e mensagem de voz no pacote Completo.</p>
       </div>
     </section>
   );
@@ -414,44 +426,10 @@ function Pricing({ onPick }: { onPick: (packageType: PackageType) => void }) {
     <section id="precos" className="py-20 px-4">
       <div className="max-w-5xl mx-auto">
         <SectionTitle kicker="Preços" title="Um pagamento, uma lembrança eterna" text="Sem assinatura. Você só paga depois de ver a prévia pronta." />
-        <div className="grid md:grid-cols-3 gap-6 items-stretch">
+        <div className="grid md:grid-cols-2 gap-6 items-stretch max-w-3xl mx-auto pt-3">
           {PACKAGE_LIST.map((pkg, i) => (
-            <div
-              key={pkg.id}
-              className={`relative flex flex-col rounded-3xl bg-white p-7 ${
-                pkg.popular ? 'ring-2 ring-rose-500 shadow-2xl shadow-rose-100 md:-my-3' : 'ring-1 ring-gray-100'
-              }`}
-              data-reveal
-              style={delay(i)}
-            >
-              {pkg.popular && (
-                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-rose-500 text-white text-xs font-semibold uppercase tracking-wider">
-                  Mais escolhido
-                </span>
-              )}
-              <h3 className="font-title text-2xl font-semibold text-gray-900">{pkg.displayName}</h3>
-              <p className="mt-1 text-sm text-gray-500">{pkg.description}</p>
-              <p className="mt-6 flex items-baseline gap-1 tabular-nums">
-                <span className="text-4xl font-bold text-gray-900">{formatPrice(pkg.price)}</span>
-                <span className="text-sm text-gray-500">pagamento único</span>
-              </p>
-              <ul className="mt-6 space-y-2.5 text-gray-600 flex-1">
-                {pkg.features.map((f) => (
-                  <li key={f} className="flex gap-2.5">
-                    <Check className="h-5 w-5 shrink-0 text-rose-500" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                onClick={() => onPick(pkg.id)}
-                className={`press mt-8 h-12 rounded-full font-semibold ${
-                  pkg.popular ? 'bg-rose-500 hover:bg-rose-600 text-white' : 'bg-rose-50 hover:bg-rose-100 text-rose-600'
-                }`}
-              >
-                Escolher {pkg.displayName}
-              </button>
+            <div key={pkg.id} className="flex" data-reveal style={delay(i)}>
+              <PlanCard pkg={pkg} onSelect={() => onPick(pkg.id)} ctaLabel={'Escolher ' + pkg.displayName} />
             </div>
           ))}
         </div>
@@ -495,7 +473,7 @@ function FinalCta({ name, onNameChange, onStart }: { name: string; onNameChange:
         <Heart className="absolute -right-10 -bottom-10 h-56 w-56 text-white/10" fill="currentColor" aria-hidden="true" />
         <h2 className="font-script text-5xl md:text-6xl leading-tight">Faça alguém se emocionar hoje</h2>
         <p className="mt-4 text-white/90 max-w-xl mx-auto">Comece agora. Você só paga quando a página estiver do jeito que você quer.</p>
-        <form onSubmit={submit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto relative">
+        <form data-cta-anchor onSubmit={submit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto relative">
           <label htmlFor="final-name" className="sr-only">Nome de quem vai receber</label>
           <input
             id="final-name"
@@ -549,9 +527,26 @@ function Footer() {
 
 // On phones the main action is always one tap away.
 function MobileCta({ onStart }: { onStart: () => void }) {
+  // Only appears while no other "create" form is on screen, so the action is never shown twice.
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const anchors = document.querySelectorAll('[data-cta-anchor]');
+    if (!anchors.length || !('IntersectionObserver' in window)) return;
+    const visible = new Set<Element>();
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target)));
+      setShow(visible.size === 0);
+    });
+    anchors.forEach((a) => io.observe(a));
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="sm:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 border-t border-gray-100">
-      <button type="button" onClick={onStart} className="press w-full h-12 rounded-full bg-rose-500 text-white font-semibold inline-flex items-center justify-center gap-2">
+    <div
+      className={'sm:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 border-t border-gray-100 transition-transform duration-300 ' + (show ? 'translate-y-0' : 'translate-y-full')}
+      aria-hidden={!show}
+    >
+      <button type="button" tabIndex={show ? 0 : -1} onClick={onStart} className="press w-full h-12 rounded-full bg-rose-500 text-white font-semibold inline-flex items-center justify-center gap-2">
         <Heart className="h-4 w-4" fill="currentColor" />
         Criar minha homenagem
       </button>

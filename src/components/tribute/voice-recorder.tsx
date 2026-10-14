@@ -128,7 +128,7 @@ export function VoiceRecorder({ value, onChange, onFocus }: VoiceRecorderProps) 
               Parar ({mm}:{ss})
             </Button>
           ) : (
-            <Button type="button" onClick={start} disabled={busy} className="gap-2 bg-pink-500 hover:bg-pink-600">
+            <Button type="button" onClick={start} disabled={busy} className="gap-2 bg-rose-500 hover:bg-rose-600">
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
               Gravar mensagem
             </Button>

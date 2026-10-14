@@ -185,7 +185,7 @@ function PreviewContent() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Preview Mode Header */}
-      <div className="fixed top-0 left-0 right-0 z-[9999] bg-gradient-to-r from-amber-500 to-orange-500 shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-500">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
@@ -218,8 +218,8 @@ function PreviewContent() {
         <div className="max-w-2xl mx-auto px-4 mt-8">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-rose-500 to-pink-500 p-6 text-center">
-              <h2 className="text-2xl font-serif font-medium text-white mb-2">
+            <div className="bg-gradient-to-r from-rose-500 to-rose-500 p-6 text-center">
+              <h2 className="text-2xl font-title font-semibold text-white mb-2">
                 Gostou da sua página?
               </h2>
               <p className="text-white/80">

@@ -1,5 +1,6 @@
 'use client';
 
+import { SiteHeader } from '@/components/site-header';
 import { Suspense, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -41,7 +42,8 @@ function PaymentSuccessContent() {
 
   if (!paymentData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24">
+        <SiteHeader />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -57,7 +59,8 @@ function PaymentSuccessContent() {
   const pkg = PACKAGES[packageType];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24 px-4">
+      <SiteHeader />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -69,9 +72,9 @@ function PaymentSuccessContent() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring' }}
-            className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6"
+            className="w-20 h-20 rounded-full bg-rose-100 flex items-center justify-center mx-auto mb-6"
           >
-            <CheckCircle className="h-10 w-10 text-green-500" />
+            <CheckCircle className="h-10 w-10 text-rose-500" />
           </motion.div>
 
           {/* Title */}
@@ -80,7 +83,7 @@ function PaymentSuccessContent() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h1 className="text-2xl font-serif font-medium text-gray-900 mb-2">
+            <h1 className="text-2xl font-title font-semibold text-gray-900 mb-2">
               Pagamento Confirmado!
             </h1>
             <p className="text-gray-500 mb-6">
@@ -151,13 +154,14 @@ function PaymentSuccessContent() {
 export default function PaymentSuccessPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-green-50/30 to-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24">
+        <SiteHeader />
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center"
         >
-          <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <div className="w-12 h-12 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Verificando pagamento...</p>
         </motion.div>
       </div>

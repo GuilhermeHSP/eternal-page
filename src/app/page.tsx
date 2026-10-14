@@ -3,9 +3,9 @@
 import { useState, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
-import { Heart } from 'lucide-react';
 import { TributeCreator } from '@/components/tribute/tribute-creator';
 import { LandingPage, type StartOptions } from '@/components/landing/landing-page';
+import { SiteHeader } from '@/components/site-header';
 
 function HomePageContent() {
   const searchParams = useSearchParams();
@@ -29,14 +29,13 @@ function HomePageContent() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white via-rose-50/30 to-white">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
-            <Heart className="h-6 w-6 text-rose-500" />
-            <span className="font-serif text-xl font-semibold text-gray-800">EternalPage</span>
+      <SiteHeader
+        action={
+          <a href="/" className="text-sm text-gray-500 hover:text-rose-500">
+            Voltar ao início
           </a>
-        </div>
-      </header>
+        }
+      />
 
       <main className="flex-1 pt-16">
         <motion.div

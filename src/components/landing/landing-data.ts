@@ -142,7 +142,7 @@ export const STEPS = [
   {
     group: 'No fim',
     rows: [
-      { what: 'Pagar uma vez para publicar', value: 'R$ 29,90+' },
+      { what: 'Pagar uma vez para publicar', value: 'R$ 18,90+' },
       { what: 'Copiar o link e enviar', value: 'na hora' },
     ],
   },
@@ -159,7 +159,7 @@ export const FAQ = [
   },
   {
     q: 'Por quanto tempo a página fica no ar?',
-    a: 'Depende do pacote: 30 dias na Básica, um ano na Plus e para sempre na Premium.',
+    a: 'No Básico, a página fica no ar por 1 ano. No Completo, para sempre.',
   },
   {
     q: 'Posso mudar alguma coisa antes de publicar?',
@@ -167,11 +167,11 @@ export const FAQ = [
   },
   {
     q: 'Quantas fotos cabem?',
-    a: 'Até 3 na Básica, até 10 na Plus e sem limite na Premium.',
+    a: 'Até 5 no Básico e sem limite no Completo.',
   },
   {
     q: 'Dá para colocar música?',
-    a: 'Sim, nos pacotes Plus e Premium. Você envia um arquivo de áudio ou cola o link da música.',
+    a: 'Sim, no pacote Completo, que também permite gravar uma mensagem de voz. Você envia um arquivo de áudio ou cola o link da música.',
   },
   {
     q: 'Como eu entrego o presente?',
