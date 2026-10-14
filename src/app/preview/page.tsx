@@ -237,7 +237,7 @@ function PreviewContent() {
         <div className="relative">
           <WatermarkOverlay />
           {tributeConfig && (
-            <TributeViewer config={tributeConfig} slug={draft.slug || draft.id} showShare={false} showBackButton={false} showIntro={packageInfo.limits.envelope && tributeConfig.envelope !== false} />
+            <TributeViewer config={tributeConfig} slug={draft.slug || draft.id} live={false} showBackButton={false} showIntro={packageInfo.limits.envelope && tributeConfig.envelope !== false} />
           )}
         </div>
 

@@ -9,7 +9,6 @@ import { MusicPlayer } from './music-player';
 import { MessageSection, ClosingMessage } from './message-section';
 import { PhotoGallery, PhotoCarousel } from './photo-gallery';
 import { Timeline } from './timeline';
-import { ShareSection } from './share-section';
 import { EnvelopeIntro } from './envelope-intro';
 import { CounterSection } from './counter-section';
 import { ReasonsSection } from './reasons-section';
@@ -29,12 +28,13 @@ const BackgroundAnimations = dynamic(
 interface TributeViewerProps {
   config: TributeConfig;
   slug: string;
-  showShare?: boolean;
+  // The published page: the guestbook takes real messages. Off in previews.
+  live?: boolean;
   showBackButton?: boolean;
   showIntro?: boolean;
 }
 
-export function TributeViewer({ config, slug, showShare = true, showBackButton = true, showIntro = true }: TributeViewerProps) {
+export function TributeViewer({ config, slug, live = true, showBackButton = true, showIntro = true }: TributeViewerProps) {
   // Get template style with overrides
   const templateStyle = useMemo<TemplateStyleConfig>(() => {
     const baseTemplate = getTemplate(config.template) || templates.romantic;
@@ -185,7 +185,7 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
               slug={slug}
               accentColor={templateStyle.accentColor}
               recipient={config.recipient}
-              live={showShare && slug !== 'previa'}
+              live={live && slug !== 'previa'}
             />
           )}
         </div>
@@ -203,14 +203,7 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         )}
         </div>
 
-        {/* Share Section */}
-        {showShare && (
-          <ShareSection
-            slug={slug}
-            title={config.title}
-            accentColor={templateStyle.accentColor}
-          />
-        )}
+        {/* Sharing is for the giver (finalize page and WhatsApp), never on the page the person receives. */}
 
         {/* Footer */}
         <footer className={`${config.music?.url ? 'pb-28' : 'pb-12'} pt-4 px-4`}>
