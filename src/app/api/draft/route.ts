@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
       counterDate,
       counterLabel,
       reasons,
+      voiceMessage,
       photos = [],
       timeline = [],
     } = body;
@@ -87,6 +88,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Build config JSON
+    // Voice messages are audio data URLs; anything else is dropped
+    const voice =
+      typeof voiceMessage === 'string' && voiceMessage.startsWith('data:audio/') && voiceMessage.length < 12_000_000
+        ? voiceMessage
+        : undefined;
+
     // A colour the person picked overrides the template's own
     const config = {
       message: message || null,
@@ -95,6 +102,7 @@ export async function POST(request: NextRequest) {
       ...(typeof counterDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(counterDate)
         ? { counter: { date: counterDate, label: typeof counterLabel === 'string' ? counterLabel.slice(0, 40) : undefined } }
         : {}),
+      ...(voice ? { voiceMessage: voice } : {}),
       ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
         ? {
             reasons: reasons

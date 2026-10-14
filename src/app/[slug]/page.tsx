@@ -115,5 +115,6 @@ function buildConfig(tribute: TributeWithRelations): TributeConfig {
     style: stored.style,
     counter: stored.counter,
     reasons: stored.reasons,
+    voiceMessage: stored.voiceMessage,
   };
 }

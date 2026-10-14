@@ -13,6 +13,7 @@ import { ShareSection } from './share-section';
 import { EnvelopeIntro } from './envelope-intro';
 import { CounterSection } from './counter-section';
 import { ReasonsSection } from './reasons-section';
+import { VoiceMessageSection } from './voice-message-section';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -132,6 +133,13 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         <div data-preview="counter">
           {config.counter?.date && (
             <CounterSection config={config.counter} accentColor={templateStyle.accentColor} />
+          )}
+        </div>
+
+        {/* Voice message */}
+        <div data-preview="voice">
+          {config.voiceMessage && (
+            <VoiceMessageSection url={config.voiceMessage} accentColor={templateStyle.accentColor} authorName={config.authorName} />
           )}
         </div>
 

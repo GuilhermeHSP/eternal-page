@@ -149,6 +149,7 @@ function PreviewContent() {
       style: (draft.config?.style as TributeConfig['style']) || undefined,
       counter: (draft.config?.counter as TributeConfig['counter']) || undefined,
       reasons: (draft.config?.reasons as string[]) || undefined,
+      voiceMessage: (draft.config?.voiceMessage as string) || undefined,
     };
   }, [draft]);
 

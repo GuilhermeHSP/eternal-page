@@ -40,6 +40,7 @@ import { TemplateStyleConfig } from '@/types/tribute';
 import type { PackageType } from '@/lib/packages';
 import { PACKAGES, PACKAGE_LIST, formatPrice, getPackage } from '@/lib/packages';
 import { LivePreview, type PreviewSection } from './live-preview';
+import { VoiceRecorder } from './voice-recorder';
 import { fileToResizedDataUrl } from '@/lib/image';
 import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
@@ -111,6 +112,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   // A colour picked by the person; null keeps the template's own colour.
   const [customColor, setCustomColor] = useState<string | null>(null);
   const [reasons, setReasons] = useState<string[]>([]);
+  const [voiceMessage, setVoiceMessage] = useState<string | null>(null);
   const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(initialPackage ?? null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
@@ -163,6 +165,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           setValue('musicUrl', data.musicUrl || '');
           setValue('closingMessage', data.closingMessage || '');
           if (Array.isArray(data.config?.reasons)) setReasons(data.config.reasons);
+          if (typeof data.config?.voiceMessage === 'string') setVoiceMessage(data.config.voiceMessage);
           if (data.config?.counter?.date) {
             setValue('counterDate', data.config.counter.date);
             setValue('counterLabel', data.config.counter.label || '');
@@ -445,6 +448,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         counterDate: data.counterDate || undefined,
         counterLabel: data.counterLabel || undefined,
         reasons: reasons.map((r) => r.trim()).filter(Boolean),
+        voiceMessage: packageLimits?.music ? voiceMessage || undefined : undefined,
         accentColor: customColor || undefined,
         packageType: selectedPackage,
         photos: photos.map((p, i) => ({
@@ -535,6 +539,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       .map((t, i) => ({ id: t.id, title: t.title || 'Momento', description: t.description, year: t.year, imageUrl: t.imageUrl, order: i })),
     closingMessage: values.closingMessage || (previewFocus === 'closing' ? 'Sua mensagem de encerramento aparece aqui.' : undefined),
     style: customColor ? (styleForColor(customColor) as TributeConfig['style']) : undefined,
+    voiceMessage: voiceMessage || undefined,
     reasons: reasons.some((r) => r.trim())
       ? reasons.map((r) => r.trim()).filter(Boolean)
       : previewFocus === 'reasons'
@@ -1484,6 +1489,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       <li>• Mantenha o arquivo abaixo de 10MB para melhor performance</li>
                     </ul>
                   </div>
+
+                  <VoiceRecorder value={voiceMessage} onChange={setVoiceMessage} onFocus={focusOn('voice')} />
 
                   <p className="text-center text-gray-400 text-sm">
                     Você pode pular esta etapa se não quiser música
