@@ -42,6 +42,7 @@ model Tribute {
   // Relations
   photos      Photo[]
   timeline    TimelineItem[]
+  guestMessages GuestMessage[]
   
   @@index([slug])
   @@index([templateId])
@@ -72,6 +73,19 @@ model TimelineItem {
   
   tribute     Tribute  @relation(fields: [tributeId], references: [id], onDelete: Cascade)
   
+  @@index([tributeId])
+}
+
+// Messages left by family and friends on a published tribute's message wall
+model GuestMessage {
+  id          String   @id @default(cuid())
+  tributeId   String
+  name        String
+  message     String
+  createdAt   DateTime @default(now())
+
+  tribute     Tribute  @relation(fields: [tributeId], references: [id], onDelete: Cascade)
+
   @@index([tributeId])
 }
 

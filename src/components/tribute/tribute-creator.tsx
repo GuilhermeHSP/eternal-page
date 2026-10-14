@@ -113,6 +113,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   const [customColor, setCustomColor] = useState<string | null>(null);
   const [reasons, setReasons] = useState<string[]>([]);
   const [voiceMessage, setVoiceMessage] = useState<string | null>(null);
+  const [guestbook, setGuestbook] = useState(true);
   const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(initialPackage ?? null);
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
@@ -166,6 +167,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           setValue('closingMessage', data.closingMessage || '');
           if (Array.isArray(data.config?.reasons)) setReasons(data.config.reasons);
           if (typeof data.config?.voiceMessage === 'string') setVoiceMessage(data.config.voiceMessage);
+          setGuestbook(data.config?.guestbook === true);
           if (data.config?.counter?.date) {
             setValue('counterDate', data.config.counter.date);
             setValue('counterLabel', data.config.counter.label || '');
@@ -449,6 +451,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         counterLabel: data.counterLabel || undefined,
         reasons: reasons.map((r) => r.trim()).filter(Boolean),
         voiceMessage: packageLimits?.music ? voiceMessage || undefined : undefined,
+        guestbook,
         accentColor: customColor || undefined,
         packageType: selectedPackage,
         photos: photos.map((p, i) => ({
@@ -540,6 +543,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     closingMessage: values.closingMessage || (previewFocus === 'closing' ? 'Sua mensagem de encerramento aparece aqui.' : undefined),
     style: customColor ? (styleForColor(customColor) as TributeConfig['style']) : undefined,
     voiceMessage: voiceMessage || undefined,
+    guestbook,
     reasons: reasons.some((r) => r.trim())
       ? reasons.map((r) => r.trim()).filter(Boolean)
       : previewFocus === 'reasons'
@@ -997,6 +1001,25 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     </Button>
                   )}
                 </div>
+
+                {/* Message wall */}
+                <label className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white p-4 cursor-pointer" onFocus={focusOn('guestbook')}>
+                  <input
+                    type="checkbox"
+                    checked={guestbook}
+                    onChange={(e) => {
+                      setGuestbook(e.target.checked);
+                      setPreviewFocus('guestbook');
+                    }}
+                    className="mt-1 h-4 w-4 accent-pink-500"
+                  />
+                  <span>
+                    <span className="block font-medium text-gray-800">Mural de recados</span>
+                    <span className="block text-xs text-gray-400 mt-0.5">
+                      Família e amigos podem deixar mensagens na página depois que ela for publicada.
+                    </span>
+                  </span>
+                </label>
 
                 <div>
                   <Label htmlFor="closingMessage">Mensagem de Encerramento (opcional)</Label>

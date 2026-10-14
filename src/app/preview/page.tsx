@@ -150,6 +150,7 @@ function PreviewContent() {
       counter: (draft.config?.counter as TributeConfig['counter']) || undefined,
       reasons: (draft.config?.reasons as string[]) || undefined,
       voiceMessage: (draft.config?.voiceMessage as string) || undefined,
+      guestbook: draft.config?.guestbook === true,
     };
   }, [draft]);
 

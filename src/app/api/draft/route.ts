@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
       counterLabel,
       reasons,
       voiceMessage,
+      guestbook,
       photos = [],
       timeline = [],
     } = body;
@@ -103,6 +104,7 @@ export async function POST(request: NextRequest) {
         ? { counter: { date: counterDate, label: typeof counterLabel === 'string' ? counterLabel.slice(0, 40) : undefined } }
         : {}),
       ...(voice ? { voiceMessage: voice } : {}),
+      ...(guestbook === true ? { guestbook: true } : {}),
       ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
         ? {
             reasons: reasons

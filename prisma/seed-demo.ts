@@ -60,6 +60,7 @@ async function main() {
       },
     ],
     closingMessage: 'Você será para sempre meu refúgio seguro. Te amo, mãe!',
+    guestbook: true,
     createdAt: new Date().toISOString(),
     authorName: 'Com amor, sua filha',
   };

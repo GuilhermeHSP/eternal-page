@@ -93,6 +93,7 @@ export interface TributeConfig {
   closingMessage?: string;
   counter?: CounterConfig;
   reasons?: string[];
+  guestbook?: boolean; // message wall open to visitors
   voiceMessage?: string; // audio data URL recorded or uploaded by the giver
   
   // Styling overrides

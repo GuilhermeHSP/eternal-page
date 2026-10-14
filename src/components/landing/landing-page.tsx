@@ -17,6 +17,7 @@ import {
   Music,
   Sparkles,
   Gift,
+  MessageCircleHeart,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PACKAGE_LIST, formatPrice, type PackageType } from '@/lib/packages';
@@ -291,6 +292,7 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
     { key: 'reasons', icon: Gift, title: 'Motivos para te amar', text: 'Cartões que viram ao toque, cada um com um motivo.' },
     { key: 'gallery', icon: ImageIcon, title: 'Polaroides', text: 'As fotos de vocês com legendas escritas à mão.' },
     { key: 'timeline', icon: CalendarHeart, title: 'Linha do tempo', text: 'Os momentos importantes, ano a ano.' },
+    { key: 'guestbook', icon: MessageCircleHeart, title: 'Mural de recados', text: 'Família e amigos deixam mensagens na mesma página.' },
     { key: 'closing', icon: Heart, title: 'Despedida', text: 'Uma frase final sobre a foto, para fechar com emoção.' },
   ];
   const [focus, setFocus] = useState('hero');

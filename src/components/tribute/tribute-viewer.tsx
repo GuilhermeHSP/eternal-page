@@ -14,6 +14,7 @@ import { EnvelopeIntro } from './envelope-intro';
 import { CounterSection } from './counter-section';
 import { ReasonsSection } from './reasons-section';
 import { VoiceMessageSection } from './voice-message-section';
+import { GuestbookSection } from './guestbook-section';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -175,6 +176,18 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
             accentColor={templateStyle.accentColor}
           />
         )}
+        </div>
+
+        {/* Message wall */}
+        <div data-preview="guestbook">
+          {config.guestbook && (
+            <GuestbookSection
+              slug={slug}
+              accentColor={templateStyle.accentColor}
+              recipient={config.recipient}
+              live={showShare && slug !== 'previa'}
+            />
+          )}
         </div>
 
         {/* Closing Message */}
