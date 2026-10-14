@@ -55,6 +55,7 @@ const tributeSchema = z.object({
   closingMessage: z.string().max(500).optional(),
   counterDate: z.string().optional(),
   counterLabel: z.string().max(40).optional(),
+  authorName: z.string().max(50).optional(),
 });
 
 type FormData = z.infer<typeof tributeSchema>;
@@ -168,6 +169,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           if (Array.isArray(data.config?.reasons)) setReasons(data.config.reasons);
           if (typeof data.config?.voiceMessage === 'string') setVoiceMessage(data.config.voiceMessage);
           setGuestbook(data.config?.guestbook === true);
+          if (data.config?.authorName) setValue('authorName', data.config.authorName);
           if (data.config?.counter?.date) {
             setValue('counterDate', data.config.counter.date);
             setValue('counterLabel', data.config.counter.label || '');
@@ -452,6 +454,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         reasons: reasons.map((r) => r.trim()).filter(Boolean),
         voiceMessage: packageLimits?.music ? voiceMessage || undefined : undefined,
         guestbook,
+        authorName: data.authorName?.trim() || undefined,
         accentColor: customColor || undefined,
         packageType: selectedPackage,
         photos: photos.map((p, i) => ({
@@ -544,6 +547,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     style: customColor ? (styleForColor(customColor) as TributeConfig['style']) : undefined,
     voiceMessage: voiceMessage || undefined,
     guestbook,
+    authorName: values.authorName?.trim() || undefined,
     reasons: reasons.some((r) => r.trim())
       ? reasons.map((r) => r.trim()).filter(Boolean)
       : previewFocus === 'reasons'
@@ -854,6 +858,19 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   {errors.recipient && (
                     <p role="alert" className="text-sm text-red-500 mt-1">{errors.recipient.message}</p>
                   )}
+                </div>
+
+                <div>
+                  <Label htmlFor="authorName">Seu nome (opcional)</Label>
+                  <Input
+                    id="authorName"
+                    placeholder="Ex.: Raquel, ou Seus filhos"
+                    maxLength={50}
+                    {...register('authorName')}
+                    onFocus={focusOn('message')}
+                    className="mt-1.5"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Assina a carta e a despedida: "Com amor, Raquel".</p>
                 </div>
 
                 <div>

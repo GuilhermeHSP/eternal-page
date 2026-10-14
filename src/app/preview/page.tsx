@@ -151,6 +151,7 @@ function PreviewContent() {
       reasons: (draft.config?.reasons as string[]) || undefined,
       voiceMessage: (draft.config?.voiceMessage as string) || undefined,
       guestbook: draft.config?.guestbook === true,
+      authorName: (draft.config?.authorName as string) || undefined,
     };
   }, [draft]);
 

@@ -120,7 +120,7 @@ export function MessageSection({ config, accentColor, authorName, recipient }: M
               className="mt-10 text-right font-script text-3xl md:text-4xl"
               style={{ color: accentColor }}
             >
-              {authorName}
+              {/^com /i.test(authorName) ? authorName : `Com amor, ${authorName}`}
             </motion.p>
           )}
         </motion.article>

@@ -2,7 +2,7 @@
   "title": "A melhor mãe do mundo!",
   "recipient": "Maria",
   "template": "mothersDay",
-  "authorName": "Com amor, sua filha",
+  "authorName": "Raquel",
   "hero": {
     "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&h=800&fit=crop",
     "overlay": true
@@ -21,7 +21,7 @@
     "date": "1995-03-18",
     "label": "Sendo a melhor mãe do mundo há"
   },
-  "voiceMessage": "/demo/voz-mensagem.wav",
+  "voiceMessage": "/demo/voz-mensagem.mp3",
   "reasons": [
     "Seu abraço que resolve qualquer problema",
     "O cheiro do seu bolo de cenoura aos domingos",

@@ -117,5 +117,6 @@ function buildConfig(tribute: TributeWithRelations): TributeConfig {
     reasons: stored.reasons,
     voiceMessage: stored.voiceMessage,
     guestbook: stored.guestbook,
+    authorName: stored.authorName,
   };
 }

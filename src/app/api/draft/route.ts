@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
       reasons,
       voiceMessage,
       guestbook,
+      authorName,
       photos = [],
       timeline = [],
     } = body;
@@ -105,6 +106,7 @@ export async function POST(request: NextRequest) {
         : {}),
       ...(voice ? { voiceMessage: voice } : {}),
       ...(guestbook === true ? { guestbook: true } : {}),
+      ...(typeof authorName === 'string' && authorName.trim() ? { authorName: authorName.trim().slice(0, 50) } : {}),
       ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
         ? {
             reasons: reasons
