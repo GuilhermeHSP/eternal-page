@@ -27,7 +27,7 @@ import type { TributeConfig } from '@/types/tribute';
 import { RevealObserver } from '@/components/reveal-observer';
 import { SiteHeader } from '@/components/site-header';
 import { PhoneFrame } from '@/components/tribute/live-preview';
-import { OCCASIONS, GALLERY, FAQ, CREDITS, DEMO_CONFIG } from './landing-data';
+import { OCCASIONS, GALLERY, FAQ, DEMO_CONFIG } from './landing-data';
 
 export interface StartOptions {
   recipient?: string;
@@ -43,20 +43,17 @@ const DEMO_HREF = '/para-melhor-mae-demo';
 const delay = (i: number) => ({ '--i': i }) as CSSProperties;
 
 export function LandingPage({ onStart }: LandingPageProps) {
-  const [name, setName] = useState('');
   const [occasionIndex, setOccasionIndex] = useState(0);
   const occasion = OCCASIONS[occasionIndex];
 
   const start = (extra: Partial<StartOptions> = {}) =>
-    onStart({ recipient: name.trim() || undefined, templateId: occasion.templateId, ...extra });
+    onStart({ templateId: occasion.templateId, ...extra });
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white via-rose-50/30 to-white text-gray-800">
       <Header onStart={() => start()} />
       <main className="flex-1 pt-16">
         <Hero
-          name={name}
-          onNameChange={setName}
           occasionIndex={occasionIndex}
           onOccasionChange={setOccasionIndex}
           onStart={() => start()}
@@ -105,26 +102,23 @@ function Header({ onStart }: { onStart: () => void }) {
 /* ------------------------------------------------------------------ */
 
 interface HeroProps {
-  name: string;
-  onNameChange: (value: string) => void;
   occasionIndex: number;
   onOccasionChange: (index: number) => void;
   onStart: () => void;
 }
 
-function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: HeroProps) {
+function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
   const occasion = OCCASIONS[occasionIndex];
-  const recipient = name.trim() || 'Maria';
 
   // The phone shows the real tribute page, built from what the visitor typed and picked.
   const config = useMemo<TributeConfig>(
     () => ({
       title: occasion.phrase,
-      recipient,
+      recipient: occasion.recipient,
       template: occasion.templateId,
       hero: { image: occasion.photo, overlay: true },
     }),
-    [occasion, recipient]
+    [occasion]
   );
 
   const submit = (e: FormEvent) => {
@@ -354,7 +348,7 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
             <PhoneFrame config={DEMO_CONFIG as TributeConfig} focus={focus} width={280} />
           </div>
         </div>
-        <p className="mt-6 text-center text-xs text-gray-400">Fotos do exemplo: acervos públicos (créditos no rodapé). Música e mensagem de voz no pacote Completo.</p>
+        <p className="mt-6 text-center text-xs text-gray-400">Música e mensagem de voz no pacote Completo.</p>
       </div>
     </section>
   );
@@ -490,14 +484,7 @@ function Footer() {
           </nav>
         </div>
         <p className="mt-8 text-xs text-gray-400 leading-relaxed text-center max-w-4xl mx-auto">
-          Fotos de exemplo de acervos públicos:{' '}
-          {CREDITS.map((c, i) => (
-            <span key={c.file}>
-              <a href={c.href} className="underline underline-offset-2 hover:text-rose-500" target="_blank" rel="noreferrer">{c.text}</a>
-              {i < CREDITS.length - 1 ? '; ' : '.'}
-            </span>
-          ))}{' '}
-          Todas via Wikimedia Commons.
+          Fotos de exemplo de bancos de imagens livres (StockSnap, rawpixel e Unsplash). Nenhuma mostra um cliente.
         </p>
       </div>
     </footer>
