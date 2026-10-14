@@ -944,6 +944,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     />
                     <datalist id="counter-labels">
                       <option value="Juntos há" />
+                      <option value="Sendo a melhor mãe do mundo há" />
+                      <option value="Sendo o melhor pai do mundo há" />
                       <option value="Casados há" />
                       <option value="Te amo há" />
                       <option value="Você chegou há" />
