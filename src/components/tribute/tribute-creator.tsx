@@ -1615,8 +1615,9 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           </div>
         )}
 
-        {/* Navigation - Hidden on mobile, shown on desktop */}
-        <div className="hidden md:flex justify-between mt-8 pt-6 border-t">
+        {/* Navigation sits at the end of each step, on phones too, so moving on means having
+            scrolled past everything the step asks for. */}
+        <div className="flex justify-between mt-8 pt-6 border-t">
           <Button
             type="button"
             variant="ghost"
@@ -1659,52 +1660,6 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           )}
         </div>
       </form>
-
-      {/* Fixed bottom navigation for mobile */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 md:hidden z-50">
-        <div className="flex justify-between max-w-3xl mx-auto">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={prevStep}
-            disabled={currentStep === 0}
-            className="gap-2"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Voltar
-          </Button>
-
-          {currentStep < steps.length - 1 ? (
-            <Button
-              type="button"
-              onClick={goNext}
-              className="bg-rose-500 hover:bg-rose-600 gap-2"
-            >
-              Próximo
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => handleSubmit(onSubmit)()}
-              className="bg-rose-500 hover:bg-rose-600 gap-2"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Criando...
-                </>
-              ) : (
-                <>
-                  <Heart className="h-4 w-4" />
-                  Gerar prévia
-                </>
-              )}
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
 
     {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} />}

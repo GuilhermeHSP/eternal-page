@@ -113,7 +113,7 @@ export function LivePreview({ config, focus, accentColor }: LivePreviewProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed right-4 bottom-24 z-40 inline-flex items-center gap-2 h-11 px-4 rounded-full text-white text-sm font-medium shadow-lg"
+        className="fixed right-4 bottom-6 z-40 inline-flex items-center gap-2 h-11 px-4 rounded-full text-white text-sm font-medium shadow-lg"
         style={{ backgroundColor: accentColor }}
       >
         <Eye className="h-4 w-4" />
