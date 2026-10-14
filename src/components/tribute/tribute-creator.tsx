@@ -25,6 +25,9 @@ import {
   Link as LinkIcon,
   Check,
   Package,
+  Star,
+  Flower2,
+  CircleDot,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -695,49 +698,18 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             >
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-serif font-medium text-gray-800">
-                  Escolha um Template
+                  Escolha a ocasião
                 </h2>
                 <p className="text-gray-500 text-sm mt-1">
-                  Selecione um estilo para sua homenagem
+                  Cada uma tem seu efeito especial. A cor você escolhe logo abaixo.
                 </p>
               </div>
 
-              <Tabs defaultValue="all" className="w-full">
-                <TabsList className="w-full justify-start flex-wrap h-auto gap-2 bg-transparent p-0 mb-6">
-                  <TabsTrigger
-                    value="all"
-                    className="data-[state=active]:bg-gray-900 data-[state=active]:text-white"
-                  >
-                    Todos
-                  </TabsTrigger>
-                  {categories.map((cat) => (
-                    <TabsTrigger
-                      key={cat.id}
-                      value={cat.id}
-                      className="data-[state=active]:bg-gray-900 data-[state=active]:text-white"
-                    >
-                      {cat.icon} {cat.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-
-                <TabsContent value="all" className="mt-0">
-                  <TemplateGrid
-                    templates={templateList}
-                    selectedId={selectedTemplateId}
-                    onSelect={(id) => setValue('templateId', id)}
-                  />
-                </TabsContent>
-                {categories.map((cat) => (
-                  <TabsContent key={cat.id} value={cat.id} className="mt-0">
-                    <TemplateGrid
-                      templates={templateList.filter((t) => t.category === cat.id)}
-                      selectedId={selectedTemplateId}
-                      onSelect={(id) => setValue('templateId', id)}
-                    />
-                  </TabsContent>
-                ))}
-              </Tabs>
+              <TemplateGrid
+                templates={templateList}
+                selectedId={selectedTemplateId}
+                onSelect={(id) => setValue('templateId', id)}
+              />
 
               {errors.templateId && (
                 <p className="text-sm text-red-500">{errors.templateId.message}</p>
@@ -1533,69 +1505,55 @@ interface TemplateGridProps {
   onSelect: (id: string) => void;
 }
 
+const EFFECTS: Record<string, { label: string; icon: typeof Heart }> = {
+  hearts: { label: 'Corações flutuando', icon: Heart },
+  petals: { label: 'Pétalas caindo', icon: Flower2 },
+  sparkles: { label: 'Brilhos', icon: Sparkles },
+  stars: { label: 'Estrelas', icon: Star },
+  particles: { label: 'Luzes suaves', icon: CircleDot },
+};
+
+// The occasions as a plain list of clickable rectangles; colour is chosen separately.
 function TemplateGrid({ templates, selectedId, onSelect }: TemplateGridProps) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-      {templates.map((template) => (
-        <motion.button
-          key={template.name}
-          type="button"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => onSelect(template.name)}
-          className={`relative rounded-xl overflow-hidden text-left transition-all ${
-            selectedId === template.name
-              ? 'ring-2 ring-offset-2 ring-pink-500'
-              : 'ring-1 ring-gray-200 hover:ring-gray-300'
-          }`}
-        >
-          {/* Preview */}
-          <div
-            className="aspect-[4/3] relative"
-            style={{ backgroundColor: template.backgroundColor }}
+    <div role="radiogroup" aria-label="Ocasião" className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {templates.map((template) => {
+        const selected = selectedId === template.name;
+        const effect = EFFECTS[template.backgroundAnimation.type] ?? EFFECTS.hearts;
+        return (
+          <button
+            key={template.name}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={() => onSelect(template.name)}
+            className={`group relative flex items-start gap-4 rounded-xl border-2 bg-white p-4 text-left transition-colors ${
+              selected ? 'border-pink-500 bg-pink-50/40' : 'border-gray-100 hover:border-pink-200'
+            }`}
           >
-            {/* Gradient preview */}
-            <div
-              className="absolute inset-0 opacity-50"
-              style={{
-                background: `linear-gradient(135deg, ${template.accentColor}30 0%, transparent 100%)`,
-              }}
-            />
-
-            {/* Content preview */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-              <div
-                className="w-10 h-10 rounded-full mb-2"
-                style={{ backgroundColor: `${template.accentColor}30` }}
-              />
-              <div
-                className="h-2 w-16 rounded mb-1.5"
-                style={{ backgroundColor: template.accentColor }}
-              />
-              <div className="h-1.5 w-12 rounded bg-gray-300" />
-            </div>
-
-            {/* Selected check */}
-            {selectedId === template.name && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute top-2 right-2 w-6 h-6 rounded-full flex items-center justify-center bg-pink-500"
-              >
-                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </motion.div>
-            )}
-          </div>
-
-          {/* Info */}
-          <div className="p-3 bg-white">
-            <p className="font-medium text-sm text-gray-800">{template.displayName}</p>
-            <p className="text-xs text-gray-500 mt-0.5">{template.category}</p>
-          </div>
-        </motion.button>
-      ))}
+            <span
+              className={`shrink-0 w-11 h-11 rounded-full flex items-center justify-center transition-colors ${
+                selected ? 'bg-pink-500 text-white' : 'bg-pink-50 text-pink-500 group-hover:bg-pink-100'
+              }`}
+            >
+              <effect.icon className="h-5 w-5" />
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="block font-semibold text-gray-800">{template.displayName}</span>
+              <span className="block text-sm text-gray-500 mt-0.5">{(template as TemplateStyleConfig & { description?: string }).description}</span>
+              <span className="block text-xs text-pink-600 mt-1.5">{effect.label}</span>
+            </span>
+            <span
+              className={`shrink-0 mt-1 w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                selected ? 'border-pink-500 bg-pink-500' : 'border-gray-300'
+              }`}
+              aria-hidden="true"
+            >
+              {selected && <Check className="h-3 w-3 text-white" />}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
