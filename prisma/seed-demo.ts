@@ -1,78 +1,20 @@
 import { db } from '../src/lib/db';
 import { TributeConfig } from '../src/types/tribute';
+import demo from './demo-tribute.json';
 
+// The example tribute linked from the home page ("Ver exemplo"). It shows every section the
+// product offers; the content lives in demo-tribute.json.
 async function main() {
   console.log('Creating demo tribute...');
 
-  const config: TributeConfig = {
-    title: 'A melhor mãe do mundo!',
-    recipient: 'Maria',
-    template: 'mothersDay',
-    hero: {
-      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&h=800&fit=crop',
-    },
-    message: {
-      text: 'Mãe, você é a luz que ilumina meu caminho. **Obrigado por todo amor**, carinho e dedicação ao longo dos anos. Cada sacrifício que você fez por mim, cada noite sem dormir, cada palavra de incentivo... tudo isso me moldou na pessoa que sou hoje. Você é meu exemplo de força, bondade e amor incondicional. **Te amo mais do que palavras podem expressar**.',
-      typingAnimation: true,
-      highlightPhrases: ['Obrigado por todo amor', 'Te amo mais do que palavras podem expressar'],
-    },
-    gallery: [
-      {
-        id: 'photo-1',
-        url: 'https://images.unsplash.com/photo-1493894473891-10fc1e5dbd22?w=600&h=600&fit=crop',
-        caption: 'Nossa primeira viagem juntos',
-        order: 0,
-      },
-      {
-        id: 'photo-2',
-        url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&h=600&fit=crop',
-        caption: 'Dia das mães 2023',
-        order: 1,
-      },
-      {
-        id: 'photo-3',
-        url: 'https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&h=600&fit=crop',
-        caption: 'Sempre ao meu lado',
-        order: 2,
-      },
-    ],
-    timeline: [
-      {
-        id: 'timeline-1',
-        title: 'Quando eu nasci',
-        description: 'O dia mais feliz da sua vida, você sempre diz.',
-        year: '1995',
-        order: 0,
-      },
-      {
-        id: 'timeline-2',
-        title: 'Primeiro dia de escola',
-        description: 'Você estava mais nervosa que eu!',
-        year: '2001',
-        order: 1,
-      },
-      {
-        id: 'timeline-3',
-        title: 'Minha formatura',
-        description: 'Lágrimas de orgulho nos seus olhos.',
-        year: '2017',
-        order: 2,
-      },
-    ],
-    closingMessage: 'Você será para sempre meu refúgio seguro. Te amo, mãe!',
-    guestbook: true,
-    createdAt: new Date().toISOString(),
-    authorName: 'Com amor, sua filha',
-  };
+  const config: TributeConfig = { ...(demo as TributeConfig), createdAt: new Date().toISOString() };
 
   // Delete existing demo tribute first
   const existingTribute = await db.tribute.findUnique({
     where: { slug: 'para-melhor-mae-demo' },
   });
-  
+
   if (existingTribute) {
-    await db.photo.deleteMany({ where: { tributeId: existingTribute.id } });
-    await db.timelineItem.deleteMany({ where: { tributeId: existingTribute.id } });
     await db.tribute.delete({ where: { id: existingTribute.id } });
     console.log('Deleted existing demo tribute');
   }
@@ -83,8 +25,12 @@ async function main() {
       title: config.title,
       recipient: config.recipient,
       config: JSON.stringify(config),
-      templateId: 'mothersDay',
+      templateId: config.template,
       heroImage: config.hero?.image,
+      musicUrl: config.music?.url,
+      closingMessage: config.closingMessage,
+      packageType: 'premium',
+      isPremium: true,
       isPublished: true,
       photos: {
         create: config.gallery?.map((p, i) => ({
@@ -98,6 +44,7 @@ async function main() {
           title: t.title,
           description: t.description,
           year: t.year,
+          imageUrl: t.imageUrl,
           order: i,
         })),
       },
