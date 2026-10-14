@@ -139,12 +139,11 @@ function Hero({ name, onNameChange, occasionIndex, onOccasionChange, onStart }: 
       <div className="max-w-6xl mx-auto px-4 pt-10 md:pt-16 pb-16 grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
         <div>
           <h1 className="font-title text-4xl md:text-6xl font-semibold leading-[1.08] text-gray-900" data-reveal>
-            Uma <span className="font-script font-normal text-rose-500 text-[1.35em] leading-none">homenagem</span>{' '}
-            que fica para sempre
+            Uma página inteira para quem você ama
           </h1>
           <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-xl leading-relaxed" data-reveal style={delay(1)}>
-            Fotos, carta, linha do tempo e música numa página linda para quem você ama. Você monta em minutos,
-            vê a prévia de graça e envia o link de presente.
+            Para a mãe, o pai, os avós, o amor, a melhor amiga ou quem deixou saudade. Fotos, carta, linha do
+            tempo e música numa homenagem que você monta em minutos e envia de presente.
           </p>
 
           <form onSubmit={submit} className="mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
@@ -313,7 +312,7 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
       <div className="max-w-5xl mx-auto">
         <SectionTitle
           kicker="O que a pessoa recebe"
-          title="Uma página feita só para ela"
+          title="Feita só para quem vai receber"
           text="Este é um exemplo completo. Toque em cada parte para ver na tela."
         />
         <div className="grid md:grid-cols-[1fr_auto] gap-12 items-center">
@@ -414,7 +413,7 @@ function Pricing({ onPick }: { onPick: (packageType: PackageType) => void }) {
   return (
     <section id="precos" className="py-20 px-4">
       <div className="max-w-5xl mx-auto">
-        <SectionTitle kicker="Preços" title="Pague uma vez, guarde para sempre" text="Sem assinatura. Você só paga depois de ver a prévia pronta." />
+        <SectionTitle kicker="Preços" title="Um pagamento, uma lembrança eterna" text="Sem assinatura. Você só paga depois de ver a prévia pronta." />
         <div className="grid md:grid-cols-3 gap-6 items-stretch">
           {PACKAGE_LIST.map((pkg, i) => (
             <div
