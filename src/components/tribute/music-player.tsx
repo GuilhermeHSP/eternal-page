@@ -128,7 +128,7 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
                       '--slider-color': accentColor,
                     }}
                   />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1 font-mono">
+                  <div className="flex justify-between text-xs text-gray-400 mt-1 tabular-nums">
                     <span>{formatTime(progress)}</span>
                     <span>{formatTime(duration)}</span>
                   </div>

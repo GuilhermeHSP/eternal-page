@@ -65,6 +65,16 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         fontFamily: templateStyle.bodyFont,
       }}
     >
+      {/* One soft, fixed glow in the template's colour behind the whole page, so the
+          background stays continuous from section to section */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0"
+        aria-hidden="true"
+        style={{
+          background: `radial-gradient(60% 50% at 15% 20%, ${templateStyle.accentColor}14 0%, transparent 70%), radial-gradient(55% 45% at 85% 80%, ${templateStyle.accentColor}10 0%, transparent 70%)`,
+        }}
+      />
+
       {/* Background animations - client only */}
       <BackgroundAnimations config={templateStyle.backgroundAnimation} />
 
@@ -98,6 +108,7 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
             config={config.message!}
             accentColor={templateStyle.accentColor}
             authorName={config.authorName}
+            recipient={config.recipient}
           />
         )}
 
@@ -142,7 +153,7 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         )}
 
         {/* Footer */}
-        <footer className="py-8 px-4 border-t border-gray-100 bg-white/50 backdrop-blur-sm">
+        <footer className="py-10 px-4">
           <div className="max-w-md mx-auto text-center">
             <p className="text-gray-500 text-sm">
               Feito com{' '}

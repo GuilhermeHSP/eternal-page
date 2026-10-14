@@ -64,7 +64,7 @@ export function ShareSection({ slug, title, accentColor }: ShareSectionProps) {
   return (
     <section className="py-16 px-4">
       <div className="max-w-md mx-auto text-center">
-        <h3 className="text-xl font-serif text-gray-800 mb-2">
+        <h3 className="font-script text-4xl text-gray-800 mb-2">
           Compartilhe esta homenagem
         </h3>
         <p className="text-gray-500 text-sm mb-6">
@@ -77,7 +77,7 @@ export function ShareSection({ slug, title, accentColor }: ShareSectionProps) {
             type="text"
             value={shareUrl}
             readOnly
-            className="flex-1 bg-transparent text-sm text-gray-600 font-mono outline-none truncate"
+            className="flex-1 bg-transparent text-sm text-gray-600 outline-none truncate"
           />
           <Button
             size="sm"
