@@ -164,39 +164,69 @@ function highlightPhrases(text: string, phrases: string[], accentColor: string):
   );
 }
 
-// Closing message variant
+// Closing scene: the page ends the way it opens, on a photo under the template's veil,
+// with the closing words handwritten and the recipient's name and author underneath.
 interface ClosingMessageProps {
   message: string;
   accentColor: string;
+  image?: string;
+  recipient?: string;
+  authorName?: string;
 }
 
-export function ClosingMessage({ message, accentColor }: ClosingMessageProps) {
+export function ClosingMessage({ message, accentColor, image, recipient, authorName }: ClosingMessageProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef, { once: true, margin: '-50px' });
+  const isInView = useInView(containerRef, { once: true, margin: '-80px' });
 
   return (
-    <section ref={containerRef} className="py-16 px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.6 }}
-        className="max-w-xl mx-auto text-center"
-      >
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={isInView ? { scale: 1 } : {}}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="mb-6"
-        >
-          <Heart 
-            className="h-12 w-12 mx-auto animate-pulse"
-            style={{ color: accentColor }}
+    <section
+      ref={containerRef}
+      className="relative mt-12 min-h-[80vh] flex items-center justify-center overflow-hidden px-4 py-24"
+      style={image ? undefined : { backgroundColor: accentColor }}
+    >
+      {image && (
+        <>
+          <motion.img
+            src={image}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover object-[center_30%]"
+            initial={{ scale: 1.08 }}
+            animate={isInView ? { scale: 1 } : {}}
+            transition={{ duration: 14, ease: 'easeOut' }}
           />
-        </motion.div>
+          <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.5)' }} />
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor: accentColor, opacity: 0.35, mixBlendMode: 'soft-light' }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: `linear-gradient(to top, ${accentColor}66 0%, transparent 60%)` }}
+          />
+        </>
+      )}
 
-        <p className="font-script text-4xl md:text-5xl text-gray-800 leading-snug [text-wrap:balance]">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.9 }}
+        className="relative z-10 max-w-3xl mx-auto text-center text-white"
+      >
+        <Heart className="h-7 w-7 mx-auto mb-8 text-white/80" fill="currentColor" aria-hidden="true" />
+        <p
+          className="font-script text-5xl md:text-7xl leading-[1.15] [text-wrap:balance]"
+          style={{ textShadow: '0 2px 24px rgba(0,0,0,0.35)' }}
+        >
           {message}
         </p>
+        {(recipient || authorName) && (
+          <div className="mt-10 flex flex-col items-center gap-3">
+            <div className="h-px w-16 bg-white/60" />
+            <p className="font-title text-sm md:text-base uppercase tracking-[0.25em] text-white/85">
+              {authorName && !/^com /i.test(authorName) ? `Com amor, ${authorName}` : authorName || `Para ${recipient}`}
+            </p>
+          </div>
+        )}
       </motion.div>
     </section>
   );

@@ -140,6 +140,9 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
           <ClosingMessage
             message={config.closingMessage!}
             accentColor={templateStyle.accentColor}
+            image={config.hero?.image || config.gallery?.[config.gallery.length - 1]?.url}
+            recipient={config.recipient}
+            authorName={config.authorName}
           />
         )}
 
@@ -153,22 +156,13 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
         )}
 
         {/* Footer */}
-        <footer className="py-10 px-4">
-          <div className="max-w-md mx-auto text-center">
-            <p className="text-gray-500 text-sm">
-              Feito com{' '}
-              <Link 
-                href="/"
-                className="font-semibold hover:underline"
-                style={{ color: templateStyle.accentColor }}
-              >
-                EternalPage
-              </Link>
-            </p>
-            <p className="text-gray-400 text-xs mt-2">
-              Crie páginas de homenagem para quem você ama
-            </p>
-          </div>
+        <footer className="pb-12 pt-4 px-4">
+          <p className="text-center font-title text-xs uppercase tracking-[0.2em] text-gray-400">
+            Feito com{' '}
+            <Link href="/" className="hover:underline" style={{ color: templateStyle.accentColor }}>
+              EternalPage
+            </Link>
+          </p>
         </footer>
       </main>
 

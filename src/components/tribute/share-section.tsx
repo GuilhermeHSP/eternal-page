@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, Copy, Check, Twitter, Facebook, MessageCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Check, Copy, Share2, MessageCircle, Facebook } from 'lucide-react';
 
 interface ShareSectionProps {
   slug: string;
@@ -11,15 +9,16 @@ interface ShareSectionProps {
   accentColor: string;
 }
 
+// A single card: WhatsApp first (how most people send it), then copy link and other apps.
 export function ShareSection({ slug, title, accentColor }: ShareSectionProps) {
   const [copied, setCopied] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-
+  const [canNativeShare, setCanNativeShare] = useState(false);
   // The full address is only known in the browser; set it after hydration so server and
   // client render the same markup first.
   const [shareUrl, setShareUrl] = useState(`/${slug}`);
   useEffect(() => {
     setShareUrl(`${window.location.origin}/${slug}`);
+    setCanNativeShare(typeof navigator.share === 'function');
   }, [slug]);
 
   const handleCopy = async () => {
@@ -33,137 +32,63 @@ export function ShareSection({ slug, title, accentColor }: ShareSectionProps) {
   };
 
   const handleNativeShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          url: shareUrl,
-        });
-      } catch (err) {
-        console.log('Share cancelled');
-      }
-    } else {
-      setShowMenu(!showMenu);
+    try {
+      await navigator.share({ title, url: shareUrl });
+    } catch {
+      // cancelled
     }
   };
 
-  const shareToTwitter = () => {
-    const text = encodeURIComponent(`${title} - Created with EternalPage`);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`, '_blank');
-  };
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${title}\n${shareUrl}`)}`;
+  const facebookHref = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
+  const displayUrl = shareUrl.replace(/^https?:\/\//, '');
 
-  const shareToFacebook = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`, '_blank');
-  };
-
-  const shareToWhatsApp = () => {
-    const text = encodeURIComponent(`${title}\n${shareUrl}`);
-    window.open(`https://wa.me/?text=${text}`, '_blank');
-  };
+  const secondary =
+    'flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-xl text-sm font-medium bg-white ring-1 ring-black/5 hover:ring-black/10 transition-colors';
 
   return (
-    <section className="py-16 px-4">
-      <div className="max-w-md mx-auto text-center">
-        <h3 className="font-script text-4xl text-gray-800 mb-2">
-          Compartilhe esta homenagem
-        </h3>
-        <p className="text-gray-500 text-sm mb-6">
-          Envie esta página para alguém especial
-        </p>
+    <section className="px-4 py-20">
+      <div
+        className="max-w-md mx-auto rounded-3xl bg-white/80 p-7 md:p-9 text-center"
+        style={{ boxShadow: '0 1px 2px rgba(60,40,30,0.05), 0 20px 48px -20px rgba(60,40,30,0.25)' }}
+      >
+        <p className="font-title text-xs uppercase tracking-[0.25em] text-gray-500">Compartilhe</p>
+        <h3 className="font-script text-4xl md:text-5xl text-gray-800 mt-2">Envie com carinho</h3>
+        <p className="mt-3 text-sm text-gray-500">Mande esta página para quem você ama.</p>
 
-        {/* URL display */}
-        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg mb-6">
-          <input
-            type="text"
-            value={shareUrl}
-            readOnly
-            className="flex-1 bg-transparent text-sm text-gray-600 outline-none truncate"
-          />
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={handleCopy}
-            className="shrink-0"
-            style={{ color: accentColor }}
-          >
-            {copied ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-7 w-full inline-flex items-center justify-center gap-2 h-12 rounded-xl text-white font-medium transition-transform active:scale-[0.98]"
+          style={{ backgroundColor: accentColor }}
+        >
+          <MessageCircle className="h-5 w-5" />
+          Enviar pelo WhatsApp
+        </a>
 
-        {/* Share buttons */}
-        <div className="flex items-center justify-center gap-3">
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              onClick={handleNativeShare}
-              className="gap-2"
-              style={{ backgroundColor: accentColor }}
-            >
+        <div className="mt-3 flex gap-2">
+          <button type="button" onClick={handleCopy} className={secondary} style={{ color: accentColor }}>
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? 'Copiado' : 'Copiar link'}
+          </button>
+          {canNativeShare ? (
+            <button type="button" onClick={handleNativeShare} className={secondary} style={{ color: accentColor }}>
               <Share2 className="h-4 w-4" />
-              Compartilhar
-            </Button>
-          </motion.div>
-
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={shareToTwitter}
-              className="rounded-full"
-            >
-              <Twitter className="h-4 w-4" />
-            </Button>
-          </motion.div>
-
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={shareToFacebook}
-              className="rounded-full"
-            >
+              Outros apps
+            </button>
+          ) : (
+            <a href={facebookHref} target="_blank" rel="noreferrer" className={secondary} style={{ color: accentColor }}>
               <Facebook className="h-4 w-4" />
-            </Button>
-          </motion.div>
-
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={shareToWhatsApp}
-              className="rounded-full"
-            >
-              <MessageCircle className="h-4 w-4" />
-            </Button>
-          </motion.div>
+              Facebook
+            </a>
+          )}
         </div>
+
+        <p className="mt-5 text-xs text-gray-400 truncate" title={shareUrl}>
+          {displayUrl}
+        </p>
       </div>
     </section>
-  );
-}
-
-// Fixed share button for tribute pages
-interface FixedShareButtonProps {
-  accentColor: string;
-  onShare: () => void;
-}
-
-export function FixedShareButton({ accentColor, onShare }: FixedShareButtonProps) {
-  return (
-    <motion.button
-      initial={{ opacity: 0, scale: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: 1, duration: 0.3 }}
-      onClick={onShare}
-      className="fixed top-4 right-4 z-50 p-3 rounded-full shadow-lg bg-white/90 backdrop-blur-sm hover:bg-white transition-colors"
-      style={{ color: accentColor }}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
-    >
-      <Share2 className="h-5 w-5" />
-    </motion.button>
   );
 }

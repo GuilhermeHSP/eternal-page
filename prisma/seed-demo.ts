@@ -59,7 +59,7 @@ async function main() {
         order: 2,
       },
     ],
-    closingMessage: 'Você será para sempre meu refúgio seguro. Te amo, mãe! 💐',
+    closingMessage: 'Você será para sempre meu refúgio seguro. Te amo, mãe!',
     createdAt: new Date().toISOString(),
     authorName: 'Com amor, sua filha',
   };
