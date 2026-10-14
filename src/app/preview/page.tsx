@@ -189,25 +189,50 @@ function PreviewContent() {
       {/* Preview Mode Header */}
       <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-500">
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5">
-                <Eye className="h-4 w-4 text-white" />
-                <span className="text-white font-medium text-sm">
-                  Modo Preview — Revise sua Eternal Page
+          {/* Buying is always one tap away, on phones too, instead of only at the end of the page */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1.5 min-w-0">
+                <Eye className="h-4 w-4 shrink-0 text-white" />
+                <span className="text-white font-medium text-sm truncate">
+                  Prévia<span className="hidden sm:inline">: revise sua página</span>
                 </span>
               </div>
-              <div className="flex items-center gap-1 bg-black/20 rounded-full px-3 py-1.5">
+              <div className="hidden md:flex items-center gap-1 bg-black/20 rounded-full px-3 py-1.5">
                 <Lock className="h-3 w-3 text-white/80" />
-                <span className="text-white/80 text-xs">Protegido</span>
+                <span className="text-white/80 text-xs">Ainda não publicada</span>
               </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleEditPage}
+                aria-label="Editar página"
+                className="h-9 px-3 rounded-full border border-white/50 text-white text-sm font-medium inline-flex items-center gap-1.5 hover:bg-white/10"
+              >
+                <Edit3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Editar</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmAndPay}
+                disabled={processing}
+                className="h-9 px-4 rounded-full bg-white text-rose-600 text-sm font-semibold inline-flex items-center gap-1.5 shadow-sm hover:bg-rose-50 disabled:opacity-70"
+              >
+                {processing ? (
+                  <span className="w-4 h-4 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <CreditCard className="h-4 w-4" />
+                )}
+                Finalizar · {formatPrice(packageInfo.price)}
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="pt-20 pb-8">
+      <div className={`pt-20 ${tributeConfig?.music?.url ? 'pb-28' : 'pb-8'}`}>
         {/* Preview with watermark */}
         <div className="relative">
           <WatermarkOverlay />
@@ -239,7 +264,7 @@ function PreviewContent() {
                   className="gap-2"
                 >
                   <Edit3 className="h-5 w-5" />
-                  Editar Página
+                  Editar página
                 </Button>
                 <Button
                   size="lg"
@@ -255,7 +280,7 @@ function PreviewContent() {
                   ) : (
                     <>
                       <CreditCard className="h-5 w-5" />
-                      Finalização da Compra
+                      Finalizar compra
                     </>
                   )}
                 </Button>
