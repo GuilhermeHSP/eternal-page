@@ -95,15 +95,18 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
       {/* Main content */}
       <main className="relative z-10">
         {/* Hero Section */}
-        <HeroSection
+        <div data-preview="hero">
+          <HeroSection
           title={config.title}
           recipient={config.recipient}
           config={config.hero}
           accentColor={templateStyle.accentColor}
         />
+        </div>
 
         {/* Main Message */}
-        {hasMessage && (
+        <div data-preview="message">
+          {hasMessage && (
           <MessageSection
             config={config.message!}
             accentColor={templateStyle.accentColor}
@@ -111,9 +114,11 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
             recipient={config.recipient}
           />
         )}
+        </div>
 
         {/* Photo Gallery */}
-        {hasGallery && (
+        <div data-preview="gallery">
+          {hasGallery && (
           templateStyle.layoutVariant === 'modern' ? (
             <PhotoCarousel
               photos={config.gallery!}
@@ -126,17 +131,21 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
             />
           )
         )}
+        </div>
 
         {/* Timeline */}
-        {hasTimeline && (
+        <div data-preview="timeline">
+          {hasTimeline && (
           <Timeline
             items={config.timeline!}
             accentColor={templateStyle.accentColor}
           />
         )}
+        </div>
 
         {/* Closing Message */}
-        {hasClosing && (
+        <div data-preview="closing">
+          {hasClosing && (
           <ClosingMessage
             message={config.closingMessage!}
             accentColor={templateStyle.accentColor}
@@ -145,6 +154,7 @@ export function TributeViewer({ config, slug, showShare = true, showBackButton =
             authorName={config.authorName}
           />
         )}
+        </div>
 
         {/* Share Section */}
         {showShare && (

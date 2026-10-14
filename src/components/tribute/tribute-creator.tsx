@@ -35,6 +35,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { templateList, categories } from '@/lib/templates';
 import { TemplateStyleConfig, PackageType } from '@/types/tribute';
 import { PACKAGES, PACKAGE_LIST, formatPrice, getPackage } from '@/lib/packages';
+import { LivePreview, type PreviewSection } from './live-preview';
+import { fileToResizedDataUrl } from '@/lib/image';
+import type { TributeConfig } from '@/types/tribute';
 
 const tributeSchema = z.object({
   title: z.string().min(1, 'O título é obrigatório').max(100),
@@ -112,9 +115,12 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     watch,
     setValue,
     reset,
+    trigger,
+    setFocus,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(tributeSchema),
+    mode: 'onTouched',
     defaultValues: {
       templateId: initialTemplateId || 'romantic',
       recipient: initialRecipient || '',
@@ -187,6 +193,32 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   const selectedTemplateId = watch('templateId');
   const selectedTemplate = templateList.find((t) => t.name === selectedTemplateId);
   const musicUrlValue = watch('musicUrl');
+  const heroImageValue = watch('heroImage');
+  const heroInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
+
+  // The main photo is uploaded, resized in the browser and kept as a data URL like the other images.
+  const handleHeroUpload = async (files: FileList | null) => {
+    const file = files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError('Envie uma imagem (JPG, PNG etc.).');
+      return;
+    }
+    if (file.size > 15 * 1024 * 1024) {
+      setError('A foto deve ter menos de 15 MB.');
+      return;
+    }
+    setError(null);
+    setIsUploadingHero(true);
+    try {
+      setValue('heroImage', await fileToResizedDataUrl(file, 1800));
+    } catch {
+      setError('Não foi possível ler a foto. Tente outra.');
+    } finally {
+      setIsUploadingHero(false);
+    }
+  };
 
   // Get package limits
   const packageLimits = selectedPackage ? getPackage(selectedPackage).limits : null;
@@ -198,7 +230,13 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     const newPhotos: PhotoItem[] = [];
     for (let i = 0; i < Math.min(files.length, maxPhotos - photos.length); i++) {
       const file = files[i];
-      const url = URL.createObjectURL(file);
+      // A blob: URL only works in this tab; a resized data URL is saved with the tribute.
+      let url: string;
+      try {
+        url = await fileToResizedDataUrl(file, 1400);
+      } catch {
+        continue;
+      }
       newPhotos.push({
         id: `photo-${Date.now()}-${i}`,
         url,
@@ -418,12 +456,64 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   };
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+
+  // Required fields per step: the person can only move on once they are filled.
+  const goNext = async () => {
+    if (currentStep === 0 && !selectedPackage) {
+      setError('Escolha um plano para continuar.');
+      return;
+    }
+    if (currentStep === 1 && !selectedTemplateId) {
+      setError('Escolha um modelo para continuar.');
+      return;
+    }
+    if (currentStep === 2) {
+      const ok = await trigger(['title', 'recipient']);
+      if (!ok) {
+        setError('Preencha o título e o nome do homenageado para continuar.');
+        setFocus(errors.title || !watch('title') ? 'title' : 'recipient');
+        return;
+      }
+    }
+    setError(null);
+    nextStep();
+  };
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   // Scroll to top when step changes (for mobile UX)
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStep]);
+
+  // Live preview: the page as it stands, with placeholders where nothing is written yet.
+  const [previewFocus, setPreviewFocus] = useState<PreviewSection>('hero');
+  useEffect(() => {
+    const byStep: Record<number, PreviewSection> = { 1: 'hero', 2: 'hero', 3: 'gallery', 4: 'timeline', 5: 'hero' };
+    setPreviewFocus(byStep[currentStep] ?? 'hero');
+  }, [currentStep]);
+  const values = watch();
+  const previewConfig: TributeConfig = {
+    title: values.title || 'O título aparece aqui',
+    recipient: values.recipient || 'Nome',
+    template: values.templateId || 'romantic',
+    hero: values.heroImage ? { image: values.heroImage, overlay: true } : undefined,
+    message: {
+      text: values.message || 'Sua mensagem aparece aqui, em forma de carta. Escreva com carinho: ela é o coração da homenagem.',
+      typingAnimation: false,
+    },
+    gallery: photos.map((p, i) => ({ id: p.id, url: p.url, caption: p.caption, order: i })),
+    timeline: timelineItems
+      .filter((t) => t.title || t.year)
+      .map((t, i) => ({ id: t.id, title: t.title || 'Momento', description: t.description, year: t.year, imageUrl: t.imageUrl, order: i })),
+    closingMessage: values.closingMessage || (previewFocus === 'closing' ? 'Sua mensagem de encerramento aparece aqui.' : undefined),
+  };
+  const focusOn = (section: PreviewSection) => () => setPreviewFocus(section);
+
+  // Clear the "fill in the required fields" warning as soon as they are filled.
+  useEffect(() => {
+    if (currentStep === 2 && values.title && values.recipient) setError(null);
+    if (currentStep === 0 && selectedPackage) setError(null);
+  }, [currentStep, values.title, values.recipient, selectedPackage]);
 
   // Get accent color based on current context
   const accentColor = selectedTemplate?.accentColor || '#ec4899';
@@ -439,7 +529,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   }
 
   return (
-    <div className="max-w-3xl mx-auto pb-24 md:pb-0">
+    <div className={currentStep >= 1 ? 'max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-12 xl:gap-16 items-start' : ''}>
+    <div className="max-w-3xl w-full mx-auto pb-24 md:pb-0">
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between relative">
@@ -669,12 +760,14 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   <Label htmlFor="title">Título *</Label>
                   <Input
                     id="title"
-                    placeholder="Para a melhor mãe do mundo ❤️"
+                    placeholder="A melhor mãe do mundo!"
                     {...register('title')}
+                    onFocus={focusOn('hero')}
+                    aria-invalid={!!errors.title}
                     className="mt-1.5"
                   />
                   {errors.title && (
-                    <p className="text-sm text-red-500 mt-1">{errors.title.message}</p>
+                    <p role="alert" className="text-sm text-red-500 mt-1">{errors.title.message}</p>
                   )}
                 </div>
 
@@ -684,10 +777,12 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     id="recipient"
                     placeholder="Maria"
                     {...register('recipient')}
+                    onFocus={focusOn('hero')}
+                    aria-invalid={!!errors.recipient}
                     className="mt-1.5"
                   />
                   {errors.recipient && (
-                    <p className="text-sm text-red-500 mt-1">{errors.recipient.message}</p>
+                    <p role="alert" className="text-sm text-red-500 mt-1">{errors.recipient.message}</p>
                   )}
                 </div>
 
@@ -698,6 +793,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     placeholder="Escreva sua mensagem de carinho aqui..."
                     rows={6}
                     {...register('message')}
+                    onFocus={focusOn('message')}
                     className="mt-1.5 resize-none"
                   />
                   <p className="text-xs text-gray-400 mt-1">
@@ -706,13 +802,51 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 </div>
 
                 <div>
-                  <Label htmlFor="heroImage">URL da Imagem Principal (opcional)</Label>
-                  <Input
+                  <Label htmlFor="heroImage">Foto principal (opcional)</Label>
+                  <p className="text-xs text-gray-400 mt-0.5">Aparece grande na abertura da página.</p>
+                  <input
+                    ref={heroInputRef}
                     id="heroImage"
-                    placeholder="https://exemplo.com/imagem.jpg"
-                    {...register('heroImage')}
-                    className="mt-1.5"
+                    type="file"
+                    accept="image/*"
+                    className="sr-only"
+                    onFocus={focusOn('hero')}
+                    onChange={(e) => {
+                      handleHeroUpload(e.target.files);
+                      e.target.value = '';
+                    }}
                   />
+                  {heroImageValue ? (
+                    <div className="mt-2 flex items-center gap-4 p-3 rounded-lg border border-gray-200 bg-white">
+                      <img src={heroImageValue} alt="Foto principal" className="h-20 w-20 rounded-md object-cover" />
+                      <div className="flex flex-col gap-2">
+                        <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => { focusOn('hero')(); heroInputRef.current?.click(); }}>
+                          <Upload className="h-4 w-4" />
+                          Trocar foto
+                        </Button>
+                        <Button type="button" variant="ghost" size="sm" className="gap-2 text-gray-500" onClick={() => setValue('heroImage', '')}>
+                          <X className="h-4 w-4" />
+                          Remover
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { focusOn('hero')(); heroInputRef.current?.click(); }}
+                      className="mt-2 w-full flex flex-col items-center justify-center gap-2 h-32 rounded-lg border-2 border-dashed border-gray-200 hover:border-pink-300 hover:bg-pink-50/40 transition-colors text-gray-500"
+                    >
+                      {isUploadingHero ? (
+                        <Loader2 className="h-6 w-6 animate-spin text-pink-500" />
+                      ) : (
+                        <ImagePlus className="h-6 w-6 text-pink-500" />
+                      )}
+                      <span className="text-sm font-medium text-gray-700">
+                        {isUploadingHero ? 'Preparando a foto...' : 'Clique para enviar a foto principal'}
+                      </span>
+                      <span className="text-xs">JPG ou PNG, até 15 MB</span>
+                    </button>
+                  )}
                 </div>
 
                 <div>
@@ -722,6 +856,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     placeholder="Para sempre no meu coração..."
                     rows={2}
                     {...register('closingMessage')}
+                    onFocus={focusOn('closing')}
                     className="mt-1.5 resize-none"
                   />
                 </div>
@@ -1238,15 +1373,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           {currentStep < steps.length - 1 ? (
             <Button
               type="button"
-              onClick={() => {
-                // Validate step 0 before proceeding
-                if (currentStep === 0 && !selectedPackage) {
-                  setError('Por favor, selecione um plano para continuar.');
-                  return;
-                }
-                setError(null);
-                nextStep();
-              }}
+              onClick={goNext}
               className="bg-pink-500 hover:bg-pink-600 gap-2"
             >
               Próximo
@@ -1303,14 +1430,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           {currentStep < steps.length - 1 ? (
             <Button
               type="button"
-              onClick={() => {
-                if (currentStep === 0 && !selectedPackage) {
-                  setError('Por favor, selecione um plano para continuar.');
-                  return;
-                }
-                setError(null);
-                nextStep();
-              }}
+              onClick={goNext}
               className="bg-pink-500 hover:bg-pink-600 gap-2"
             >
               Próximo
@@ -1338,6 +1458,9 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           )}
         </div>
       </div>
+    </div>
+
+    {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} />}
     </div>
   );
 }
