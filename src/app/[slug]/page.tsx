@@ -5,6 +5,8 @@ import { db } from '@/lib/db';
 import { getPackage, type PackageType } from '@/lib/packages';
 import { TributeViewer } from '@/components/tribute/tribute-viewer';
 import { TributeConfig } from '@/types/tribute';
+import { tributeVisibility } from '@/lib/tribute-access';
+import { TributeExpired } from '@/components/tribute/tribute-expired';
 
 interface PageProps {
   params: Promise<{
@@ -23,8 +25,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       where: { slug },
     });
 
-    if (!tribute) {
-      return { title: 'Homenagem não encontrada' };
+    if (!tribute || tributeVisibility(tribute) !== 'live') {
+      return { title: 'EternalPage', robots: { index: false, follow: false } };
     }
 
     const config = JSON.parse(tribute.config) as TributeConfig;
@@ -39,6 +41,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         images: heroImage ? [{ url: heroImage }] : [],
         type: 'website',
       },
+      // Each tribute is private to whoever has the link: keep it out of search engines.
+      robots: { index: false, follow: false },
     };
   } catch (e) {
     console.error('Error in generateMetadata:', e);
@@ -65,6 +69,16 @@ export default async function TributePage({ params }: PageProps) {
 
   if (!tribute) {
     notFound();
+  }
+
+  // Drafts that were not paid for never open at the public address (they have the
+  // watermarked preview instead); Básico pages stop showing once their year is over.
+  const visibility = tributeVisibility(tribute);
+  if (visibility === 'unpublished') {
+    notFound();
+  }
+  if (visibility === 'expired') {
+    return <TributeExpired recipient={tribute.recipient} />;
   }
 
   // Increment view count (non-blocking)

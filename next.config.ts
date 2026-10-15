@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  /* config options here */
+  // Runs with "next start" (Railway). Type errors are not blocking the build yet.
   typescript: {
     ignoreBuildErrors: true,
   },

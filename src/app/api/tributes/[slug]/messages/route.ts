@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { isTributeLive } from '@/lib/tribute-access';
 
 // Message wall of a published tribute: anyone with the link can read it and leave a message,
 // if the creator turned the wall on.
@@ -9,8 +10,8 @@ interface RouteContext {
 }
 
 async function findOpenWall(slug: string) {
-  const tribute = await db.tribute.findUnique({ where: { slug }, select: { id: true, isPublished: true, config: true } });
-  if (!tribute || !tribute.isPublished) return null;
+  const tribute = await db.tribute.findUnique({ where: { slug }, select: { id: true, isPublished: true, expiresAt: true, config: true } });
+  if (!tribute || !isTributeLive(tribute)) return null;
   try {
     const config = JSON.parse(tribute.config) as { guestbook?: boolean };
     return config.guestbook ? tribute : null;

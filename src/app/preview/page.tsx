@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { TributeViewer } from '@/components/tribute/tribute-viewer';
 import { WatermarkOverlay } from '@/components/preview/watermark-overlay';
+import { CheckoutDialog } from '@/components/checkout/checkout-dialog';
 import { PACKAGES, PackageType, formatPrice } from '@/lib/packages';
 import { TributeConfig } from '@/types/tribute';
 
@@ -29,6 +30,7 @@ interface DraftData {
   photos: Array<{ id?: string; url: string; caption?: string; order?: number }>;
   timeline: Array<{ id?: string; title: string; description?: string; year?: string; imageUrl?: string; order?: number }>;
   config?: Record<string, unknown>;
+  isPaid?: boolean;
 }
 
 function PreviewContent() {
@@ -37,6 +39,7 @@ function PreviewContent() {
   const [draft, setDraft] = useState<DraftData | null>(null);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const draftId = searchParams.get('id');
 
@@ -99,19 +102,15 @@ function PreviewContent() {
     router.push(`/?edit=${draftId}`);
   };
 
-  const handleConfirmAndPay = async () => {
+  // Asks for the e-mail and goes to Mercado Pago; an already paid page goes to its link.
+  const handleConfirmAndPay = () => {
     if (!draft) return;
-
-    setProcessing(true);
-
-    try {
-      // Navigate to finalize with the selected package from draft
-      const pkgType = draft.packageType || 'basic';
-      router.push(`/finalize?draft_id=${draft.id}&package=${pkgType}`);
-    } catch (error) {
-      console.error('Payment error:', error);
-      setProcessing(false);
+    if (draft.isPaid) {
+      setProcessing(true);
+      router.push(`/finalize?draft_id=${draft.id}`);
+      return;
     }
+    setCheckoutOpen(true);
   };
 
   // Construct TributeConfig from draft data
@@ -186,6 +185,13 @@ function PreviewContent() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      <CheckoutDialog
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        draftId={draft.id}
+        recipient={draft.recipient}
+        pkg={packageInfo}
+      />
       {/* Preview Mode Header */}
       <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-500">
         <div className="max-w-7xl mx-auto px-4 py-3">
@@ -224,7 +230,7 @@ function PreviewContent() {
                 ) : (
                   <CreditCard className="h-4 w-4" />
                 )}
-                Finalizar · {formatPrice(packageInfo.price)}
+                {draft.isPaid ? 'Ver link' : `Finalizar · ${formatPrice(packageInfo.price)}`}
               </button>
             </div>
           </div>
