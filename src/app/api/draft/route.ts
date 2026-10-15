@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { nanoid } from 'nanoid';
 import { isValidHex, styleForColor } from '@/lib/colors';
 import { getPackage, type PackageType } from '@/lib/packages';
+import { MediaError, normaliseMedia } from '@/lib/storage';
 
 // GET - Retrieve a draft by ID
 export async function GET(request: NextRequest) {
@@ -105,21 +106,38 @@ export async function POST(request: NextRequest) {
       : requestedPackage;
     // The package limits are checked here too, not only in the creator.
     const limits = getPackage(effectivePackage).limits;
-    const allowedPhotos = (Array.isArray(photos) ? photos : []).slice(0, limits.momentsPhotos);
-    const allowedTimeline = (Array.isArray(timeline) ? timeline : [])
-      .slice(0, limits.timelineMoments)
-      .map((t: { title: string; description?: string; year?: string; imageUrl?: string }) =>
-        limits.timelineImages ? t : { ...t, imageUrl: undefined }
-      );
-    const allowedMusicUrl = limits.music ? musicUrl : null;
+    // Photos, music and voice arrive as data URLs from the creator; they are stored as files
+    // (Cloudflare R2, or public/uploads in development) and only their address is saved.
+    let storedHero: string | null;
+    let allowedPhotos: { url: string; caption?: string }[];
+    let allowedTimeline: { title: string; description?: string; year?: string; imageUrl?: string }[];
+    let allowedMusicUrl: string | null;
+    let storedVoice: string | null;
+    try {
+      storedHero = await normaliseMedia(heroImage, 'image');
+      allowedPhotos = [];
+      for (const p of (Array.isArray(photos) ? photos : []).slice(0, limits.momentsPhotos)) {
+        const url = await normaliseMedia(p?.url, 'image');
+        if (url) allowedPhotos.push({ url, caption: typeof p.caption === 'string' ? p.caption : undefined });
+      }
+      allowedTimeline = [];
+      for (const t of (Array.isArray(timeline) ? timeline : []).slice(0, limits.timelineMoments)) {
+        allowedTimeline.push({
+          ...t,
+          imageUrl: limits.timelineImages ? (await normaliseMedia(t?.imageUrl, 'image')) ?? undefined : undefined,
+        });
+      }
+      allowedMusicUrl = limits.music ? await normaliseMedia(musicUrl, 'audio') : null;
+      storedVoice = limits.music ? await normaliseMedia(voiceMessage, 'audio') : null;
+    } catch (e) {
+      if (e instanceof MediaError) {
+        return NextResponse.json({ error: e.message }, { status: 400 });
+      }
+      throw e;
+    }
 
     // Build config JSON
-    // Voice messages are audio data URLs; anything else is dropped
-    const voice =
-      limits.music &&
-      typeof voiceMessage === 'string' && voiceMessage.startsWith('data:audio/') && voiceMessage.length < 12_000_000
-        ? voiceMessage
-        : undefined;
+    const voice = storedVoice || undefined;
 
     // A colour the person picked overrides the template's own
     const config = {
@@ -158,7 +176,7 @@ export async function POST(request: NextRequest) {
           message,
           closingMessage: closingMessage || null,
           config: JSON.stringify(config),
-          heroImage: heroImage || null,
+          heroImage: storedHero,
           musicUrl: allowedMusicUrl || null,
           packageType: effectivePackage,
         },
@@ -206,7 +224,7 @@ export async function POST(request: NextRequest) {
           message,
           closingMessage: closingMessage || null,
           config: JSON.stringify(config),
-          heroImage: heroImage || null,
+          heroImage: storedHero,
           musicUrl: allowedMusicUrl || null,
           packageType: effectivePackage,
           isPublished: false,

@@ -56,3 +56,5 @@ db/*.db
 .agents/
 skills-lock.json
 voice/
+# arquivos enviados em desenvolvimento (em producao ficam no Cloudflare R2)
+/public/uploads/
