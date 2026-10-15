@@ -155,7 +155,8 @@ function youTubeTrack(host: HTMLElement, videoId: string, ev: TrackEvents): Trac
       vol = v;
       if (ready) player.setVolume(Math.round(v * 100));
     },
-    canSetVolume: () => true,
+    // On phones YouTube's player ignores volume changes, so the song pauses instead.
+    canSetVolume: () => !/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) && navigator.maxTouchPoints < 2,
     setMuted: (m) => {
       if (!ready) return;
       if (m) player.mute();

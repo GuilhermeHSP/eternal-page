@@ -214,7 +214,7 @@ function FinalizeContent() {
               </h1>
               <p className="text-white/80">
                 Sua homenagem está no ar
-                {info?.email && info.emailSent ? <><br />Também enviamos o link para <strong>{info.email}</strong></> : null}
+                {info?.email && info.emailSent ? <><br />Também enviamos o link para <strong>{info.email}</strong>.<br /><span className="text-sm text-gray-500">Não chegou? Confira as pastas Spam e Promoções.</span></> : null}
               </p>
             </motion.div>
           </div>

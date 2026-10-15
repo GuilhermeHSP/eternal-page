@@ -19,11 +19,15 @@ import {
   Gift,
   MessageCircleHeart,
   Mic,
+  ShieldCheck,
+  Lock,
+  KeyRound,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PACKAGE_LIST, LOWEST_PRICE, formatPrice, type PackageType } from '@/lib/packages';
 import { PlanCard } from '@/components/pricing/plan-card';
-import { getTemplate } from '@/lib/templates';
+import { getTemplate, templateList } from '@/lib/templates';
+import { Logo } from '@/components/logo';
 import type { TributeConfig } from '@/types/tribute';
 import { RevealObserver } from '@/components/reveal-observer';
 import { SiteHeader } from '@/components/site-header';
@@ -67,7 +71,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
         <Faq />
         <FinalCta onStart={() => start()} />
       </main>
-      <Footer />
+      <Footer onStart={() => start()} onPick={(templateId) => start({ templateId })} />
       <MobileCta onStart={() => start()} />
       <RevealObserver />
     </div>
@@ -474,22 +478,126 @@ function FinalCta({ onStart }: { onStart: () => void }) {
 
 /* ------------------------------------------------------------------ */
 
-function Footer() {
+const FOOTER_LINKS = [
+  { href: '#como-funciona', label: 'Como funciona' },
+  { href: '#exemplo', label: 'Ver um exemplo' },
+  { href: '#modelos', label: 'Modelos' },
+  { href: '#precos', label: 'Preços' },
+  { href: '#duvidas', label: 'Dúvidas frequentes' },
+];
+
+const TRUST = [
+  {
+    icon: ShieldCheck,
+    title: 'Compra segura',
+    text: 'Pagamento pelo Mercado Pago, com Pix ou cartão. Os dados do seu cartão ficam com eles: não vemos nem guardamos.',
+  },
+  {
+    icon: Lock,
+    title: 'Conexão criptografada',
+    text: 'Todo o site usa HTTPS (SSL). Tudo o que você digita e envia viaja protegido.',
+  },
+  {
+    icon: KeyRound,
+    title: 'Fotos e dados protegidos',
+    text: 'Fotos e áudios ficam guardados com criptografia. A homenagem só abre para quem tem o link e não aparece no Google.',
+  },
+];
+
+function Footer({ onStart, onPick }: { onStart: () => void; onPick: (templateId: string) => void }) {
   return (
-    <footer className="border-t border-gray-100 py-10 px-4 pb-28 sm:pb-10">
+    <footer className="bg-rose-50/50 border-t border-rose-100 px-4 pt-14 pb-28 sm:pb-10">
       <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-rose-500" fill="currentColor" />
-            <span className="font-title font-semibold tracking-wide text-gray-800">EternalPage</span>
+        {/* Trust seals */}
+        <ul className="grid gap-3 sm:grid-cols-3">
+          {TRUST.map(({ icon: Icon, title, text }) => (
+            <li key={title} className="flex gap-3 rounded-2xl bg-white border border-rose-100 p-4 shadow-sm">
+              <span className="shrink-0 h-10 w-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Icon className="h-5 w-5" />
+              </span>
+              <div>
+                <p className="font-semibold text-gray-900 text-sm">{title}</p>
+                <p className="mt-0.5 text-xs leading-relaxed text-gray-500">{text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-12 grid gap-10 grid-cols-2 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          {/* Brand */}
+          <div className="col-span-2 md:col-span-1">
+            <Logo className="h-10" animated={false} />
+            <p className="mt-4 text-sm leading-relaxed text-gray-600 max-w-xs">
+              Páginas de homenagem para presentear quem você ama: fotos, mensagem, música e um QR code para entregar junto
+              com o presente.
+            </p>
+            <button
+              type="button"
+              onClick={onStart}
+              className="press mt-5 inline-flex items-center gap-2 h-11 px-6 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold"
+            >
+              <Heart className="h-4 w-4" fill="currentColor" />
+              Criar homenagem
+            </button>
           </div>
-          <nav className="flex items-center gap-6 text-sm text-gray-500">
-            <a href="#como-funciona" className="hover:text-rose-500">Como funciona</a>
-            <a href="#precos" className="hover:text-rose-500">Preços</a>
-            <a href="#duvidas" className="hover:text-rose-500">Dúvidas</a>
+
+          {/* Occasions */}
+          <nav aria-label="Homenagens">
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-gray-400">Homenagens</p>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {templateList.map((t) => (
+                <li key={t.name}>
+                  <button type="button" onClick={() => onPick(t.name)} className="text-gray-600 hover:text-rose-500 text-left">
+                    {t.displayName}
+                  </button>
+                </li>
+              ))}
+            </ul>
           </nav>
+
+          {/* Site */}
+          <nav aria-label="EternalPage">
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-gray-400">EternalPage</p>
+            <ul className="mt-4 space-y-2.5 text-sm">
+              {FOOTER_LINKS.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className="text-gray-600 hover:text-rose-500">
+                    {l.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Help */}
+          <div className="col-span-2 md:col-span-1">
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-gray-400">Atendimento</p>
+            <a
+              href="mailto:contato@eternalpage.com.br"
+              className="mt-4 inline-flex items-center gap-2 text-sm text-gray-700 hover:text-rose-500 break-all"
+            >
+              <Mail className="h-4 w-4 shrink-0 text-rose-500" />
+              contato@eternalpage.com.br
+            </a>
+            <p className="mt-3 text-xs leading-relaxed text-gray-500">
+              O link e o QR code da homenagem chegam no seu e-mail assim que o pagamento é aprovado.
+            </p>
+            <p className="mt-4 text-xs font-semibold tracking-[0.18em] uppercase text-gray-400">Formas de pagamento</p>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
+              <span className="rounded-full bg-white border border-gray-200 px-3 py-1">Pix</span>
+              <span className="rounded-full bg-white border border-gray-200 px-3 py-1">Cartão de crédito</span>
+              <span className="rounded-full bg-white border border-gray-200 px-3 py-1">Mercado Pago</span>
+            </div>
+          </div>
         </div>
-        <p className="mt-8 text-xs text-gray-400 leading-relaxed text-center max-w-4xl mx-auto">
+
+        <div className="mt-12 pt-6 border-t border-rose-100 flex flex-col sm:flex-row gap-3 items-center justify-between text-xs text-gray-400">
+          <p>© {new Date().getFullYear()} EternalPage. Todos os direitos reservados.</p>
+          <p className="inline-flex items-center gap-1">
+            Feito com <Heart className="h-3 w-3 text-rose-500" fill="currentColor" /> no Brasil
+          </p>
+        </div>
+        <p className="mt-4 text-[11px] text-gray-400 leading-relaxed text-center sm:text-left">
           Fotos de exemplo de bancos de imagens livres (StockSnap, rawpixel e Unsplash). Nenhuma mostra um cliente.
         </p>
       </div>
