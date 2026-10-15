@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid';
 import { isValidHex, styleForColor } from '@/lib/colors';
 import { getPackage, type PackageType } from '@/lib/packages';
 import { MediaError, normaliseMedia } from '@/lib/storage';
+import { parseMusicLink } from '@/lib/music-link';
 
 // GET - Retrieve a draft by ID
 export async function GET(request: NextRequest) {
@@ -127,7 +128,19 @@ export async function POST(request: NextRequest) {
           imageUrl: limits.timelineImages ? (await normaliseMedia(t?.imageUrl, 'image')) ?? undefined : undefined,
         });
       }
-      allowedMusicUrl = limits.music ? await normaliseMedia(musicUrl, 'audio') : null;
+      allowedMusicUrl = null;
+      if (limits.music && typeof musicUrl === 'string' && /^https?:\/\//i.test(musicUrl.trim())) {
+        // A pasted link: YouTube or a direct audio file. Files saved earlier are kept as they are.
+        const kept = await normaliseMedia(musicUrl, 'audio');
+        if (kept) allowedMusicUrl = kept;
+        else {
+          const parsed = parseMusicLink(musicUrl);
+          if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+          allowedMusicUrl = parsed.link.url;
+        }
+      } else if (limits.music) {
+        allowedMusicUrl = await normaliseMedia(musicUrl, 'audio');
+      }
       storedVoice = limits.music ? await normaliseMedia(voiceMessage, 'audio') : null;
     } catch (e) {
       if (e instanceof MediaError) {

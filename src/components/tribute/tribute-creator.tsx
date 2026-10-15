@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { isYouTubeUrl, parseMusicLink } from '@/lib/music-link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { z } from 'zod';
@@ -216,7 +217,10 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           }
           
           // Set music
-          if (data.musicUrl) {
+          if (data.musicUrl && isYouTubeUrl(data.musicUrl)) {
+            // A YouTube link: show it in the "link" tab (the field already holds it).
+            setMusicInputType('url');
+          } else if (data.musicUrl) {
             setMusicFile({
               id: 'existing-music',
               url: data.musicUrl,
@@ -1490,7 +1494,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   {/* Hidden audio element for preview */}
                   <audio
                     ref={audioRef}
-                    src={(musicFile?.url || musicUrlValue) || undefined}
+                    src={(musicFile?.url || (musicUrlValue && !isYouTubeUrl(musicUrlValue) ? musicUrlValue : '')) || undefined}
                     onEnded={() => setIsPlaying(false)}
                   />
 
@@ -1590,56 +1594,76 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     <TabsContent value="url" className="mt-0">
                       <div className="space-y-3">
                         <div>
-                          <Label htmlFor="musicUrl">URL da Música</Label>
+                          <Label htmlFor="musicUrl">Link da música</Label>
                           <Input
                             id="musicUrl"
-                            placeholder="https://exemplo.com/musica.mp3"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            inputMode="url"
+                            autoComplete="off"
                             {...register('musicUrl')}
                             className="mt-1.5"
                           />
                           <p className="text-xs text-gray-400 mt-1">
-                            Link direto para um arquivo MP3
+                            Cole o link da música no YouTube (no app: Compartilhar → Copiar link)
                           </p>
                         </div>
 
-                        {/* Preview for URL */}
-                        {musicUrlValue && (
-                          <Card className="overflow-hidden">
-                            <CardContent className="p-4">
-                              <div className="flex items-center gap-4">
-                                <Button
-                                  type="button"
-                                  size="icon"
-                                  onClick={togglePlayMusic}
-                                  className="shrink-0 bg-rose-500 hover:bg-rose-600"
-                                >
-                                  {isPlaying ? (
-                                    <Pause className="h-5 w-5 text-white" />
+                        {musicUrlValue && musicUrlValue.trim() && !musicUrlValue.startsWith('data:') && (() => {
+                          const parsed = parseMusicLink(musicUrlValue);
+                          if (!parsed.ok) {
+                            return (
+                              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                                {parsed.error}
+                              </p>
+                            );
+                          }
+                          const link = parsed.link;
+                          return (
+                            <Card className="overflow-hidden">
+                              <CardContent className="p-4">
+                                <div className="flex items-center gap-4">
+                                  {link.kind === 'youtube' ? (
+                                    <img
+                                      src={`https://i.ytimg.com/vi/${link.videoId}/mqdefault.jpg`}
+                                      alt=""
+                                      className="shrink-0 w-20 h-12 rounded-md object-cover bg-gray-100"
+                                    />
                                   ) : (
-                                    <Play className="h-5 w-5 text-white ml-0.5" />
+                                    <Button
+                                      type="button"
+                                      size="icon"
+                                      onClick={togglePlayMusic}
+                                      className="shrink-0 bg-rose-500 hover:bg-rose-600"
+                                    >
+                                      {isPlaying ? (
+                                        <Pause className="h-5 w-5 text-white" />
+                                      ) : (
+                                        <Play className="h-5 w-5 text-white ml-0.5" />
+                                      )}
+                                    </Button>
                                   )}
-                                </Button>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm text-gray-800 truncate">
-                                    Arquivo de áudio
-                                  </p>
-                                  <p className="text-xs text-gray-400 truncate">
-                                    {musicUrlValue}
-                                  </p>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-800 truncate">
+                                      {link.kind === 'youtube' ? 'Música do YouTube' : 'Arquivo de áudio'}
+                                    </p>
+                                    <p className="text-xs text-green-600 truncate">
+                                      Vai tocar na homenagem · confira na pré-visualização
+                                    </p>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setValue('musicUrl', '')}
+                                    className="text-gray-400 hover:text-red-500"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
                                 </div>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  onClick={() => setValue('musicUrl', '')}
-                                  className="text-gray-400 hover:text-red-500"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )}
+                              </CardContent>
+                            </Card>
+                          );
+                        })()}
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -1665,7 +1689,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                       🎵 Dicas para música:
                     </p>
                     <ul className="text-xs text-gray-500 space-y-1">
-                      <li>• Envie um arquivo MP3 ou cole um link direto</li>
+                      <li>• Envie um arquivo MP3 ou cole o link da música no YouTube</li>
                       <li>• Considere direitos autorais ao escolher a música</li>
                       <li>• Alguns navegadores podem bloquear reprodução automática</li>
                       <li>• Mantenha o arquivo abaixo de 10MB para melhor performance</li>

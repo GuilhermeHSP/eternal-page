@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Music, Pause, Play, Volume2, VolumeX } from 'lucide-react';
 import { MusicConfig } from '@/types/tribute';
+import { youTubeId } from '@/lib/music-link';
 
 const MUSIC_VOLUME = 0.5;
 const MUSIC_UNDER_VOICE = 0.08;
@@ -13,34 +14,191 @@ interface MusicPlayerProps {
   accentColor: string;
 }
 
-// The page's song, as a slim bar along the bottom: play, what's playing, mute, and a thin
-// progress line you can tap to jump.
-export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
+// Something that plays the song: the page's own <audio> for files, or YouTube's player for
+// YouTube links. The bar below talks to either one the same way.
+interface Track {
+  play(): void;
+  pause(): void;
+  paused(): boolean;
+  volume(): number; // 0..1
+  setVolume(v: number): void;
+  canSetVolume(): boolean;
+  setMuted(m: boolean): void;
+  seek(seconds: number): void;
+  destroy(): void;
+}
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.volume = MUSIC_VOLUME;
-    const onTime = () => setProgress(audio.currentTime);
-    const onMeta = () => setDuration(audio.duration);
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    audio.addEventListener('timeupdate', onTime);
-    audio.addEventListener('loadedmetadata', onMeta);
-    audio.addEventListener('play', onPlay);
-    audio.addEventListener('pause', onPause);
-    return () => {
+interface TrackEvents {
+  onTime(t: number): void;
+  onDuration(d: number): void;
+  onPlaying(p: boolean): void;
+}
+
+function audioTrack(audio: HTMLAudioElement, ev: TrackEvents): Track {
+  audio.volume = MUSIC_VOLUME;
+  const onTime = () => ev.onTime(audio.currentTime);
+  const onMeta = () => ev.onDuration(audio.duration);
+  const onPlay = () => ev.onPlaying(true);
+  const onPause = () => ev.onPlaying(false);
+  audio.addEventListener('timeupdate', onTime);
+  audio.addEventListener('loadedmetadata', onMeta);
+  audio.addEventListener('play', onPlay);
+  audio.addEventListener('pause', onPause);
+  return {
+    play: () => void audio.play().catch(() => {}),
+    pause: () => audio.pause(),
+    paused: () => audio.paused,
+    volume: () => audio.volume,
+    setVolume: (v) => {
+      audio.volume = v;
+    },
+    // iPhones don't let a page change the volume of an <audio>.
+    canSetVolume: () => {
+      const before = audio.volume;
+      audio.volume = before > 0.25 ? before - 0.01 : before + 0.01;
+      const ok = audio.volume !== before;
+      audio.volume = before;
+      return ok;
+    },
+    setMuted: (m) => {
+      audio.muted = m;
+    },
+    seek: (t) => {
+      audio.currentTime = t;
+    },
+    destroy: () => {
       audio.removeEventListener('timeupdate', onTime);
       audio.removeEventListener('loadedmetadata', onMeta);
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
+    },
+  };
+}
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+let ytApi: Promise<any> | null = null;
+function loadYouTubeApi(): Promise<any> {
+  const w = window as any;
+  if (w.YT?.Player) return Promise.resolve(w.YT);
+  if (!ytApi) {
+    ytApi = new Promise((resolve) => {
+      const previous = w.onYouTubeIframeAPIReady;
+      w.onYouTubeIframeAPIReady = () => {
+        previous?.();
+        resolve(w.YT);
+      };
+      const script = document.createElement('script');
+      script.src = 'https://www.youtube.com/iframe_api';
+      script.async = true;
+      document.head.appendChild(script);
+    });
+  }
+  return ytApi;
+}
+
+function youTubeTrack(host: HTMLElement, videoId: string, ev: TrackEvents): Track {
+  let player: any = null;
+  let ready = false;
+  let wantPlay = false;
+  let isPaused = true;
+  let vol = MUSIC_VOLUME;
+  let timer = 0;
+  let destroyed = false;
+
+  const target = document.createElement('div');
+  host.appendChild(target);
+
+  loadYouTubeApi().then((YT) => {
+    if (destroyed) return;
+    player = new YT.Player(target, {
+      videoId,
+      width: 200,
+      height: 200,
+      playerVars: { autoplay: 0, controls: 0, loop: 1, playlist: videoId, playsinline: 1, rel: 0, disablekb: 1 },
+      events: {
+        onReady: () => {
+          ready = true;
+          player.setVolume(Math.round(vol * 100));
+          ev.onDuration(player.getDuration() || 0);
+          if (wantPlay) player.playVideo();
+        },
+        onStateChange: (e: { data: number }) => {
+          // 1 playing, 2 paused, 0 ended, 3 buffering
+          if (e.data === 1) {
+            isPaused = false;
+            ev.onPlaying(true);
+            ev.onDuration(player.getDuration() || 0);
+            clearInterval(timer);
+            timer = window.setInterval(() => ev.onTime(player.getCurrentTime() || 0), 500);
+          } else if (e.data === 2 || e.data === 0) {
+            isPaused = true;
+            ev.onPlaying(false);
+            clearInterval(timer);
+          }
+        },
+      },
+    });
+  });
+
+  return {
+    play: () => {
+      wantPlay = true;
+      if (ready) player.playVideo();
+    },
+    pause: () => {
+      wantPlay = false;
+      if (ready) player.pauseVideo();
+    },
+    paused: () => isPaused,
+    volume: () => vol,
+    setVolume: (v) => {
+      vol = v;
+      if (ready) player.setVolume(Math.round(v * 100));
+    },
+    canSetVolume: () => true,
+    setMuted: (m) => {
+      if (!ready) return;
+      if (m) player.mute();
+      else player.unMute();
+    },
+    seek: (t) => {
+      if (ready) player.seekTo(t, true);
+    },
+    destroy: () => {
+      destroyed = true;
+      clearInterval(timer);
+      try {
+        player?.destroy();
+      } catch {}
+      host.innerHTML = '';
+    },
+  };
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// The page's song, as a slim bar along the bottom: play, what's playing, mute, and a thin
+// progress line you can tap to jump.
+export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const ytHostRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<Track | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const videoId = youTubeId(config.url);
+
+  useEffect(() => {
+    const events: TrackEvents = { onTime: setProgress, onDuration: setDuration, onPlaying: setIsPlaying };
+    let track: Track | null = null;
+    if (videoId && ytHostRef.current) track = youTubeTrack(ytHostRef.current, videoId, events);
+    else if (audioRef.current) track = audioTrack(audioRef.current, events);
+    trackRef.current = track;
+    return () => {
+      track?.destroy();
+      trackRef.current = null;
     };
-  }, []);
+  }, [videoId, config.url]);
 
   // While the voice message plays the song fades down to a whisper, then back up after.
   useEffect(() => {
@@ -48,36 +206,32 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
     const fadeTo = (target: number) => {
       cancelAnimationFrame(frame);
       const step = () => {
-        const audio = audioRef.current;
-        if (!audio) return;
-        const diff = target - audio.volume;
+        const track = trackRef.current;
+        if (!track) return;
+        const diff = target - track.volume();
         if (Math.abs(diff) < 0.02) {
-          audio.volume = target;
+          track.setVolume(target);
           return;
         }
-        audio.volume = Math.min(1, Math.max(0, audio.volume + Math.sign(diff) * 0.02));
+        track.setVolume(Math.min(1, Math.max(0, track.volume() + Math.sign(diff) * 0.02)));
         frame = requestAnimationFrame(step);
       };
       step();
     };
-    // iPhones don't let a page change the volume; there the song pauses and resumes instead.
+    // Where the volume can't be changed (iPhones), the song pauses and resumes instead.
     let pausedForVoice = false;
     const onVoice = (e: Event) => {
-      const audio = audioRef.current;
-      if (!audio) return;
+      const track = trackRef.current;
+      if (!track) return;
       const voiceOn = (e as CustomEvent<boolean>).detail;
-      const before = audio.volume;
-      audio.volume = before > 0.25 ? before - 0.01 : before + 0.01;
-      const canSetVolume = audio.volume !== before;
-      audio.volume = before;
-      if (canSetVolume) {
+      if (track.canSetVolume()) {
         fadeTo(voiceOn ? MUSIC_UNDER_VOICE : MUSIC_VOLUME);
-      } else if (voiceOn && !audio.paused) {
+      } else if (voiceOn && !track.paused()) {
         pausedForVoice = true;
-        audio.pause();
+        track.pause();
       } else if (!voiceOn && pausedForVoice) {
         pausedForVoice = false;
-        audio.play().catch(() => {});
+        track.play();
       }
     };
     window.addEventListener('eternalpage:voice', onVoice);
@@ -90,33 +244,29 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
   // Opening the envelope is a tap, so the browser allows the music to start right then.
   useEffect(() => {
     const onOpen = () => {
-      const audio = audioRef.current;
-      if (!audio || !audio.paused) return;
-      audio.play().catch(() => {});
+      const track = trackRef.current;
+      if (track && track.paused()) track.play();
     };
     window.addEventListener('eternalpage:open', onOpen);
     return () => window.removeEventListener('eternalpage:open', onOpen);
   }, []);
 
   const togglePlay = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    if (audio.paused) audio.play().catch(() => {});
-    else audio.pause();
+    const track = trackRef.current;
+    if (!track) return;
+    if (track.paused()) track.play();
+    else track.pause();
   };
 
   const toggleMute = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.muted = !isMuted;
+    trackRef.current?.setMuted(!isMuted);
     setIsMuted(!isMuted);
   };
 
   const seek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRef.current;
-    if (!audio || !duration) return;
+    if (!trackRef.current || !duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    audio.currentTime = ((e.clientX - rect.left) / rect.width) * duration;
+    trackRef.current.seek(((e.clientX - rect.left) / rect.width) * duration);
   };
 
   const formatTime = (time: number) => {
@@ -130,7 +280,16 @@ export function MusicPlayer({ config, accentColor }: MusicPlayerProps) {
 
   return (
     <>
-      <audio ref={audioRef} src={config.url} preload="metadata" loop />
+      {videoId ? (
+        // YouTube's player, kept out of sight; the bar below is its remote control.
+        <div
+          ref={ytHostRef}
+          aria-hidden="true"
+          className="fixed -left-[9999px] top-0 w-[200px] h-[200px] overflow-hidden pointer-events-none"
+        />
+      ) : (
+        <audio ref={audioRef} src={config.url} preload="metadata" loop />
+      )}
 
       <motion.div
         initial={{ y: '100%' }}
