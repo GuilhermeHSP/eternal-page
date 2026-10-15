@@ -38,7 +38,7 @@ export function PhotoGallery({ photos, accentColor }: PhotoGalleryProps) {
         </div>
 
         {/* Polaroid gallery */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-7 sm:gap-8 md:gap-6">
           {photos.map((photo, index) => (
             <PolaroidPhoto
               key={photo.id}
@@ -63,7 +63,7 @@ interface PolaroidPhotoProps {
 
 function PolaroidPhoto({ photo, index, accentColor, isInView }: PolaroidPhotoProps) {
   // Calculate random rotation for scattered effect
-  const rotations = [-6, 4, -3, 5, -4, 3, 6, -5, 4, -3];
+  const rotations = [-4, 3, -2, 4, -3, 2, 4, -3, 3, -2];
   const rotation = rotations[index % rotations.length];
 
   return (
@@ -89,7 +89,7 @@ function PolaroidPhoto({ photo, index, accentColor, isInView }: PolaroidPhotoPro
     >
       {/* Polaroid frame */}
       <div 
-        className="bg-white p-3 pb-12 rounded-sm shadow-lg transition-shadow duration-300 group-hover:shadow-xl"
+        className="bg-white p-2 pb-9 sm:p-3 sm:pb-12 rounded-sm shadow-lg transition-shadow duration-300 group-hover:shadow-xl"
         style={{
           boxShadow: `0 4px 20px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.03)`,
         }}
@@ -112,11 +112,11 @@ function PolaroidPhoto({ photo, index, accentColor, isInView }: PolaroidPhotoPro
         </div>
 
         {/* Caption area */}
-        <div className="absolute bottom-2 left-3 right-3">
+        <div className="absolute bottom-1.5 left-2 right-2 sm:bottom-2 sm:left-3 sm:right-3">
           {photo.caption ? (
             <p 
-              className="font-script text-center text-gray-700 truncate"
-              style={{ fontSize: '1.25rem', lineHeight: 1.2 }}
+              className="font-script text-center text-gray-700 truncate text-base sm:text-xl"
+              style={{ lineHeight: 1.2 }}
             >
               {photo.caption}
             </p>

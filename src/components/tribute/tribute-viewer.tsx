@@ -7,7 +7,7 @@ import { templates, getTemplate } from '@/lib/templates';
 import { HeroSection } from './hero-section';
 import { MusicPlayer } from './music-player';
 import { MessageSection, ClosingMessage } from './message-section';
-import { PhotoGallery, PhotoCarousel } from './photo-gallery';
+import { PhotoGallery } from './photo-gallery';
 import { Timeline } from './timeline';
 import { EnvelopeIntro } from './envelope-intro';
 import { CounterSection } from './counter-section';
@@ -154,18 +154,8 @@ export function TributeViewer({ config, slug, live = true, showBackButton = true
         {/* Photo Gallery */}
         <div data-preview="gallery">
           {hasGallery && (
-          templateStyle.layoutVariant === 'modern' ? (
-            <PhotoCarousel
-              photos={config.gallery!}
-              accentColor={templateStyle.accentColor}
-            />
-          ) : (
-            <PhotoGallery
-              photos={config.gallery!}
-              accentColor={templateStyle.accentColor}
-            />
-          )
-        )}
+            <PhotoGallery photos={config.gallery!} accentColor={templateStyle.accentColor} />
+          )}
         </div>
 
         {/* Timeline */}

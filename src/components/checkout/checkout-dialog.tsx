@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Lock, Mail, MessageCircle, X } from 'lucide-react';
+import { Lock, Mail, MessageCircle, ShieldCheck, X } from 'lucide-react';
 import { formatPrice, type PackageConfig } from '@/lib/packages';
 
 interface CheckoutDialogProps {
@@ -131,6 +131,19 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
+          {/* On phones the bank step often opens the Mercado Pago app; say so before it happens. */}
+          <div className="flex gap-3 rounded-2xl border border-sky-100 bg-sky-50 px-4 py-3 text-left">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-sky-600 mt-0.5" />
+            <div className="text-xs leading-relaxed text-gray-700">
+              <p className="font-semibold text-gray-900">O pagamento é feito no Mercado Pago</p>
+              <p className="mt-0.5">
+                Ao tocar em pagar, você vai para a página oficial do <strong>Mercado Pago</strong>. No celular, pode
+                aparecer o aviso <strong>&ldquo;Abrir no app Mercado Pago?&rdquo;</strong>: pode aceitar, é o nosso
+                pagamento. Se preferir, continue pelo navegador. Depois do pagamento você volta para cá.
+              </p>
+            </div>
+          </div>
+
           <button
             type="submit"
             disabled={sending}
@@ -141,7 +154,7 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
             ) : (
               <Lock className="h-4 w-4" />
             )}
-            {sending ? 'Abrindo pagamento...' : `Pagar ${formatPrice(pkg.price)}`}
+            {sending ? 'Abrindo o Mercado Pago...' : `Pagar ${formatPrice(pkg.price)} no Mercado Pago`}
           </button>
           <p className="text-center text-xs text-gray-400">
             Pagamento seguro pelo Mercado Pago · Pix ou cartão
