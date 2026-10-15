@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { nanoid } from 'nanoid';
 import { isValidHex, styleForColor } from '@/lib/colors';
+import { getPackage, type PackageType } from '@/lib/packages';
 
 // GET - Retrieve a draft by ID
 export async function GET(request: NextRequest) {
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest) {
       timeline: tribute.timeline,
       isPublished: tribute.isPublished,
       isPremium: tribute.isPremium,
+      isPaid: tribute.isPublished && !!tribute.paidAt,
     });
   } catch (error) {
     console.error('Error fetching draft:', error);
@@ -91,9 +93,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // After payment the package is fixed to the one paid for (no free upgrade by editing).
+    const existing = draftId ? await db.tribute.findUnique({ where: { id: draftId } }) : null;
+    if (draftId && !existing) {
+      return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
+    }
+    const isPaid = !!existing && existing.isPublished && !!existing.paidAt;
+    const requestedPackage: PackageType = packageType === 'premium' ? 'premium' : packageType === 'plus' ? 'plus' : 'basic';
+    const effectivePackage: PackageType = isPaid
+      ? ((existing!.paidPackage as PackageType) || (existing!.packageType as PackageType) || 'premium')
+      : requestedPackage;
+    // The package limits are checked here too, not only in the creator.
+    const limits = getPackage(effectivePackage).limits;
+    const allowedPhotos = (Array.isArray(photos) ? photos : []).slice(0, limits.momentsPhotos);
+    const allowedTimeline = (Array.isArray(timeline) ? timeline : [])
+      .slice(0, limits.timelineMoments)
+      .map((t: { title: string; description?: string; year?: string; imageUrl?: string }) =>
+        limits.timelineImages ? t : { ...t, imageUrl: undefined }
+      );
+    const allowedMusicUrl = limits.music ? musicUrl : null;
+
     // Build config JSON
     // Voice messages are audio data URLs; anything else is dropped
     const voice =
+      limits.music &&
       typeof voiceMessage === 'string' && voiceMessage.startsWith('data:audio/') && voiceMessage.length < 12_000_000
         ? voiceMessage
         : undefined;
@@ -110,7 +133,7 @@ export async function POST(request: NextRequest) {
       ...(guestbook === true ? { guestbook: true } : {}),
       ...(typeof authorName === 'string' && authorName.trim() ? { authorName: authorName.trim().slice(0, 50) } : {}),
       ...(typeof musicTitle === 'string' && musicTitle.trim() ? { musicTitle: musicTitle.trim().slice(0, 80) } : {}),
-      ...(envelope === false ? { envelope: false } : {}),
+      ...(envelope === false || !limits.envelope ? { envelope: false } : {}),
       ...(Array.isArray(reasons) && reasons.some((r: unknown) => typeof r === 'string' && r.trim())
         ? {
             reasons: reasons
@@ -126,15 +149,6 @@ export async function POST(request: NextRequest) {
 
     if (draftId) {
       // Update existing draft
-      const existingTribute = await db.tribute.findUnique({
-        where: { id: draftId },
-      });
-
-      if (!existingTribute) {
-        return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
-      }
-
-      // Update tribute
       const updatedTribute = await db.tribute.update({
         where: { id: draftId },
         data: {
@@ -145,8 +159,8 @@ export async function POST(request: NextRequest) {
           closingMessage: closingMessage || null,
           config: JSON.stringify(config),
           heroImage: heroImage || null,
-          musicUrl: musicUrl || null,
-          packageType: packageType || 'basic',
+          musicUrl: allowedMusicUrl || null,
+          packageType: effectivePackage,
         },
       });
 
@@ -155,9 +169,9 @@ export async function POST(request: NextRequest) {
       await db.timelineItem.deleteMany({ where: { tributeId: draftId } });
 
       // Create new photos
-      if (photos.length > 0) {
+      if (allowedPhotos.length > 0) {
         await db.photo.createMany({
-          data: photos.map((p: { url: string; caption?: string }, i: number) => ({
+          data: allowedPhotos.map((p: { url: string; caption?: string }, i: number) => ({
             tributeId: draftId,
             url: p.url,
             caption: p.caption || null,
@@ -167,9 +181,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Create new timeline items
-      if (timeline.length > 0) {
+      if (allowedTimeline.length > 0) {
         await db.timelineItem.createMany({
-          data: timeline.map((t: { title: string; description?: string; year?: string; imageUrl?: string }, i: number) => ({
+          data: allowedTimeline.map((t: { title: string; description?: string; year?: string; imageUrl?: string }, i: number) => ({
             tributeId: draftId,
             title: t.title,
             description: t.description || null,
@@ -193,16 +207,16 @@ export async function POST(request: NextRequest) {
           closingMessage: closingMessage || null,
           config: JSON.stringify(config),
           heroImage: heroImage || null,
-          musicUrl: musicUrl || null,
-          packageType: packageType || 'basic',
+          musicUrl: allowedMusicUrl || null,
+          packageType: effectivePackage,
           isPublished: false,
         },
       });
 
       // Create photos
-      if (photos.length > 0) {
+      if (allowedPhotos.length > 0) {
         await db.photo.createMany({
-          data: photos.map((p: { url: string; caption?: string }, i: number) => ({
+          data: allowedPhotos.map((p: { url: string; caption?: string }, i: number) => ({
             tributeId: newTribute.id,
             url: p.url,
             caption: p.caption || null,
@@ -212,9 +226,9 @@ export async function POST(request: NextRequest) {
       }
 
       // Create timeline items
-      if (timeline.length > 0) {
+      if (allowedTimeline.length > 0) {
         await db.timelineItem.createMany({
-          data: timeline.map((t: { title: string; description?: string; year?: string; imageUrl?: string }, i: number) => ({
+          data: allowedTimeline.map((t: { title: string; description?: string; year?: string; imageUrl?: string }, i: number) => ({
             tributeId: newTribute.id,
             title: t.title,
             description: t.description || null,
@@ -233,24 +247,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - Update draft status
-export async function PUT(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { id, isPublished } = body;
-
-    if (!id) {
-      return NextResponse.json({ error: 'Draft ID is required' }, { status: 400 });
-    }
-
-    const tribute = await db.tribute.update({
-      where: { id },
-      data: { isPublished },
-    });
-
-    return NextResponse.json({ success: true, id: tribute.id, isPublished: tribute.isPublished });
-  } catch (error) {
-    console.error('Error updating draft:', error);
-    return NextResponse.json({ error: 'Failed to update draft' }, { status: 500 });
-  }
-}
+// Publishing happens only after Mercado Pago approves the payment (see lib/fulfillment.ts).

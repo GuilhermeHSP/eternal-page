@@ -38,6 +38,17 @@ model Tribute {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   expiresAt   DateTime?
+
+  // Purchase (filled at checkout and when Mercado Pago confirms the payment)
+  buyerEmail          String?
+  buyerPhone          String?
+  checkoutPreferenceId String?
+  paymentId           String?
+  paymentStatus       String?   // approved, pending, in_process, rejected, cancelled...
+  paidPackage         String?   // package actually paid for: basic or premium
+  paidAmount          Float?
+  paidAt              DateTime?
+  deliveryEmailSentAt DateTime?
   
   // Relations
   photos      Photo[]
@@ -46,6 +57,7 @@ model Tribute {
   
   @@index([slug])
   @@index([templateId])
+  @@index([paymentId])
 }
 
 model Photo {

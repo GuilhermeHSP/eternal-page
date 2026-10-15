@@ -16,64 +16,80 @@ import {
 import { Button } from '@/components/ui/button';
 import { PACKAGES, PackageType, formatPrice } from '@/lib/packages';
 
+type CheckoutStatus = 'paid' | 'pending' | 'rejected' | 'unpaid';
+
+interface StatusResponse {
+  status: CheckoutStatus;
+  slug: string | null;
+  recipient?: string;
+  packageType?: PackageType;
+  expiresAt?: string | null;
+  email?: string | null;
+  emailSent?: boolean;
+}
+
+// "Obrigado" page. Mercado Pago sends the buyer back here (with payment_id) after paying;
+// the page asks the server for the payment result, waiting a little for Pix confirmations.
 function FinalizeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [finalizing, setFinalizing] = useState(true);
+  const [info, setInfo] = useState<StatusResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [slug, setSlug] = useState<string | null>(null);
+  const [gaveUp, setGaveUp] = useState(false);
+  const [searchedEnough, setSearchedEnough] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [recipient, setRecipient] = useState<string | undefined>();
   const [origin, setOrigin] = useState('');
   useEffect(() => setOrigin(window.location.origin), []);
 
-  const draftId = searchParams.get('draft_id');
-  const packageType = (searchParams.get('package') || 'premium') as PackageType;
-
-  const pkg = useMemo(() => {
-    return PACKAGES[packageType] || PACKAGES.premium;
-  }, [packageType]);
+  const draftId = searchParams.get('draft_id') || searchParams.get('external_reference');
+  const paymentId = searchParams.get('payment_id') || searchParams.get('collection_id');
 
   useEffect(() => {
-    async function finalizeTribute() {
-      if (!draftId) {
-        setError('Missing draft information');
-        setFinalizing(false);
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/finalize', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            draftId,
-            packageType,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          setSlug(data.slug);
-          // The name goes on the printable QR card
-          fetch(`/api/draft?id=${draftId}`)
-            .then((r) => (r.ok ? r.json() : null))
-            .then((d) => d?.recipient && setRecipient(d.recipient))
-            .catch(() => {});
-        } else {
-          const data = await response.json();
-          setError(data.error || 'Failed to finalize tribute');
-        }
-      } catch (err) {
-        console.error('Finalization error:', err);
-        setError('Failed to finalize tribute');
-      } finally {
-        setFinalizing(false);
-      }
+    if (!draftId) {
+      setError('Não encontramos esta homenagem.');
+      return;
     }
+    let stopped = false;
+    let tries = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
 
-    finalizeTribute();
-  }, [draftId, packageType]);
+    const check = async () => {
+      tries += 1;
+      try {
+        const qs = new URLSearchParams({ draft_id: draftId });
+        if (paymentId && paymentId !== 'null') qs.set('payment_id', paymentId);
+        const res = await fetch(`/api/checkout/status?${qs}`, { cache: 'no-store' });
+        if (res.status === 404) {
+          setError('Não encontramos esta homenagem.');
+          return;
+        }
+        const data = (await res.json()) as StatusResponse;
+        if (stopped) return;
+        setInfo(data);
+        // Pix and some cards take a few seconds to be confirmed: keep asking for ~3 minutes.
+        const waiting = data.status === 'pending' || (data.status === 'unpaid' && ((!!paymentId && paymentId !== 'null') || tries < 10));
+        if (waiting) {
+          if (tries < 60) timer = setTimeout(check, 3000);
+          else setGaveUp(true);
+        } else if (data.status === 'unpaid') {
+          setSearchedEnough(true);
+        }
+      } catch {
+        if (!stopped && tries < 60) timer = setTimeout(check, 4000);
+      }
+    };
+    check();
+    return () => {
+      stopped = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [draftId, paymentId]);
+
+  const slug = info?.status === 'paid' ? info.slug : null;
+  const recipient = info?.recipient;
+  const pkg = useMemo(() => PACKAGES[(info?.packageType as PackageType) || 'premium'] || PACKAGES.premium, [info?.packageType]);
+  const hasPayment = !!paymentId && paymentId !== 'null';
+  const finalizing = !error && (!info || info.status === 'pending' || (info.status === 'unpaid' && (hasPayment ? !gaveUp : !searchedEnough)));
 
   const handleCopyLink = () => {
     const url = `${window.location.origin}/${slug}`;
@@ -103,11 +119,39 @@ function FinalizeContent() {
         >
           <div className="w-20 h-20 border-4 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto mb-6" />
           <h2 className="text-2xl font-title font-semibold text-gray-800 mb-2">
-            Finalizando sua Eternal Page...
+            Confirmando seu pagamento...
           </h2>
           <p className="text-gray-500">
-            Por favor, aguarde enquanto criamos sua página permanente
+            {info?.status === 'pending'
+              ? 'O Mercado Pago ainda está processando. No Pix, isso leva só alguns segundos. Pode deixar esta página aberta.'
+              : 'Aguarde um instante enquanto publicamos sua homenagem.'}
           </p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  if (!error && info && (info.status === 'rejected' || (info.status === 'unpaid' && (hasPayment ? gaveUp : searchedEnough)))) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-rose-50/30 to-white pt-24 px-4">
+        <SiteHeader />
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-center max-w-md">
+          <h2 className="text-2xl font-title font-semibold text-gray-800 mb-2">
+            {info.status === 'rejected' ? 'O pagamento não foi aprovado' : 'Ainda não recebemos o pagamento'}
+          </h2>
+          <p className="text-gray-500 mb-6">
+            {info.status === 'rejected'
+              ? 'Nenhum valor foi cobrado. Você pode tentar de novo com outro cartão ou pelo Pix.'
+              : 'Se você já pagou, aguarde alguns minutos: assim que o Mercado Pago confirmar, enviamos o link para o seu e-mail.'}
+          </p>
+          <div className="flex flex-col gap-3">
+            <Button onClick={() => router.push(`/preview?id=${draftId}`)} className="bg-rose-500 hover:bg-rose-600 text-white">
+              Voltar e tentar de novo
+            </Button>
+            <Button onClick={() => window.location.reload()} variant="outline">
+              Verificar novamente
+            </Button>
+          </div>
         </motion.div>
       </div>
     );
@@ -169,7 +213,8 @@ function FinalizeContent() {
                 Pagamento Confirmado!
               </h1>
               <p className="text-white/80">
-                Sua Eternal Page está pronta para compartilhar
+                Sua homenagem está no ar
+                {info?.email && info.emailSent ? <><br />Também enviamos o link para <strong>{info.email}</strong></> : null}
               </p>
             </motion.div>
           </div>

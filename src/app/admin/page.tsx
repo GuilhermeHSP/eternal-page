@@ -38,12 +38,32 @@ export default function AdminPage() {
     fetchTributes();
   }, []);
 
-  const fetchTributes = async () => {
+  // The admin password (ADMIN_PASSWORD in .env) is asked once per browser tab.
+  const adminKey = (forcePrompt = false): string => {
+    let key = '';
+    try {
+      key = sessionStorage.getItem('ep_admin_key') || '';
+    } catch {}
+    if (!key || forcePrompt) {
+      key = window.prompt('Senha do painel') || '';
+      try {
+        sessionStorage.setItem('ep_admin_key', key);
+      } catch {}
+    }
+    return key;
+  };
+
+  const fetchTributes = async (forcePrompt = false) => {
     setLoading(true);
     try {
-      const response = await fetch('/api/tributes');
+      const response = await fetch('/api/tributes', { headers: { 'x-admin-key': adminKey(forcePrompt) } });
+      if (response.status === 401) {
+        setTributes([]);
+        if (!forcePrompt) return fetchTributes(true);
+        return;
+      }
       const data = await response.json();
-      setTributes(data);
+      setTributes(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Failed to fetch tributes:', error);
     } finally {
@@ -55,7 +75,7 @@ export default function AdminPage() {
     if (!confirm('Are you sure you want to delete this tribute?')) return;
     
     try {
-      const response = await fetch(`/api/tributes?id=${id}`, { method: 'DELETE' });
+      const response = await fetch(`/api/tributes?id=${id}`, { method: 'DELETE', headers: { 'x-admin-key': adminKey() } });
       if (response.ok) {
         setTributes((prev) => prev.filter((t) => t.id !== id));
       }
@@ -91,7 +111,7 @@ export default function AdminPage() {
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" onClick={fetchTributes}>
+            <Button variant="outline" size="sm" onClick={() => fetchTributes()}>
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh
             </Button>

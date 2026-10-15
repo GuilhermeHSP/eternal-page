@@ -1,0 +1,153 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { Lock, Mail, MessageCircle, X } from 'lucide-react';
+import { formatPrice, type PackageConfig } from '@/lib/packages';
+
+interface CheckoutDialogProps {
+  open: boolean;
+  onClose: () => void;
+  draftId: string;
+  recipient: string;
+  pkg: PackageConfig;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Asks where to send the link (e-mail, plus WhatsApp for later) and opens the Mercado Pago
+// payment page. Shown above the preview's pink bar, so it is a plain overlay with a high z-index.
+export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: CheckoutDialogProps) {
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const saved = localStorage.getItem('ep_buyer_email');
+      if (saved) setEmail(saved);
+    } catch {}
+    const t = setTimeout(() => emailRef.current?.focus(), 50);
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !sending && onClose();
+    window.addEventListener('keydown', onKey);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [open, onClose, sending]);
+
+  if (!open) return null;
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const clean = email.trim();
+    if (!EMAIL_RE.test(clean)) {
+      setError('Confira o seu e-mail: é para ele que enviamos o link da homenagem.');
+      emailRef.current?.focus();
+      return;
+    }
+    setError(null);
+    setSending(true);
+    try {
+      localStorage.setItem('ep_buyer_email', clean);
+    } catch {}
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ draftId, email: clean, phone }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) {
+        setError(data.error || 'Não foi possível abrir o pagamento. Tente de novo.');
+        setSending(false);
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setError('Sem conexão. Confira a internet e tente de novo.');
+      setSending(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+      <div className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden">
+        <div className="relative px-6 pt-6 pb-4 text-center border-b border-rose-100">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={sending}
+            aria-label="Fechar"
+            className="absolute right-4 top-4 h-9 w-9 rounded-full inline-flex items-center justify-center text-gray-400 hover:bg-gray-100"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <p className="text-[11px] tracking-[0.25em] uppercase text-gray-400">Finalizar homenagem para</p>
+          <h2 id="checkout-title" className="font-script text-4xl text-rose-500 mt-1" style={{ fontFamily: "'Great Vibes', cursive" }}>
+            {recipient}
+          </h2>
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-1.5 text-sm text-gray-700">
+            Plano <strong>{pkg.name}</strong> · <strong className="text-rose-600">{formatPrice(pkg.price)}</strong>
+          </div>
+        </div>
+
+        <form onSubmit={submit} className="px-6 pt-5 pb-6 space-y-4" noValidate>
+          <div>
+            <label htmlFor="checkout-email" className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
+              <Mail className="h-4 w-4 text-rose-500" /> Seu e-mail
+            </label>
+            <p className="text-xs text-gray-500 mt-0.5">Enviamos o link e o QR code da homenagem para ele.</p>
+            <input
+              ref={emailRef}
+              id="checkout-email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="voce@email.com"
+              className={`mt-2 w-full h-12 rounded-xl border px-4 text-base outline-none focus:ring-2 focus:ring-rose-200 ${error ? 'border-red-400' : 'border-gray-200 focus:border-rose-400'}`}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="checkout-phone" className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
+              <MessageCircle className="h-4 w-4 text-rose-500" /> WhatsApp <span className="font-normal text-gray-400">(opcional)</span>
+            </label>
+            <input
+              id="checkout-phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="(11) 91234-5678"
+              className="mt-2 w-full h-12 rounded-xl border border-gray-200 px-4 text-base outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={sending}
+            className="w-full h-12 rounded-full bg-rose-500 hover:bg-rose-600 text-white font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-70"
+          >
+            {sending ? (
+              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Lock className="h-4 w-4" />
+            )}
+            {sending ? 'Abrindo pagamento...' : `Pagar ${formatPrice(pkg.price)}`}
+          </button>
+          <p className="text-center text-xs text-gray-400">
+            Pagamento seguro pelo Mercado Pago · Pix ou cartão
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+}
