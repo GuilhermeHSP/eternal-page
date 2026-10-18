@@ -27,6 +27,7 @@ import { getTemplate } from '@/lib/templates';
 import type { TributeConfig } from '@/types/tribute';
 import { RevealObserver } from '@/components/reveal-observer';
 import { SiteHeader } from '@/components/site-header';
+import { SiteFooter } from '@/components/site-footer';
 import { PhoneFrame } from '@/components/tribute/live-preview';
 import { OCCASIONS, GALLERY, FAQ, DEMO_CONFIG } from './landing-data';
 
@@ -67,7 +68,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
         <Faq />
         <FinalCta onStart={() => start()} />
       </main>
-      <Footer />
+      <SiteFooter className="pb-28 sm:pb-8" />
       <MobileCta onStart={() => start()} />
       <RevealObserver />
     </div>
@@ -473,29 +474,6 @@ function FinalCta({ onStart }: { onStart: () => void }) {
 }
 
 /* ------------------------------------------------------------------ */
-
-function Footer() {
-  return (
-    <footer className="border-t border-gray-100 py-10 px-4 pb-28 sm:pb-10">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <Heart className="h-5 w-5 text-rose-500" fill="currentColor" />
-            <span className="font-title font-semibold tracking-wide text-gray-800">EternalPage</span>
-          </div>
-          <nav className="flex items-center gap-6 text-sm text-gray-500">
-            <a href="#como-funciona" className="hover:text-rose-500">Como funciona</a>
-            <a href="#precos" className="hover:text-rose-500">Preços</a>
-            <a href="#duvidas" className="hover:text-rose-500">Dúvidas</a>
-          </nav>
-        </div>
-        <p className="mt-8 text-xs text-gray-400 leading-relaxed text-center max-w-4xl mx-auto">
-          Fotos de exemplo de bancos de imagens livres (StockSnap, rawpixel e Unsplash). Nenhuma mostra um cliente.
-        </p>
-      </div>
-    </footer>
-  );
-}
 
 // True while one of the page's own "create" forms or buttons ([data-cta-anchor]) is on screen.
 // The header and the phone bar hide their button then, so the same action never shows twice.

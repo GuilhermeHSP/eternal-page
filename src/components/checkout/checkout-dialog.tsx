@@ -167,6 +167,12 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
           <p className="text-center text-xs text-gray-400">
             Pagamento seguro pelo Mercado Pago · Pix ou cartão
           </p>
+          <p className="text-center text-[11px] leading-relaxed text-gray-400">
+            Ao continuar, você concorda com os{' '}
+            <a href="/termos" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-rose-600">Termos de Uso</a>{' '}
+            e a{' '}
+            <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-rose-600">Política de Privacidade</a>.
+          </p>
         </form>
       </div>
     </div>
