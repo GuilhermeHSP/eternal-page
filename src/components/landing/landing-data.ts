@@ -24,7 +24,7 @@ export const OCCASIONS: Occasion[] = [
     title: (name) => `Para ${name}, com todo o meu amor`,
     phrase: 'Com todo o meu amor',
     when: 'Qualquer dia do ano',
-    photo: '/landing/amor.jpg',
+    photo: '/landing/amor-ana.jpg',
     alt: 'Ana sorrindo num jantar à luz de velas',
   },
   {
@@ -90,7 +90,7 @@ export interface GalleryTile {
 
 // The couple models lead the gallery, then the family and other dates.
 export const GALLERY: GalleryTile[] = [
-  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor.jpg', alt: 'Ana sorrindo num jantar à luz de velas' },
+  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor-ana.jpg', alt: 'Ana sorrindo num jantar à luz de velas' },
   { templateId: 'valentine', name: 'Namorados', when: '12 de junho', detail: 'Para o casal', photo: '/landing/namorados-casal.jpg', alt: 'Casal sorrindo abraçado numa selfie' },
   { templateId: 'anniversary', name: 'Bodas', when: 'Papel a ouro', detail: 'Anos de casados', photo: '/landing/bodas-rita-renato.jpg', alt: 'Casal de idosos abraçados' },
   { templateId: 'mothersDay', name: 'Dia das Mães', when: 'Maio', detail: 'Mãe, avó, madrinha', photo: '/demo/mother-joy.jpg', alt: 'Mãe rindo com o bebê no colo' },
