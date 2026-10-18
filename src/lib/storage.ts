@@ -33,7 +33,8 @@ const AUDIO_TYPES: Record<string, string> = {
   'audio/ogg': 'ogg',
 };
 
-const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+// Photos arrive already resized by the creator (well under 1 MB), so 2 MB leaves room.
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
 
 export type MediaKind = 'image' | 'audio';

@@ -28,7 +28,7 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
   const messages = await db.guestMessage.findMany({
     where: { tributeId: tribute.id },
     orderBy: { createdAt: 'desc' },
-    take: 200,
+    take: MAX_MESSAGES,
     select: { id: true, name: true, message: true, createdAt: true },
   });
   return NextResponse.json({ messages });
@@ -36,6 +36,8 @@ export async function GET(_request: NextRequest, { params }: RouteContext) {
 
 // A small in-memory throttle per address: one message every 20 seconds.
 const lastPostAt = new Map<string, number>();
+
+const MAX_MESSAGES = 300;
 
 export async function POST(request: NextRequest, { params }: RouteContext) {
   const { slug } = await params;
@@ -66,6 +68,12 @@ export async function POST(request: NextRequest, { params }: RouteContext) {
     return NextResponse.json({ error: 'Aguarde alguns segundos para enviar outra mensagem.' }, { status: 429 });
   }
   lastPostAt.set(key, now);
+
+  // Each wall holds a fixed number of messages, so a page can't grow without bound.
+  const count = await db.guestMessage.count({ where: { tributeId: tribute.id } });
+  if (count >= MAX_MESSAGES) {
+    return NextResponse.json({ error: 'O mural desta página já está cheio.' }, { status: 409 });
+  }
 
   const created = await db.guestMessage.create({
     data: { tributeId: tribute.id, name, message },
