@@ -172,22 +172,46 @@ export function signV4(input: SignInput): string {
   return `AWS4-HMAC-SHA256 Credential=${input.accessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 }
 
-async function putR2Object(key: string, body: Buffer, contentType: string): Promise<void> {
-  const host = `${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`;
-  const objectPath = encodePath(`/${process.env.R2_BUCKET}/${key}`);
+export interface R2Request {
+  method: 'GET' | 'PUT' | 'DELETE';
+  key?: string; // object key; omit for bucket-level requests (listing)
+  query?: Record<string, string>;
+  body?: Buffer;
+  headers?: Record<string, string>; // lower-case names
+  bucket?: string; // defaults to R2_BUCKET
+}
+
+function encodeQueryPart(s: string): string {
+  return encodeURIComponent(s).replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+}
+
+// Sends a signed request to R2. R2_ENDPOINT overrides the address (only for local testing
+// against an S3 emulator).
+export async function r2Request(req: R2Request): Promise<Response> {
+  const endpoint = (process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`).replace(
+    /\/+$/,
+    '',
+  );
+  const host = new URL(endpoint).host;
+  const bucket = req.bucket || process.env.R2_BUCKET!;
+  const objectPath = encodePath(`/${bucket}${req.key ? `/${req.key}` : ''}`);
+  const query = Object.keys(req.query || {})
+    .sort()
+    .map((k) => `${encodeQueryPart(k)}=${encodeQueryPart(req.query![k])}`)
+    .join('&');
   const amzDate = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '');
-  const payloadHash = sha256Hex(body);
+  const payloadHash = sha256Hex(req.body || '');
   const headers: Record<string, string> = {
+    ...req.headers,
     host,
-    'content-type': contentType,
-    'cache-control': 'public, max-age=31536000, immutable',
     'x-amz-content-sha256': payloadHash,
     'x-amz-date': amzDate,
   };
   const authorization = signV4({
-    method: 'PUT',
+    method: req.method,
     host,
     path: objectPath,
+    query,
     headers,
     payloadHash,
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,
@@ -199,10 +223,19 @@ async function putR2Object(key: string, body: Buffer, contentType: string): Prom
 
   const { host: _host, ...sendHeaders } = headers;
   void _host;
-  const res = await fetch(`https://${host}${objectPath}`, {
-    method: 'PUT',
+  return fetch(`${endpoint}${objectPath}${query ? `?${query}` : ''}`, {
+    method: req.method,
     headers: { ...sendHeaders, Authorization: authorization },
-    body: new Uint8Array(body),
+    body: req.body ? new Uint8Array(req.body) : undefined,
+  });
+}
+
+async function putR2Object(key: string, body: Buffer, contentType: string): Promise<void> {
+  const res = await r2Request({
+    method: 'PUT',
+    key,
+    body,
+    headers: { 'content-type': contentType, 'cache-control': 'public, max-age=31536000, immutable' },
   });
   if (!res.ok) {
     const text = await res.text().catch(() => '');

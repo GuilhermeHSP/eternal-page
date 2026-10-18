@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { timingSafeEqual } from 'crypto';
 import { db } from '@/lib/db';
+import { isAdmin } from '@/lib/admin';
 import { isTributeLive } from '@/lib/tribute-access';
 
 // Tributes are created through /api/draft and published only after payment (lib/fulfillment.ts).
 // This route serves the admin page (list and delete, behind ADMIN_PASSWORD) and reads a
 // published tribute by slug.
-
-function isAdmin(request: NextRequest): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
-  const given = request.headers.get('x-admin-key') || '';
-  if (!expected || !given) return false;
-  const a = Buffer.from(expected);
-  const b = Buffer.from(given);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
 
 export async function GET(request: NextRequest) {
   try {
