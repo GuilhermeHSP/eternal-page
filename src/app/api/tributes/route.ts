@@ -34,8 +34,9 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ error: 'Tribute not found' }, { status: 404 });
       }
 
+      // Never return the internal id here: it is the key that edits a draft (/api/draft), and the
+      // slug is public (it goes in the gift link and QR code).
       return NextResponse.json({
-        id: tribute.id,
         slug: tribute.slug,
         title: tribute.title,
         recipient: tribute.recipient,

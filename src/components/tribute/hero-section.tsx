@@ -47,6 +47,8 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
             src={config.image}
             alt=""
             className="w-full h-full object-cover object-[center_30%]"
+            fetchPriority="high"
+            decoding="async"
             initial={{ scale: 1 }}
             animate={reduceMotion ? { scale: 1 } : { scale: 1.12 }}
             transition={{ duration: 20, ease: 'easeOut' }}

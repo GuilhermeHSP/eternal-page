@@ -82,19 +82,13 @@ function PreviewContent() {
         e.preventDefault();
       }
     };
-    const handleVisibilityChange = () => {
-      document.body.style.filter = document.hidden ? 'blur(15px)' : 'none';
-    };
 
     document.addEventListener('contextmenu', blockContextMenu);
     document.addEventListener('keydown', blockKeys);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       document.removeEventListener('contextmenu', blockContextMenu);
       document.removeEventListener('keydown', blockKeys);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      document.body.style.filter = 'none';
     };
   }, []);
 
@@ -201,7 +195,7 @@ function PreviewContent() {
               <div className="flex items-center gap-1.5 bg-white/20 rounded-full px-3 py-1.5 min-w-0">
                 <Eye className="h-4 w-4 shrink-0 text-white" />
                 <span className="text-white font-medium text-sm truncate">
-                  Prévia<span className="hidden sm:inline">: revise sua página</span>
+                  Prévia<span className="hidden sm:inline">: a marca d'água sai quando você publica</span>
                 </span>
               </div>
               <div className="hidden md:flex items-center gap-1 bg-black/20 rounded-full px-3 py-1.5">
@@ -243,7 +237,7 @@ function PreviewContent() {
         <div className="relative">
           <WatermarkOverlay />
           {tributeConfig && (
-            <TributeViewer config={tributeConfig} slug={draft.slug || draft.id} live={false} showBackButton={false} showIntro={packageInfo.limits.envelope && tributeConfig.envelope !== false} />
+            <TributeViewer config={tributeConfig} slug={draft.slug || draft.id} live={false} showIntro={packageInfo.limits.envelope && tributeConfig.envelope !== false} />
           )}
         </div>
 

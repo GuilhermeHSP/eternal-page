@@ -100,6 +100,12 @@ function PolaroidPhoto({ photo, index, accentColor, isInView }: PolaroidPhotoPro
             src={photo.url}
             alt={photo.caption || 'Foto de lembrança'}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
+            decoding="async"
+            onError={(e) => {
+              // A broken photo shows the soft background instead of the browser's broken-image icon.
+              e.currentTarget.style.visibility = 'hidden';
+            }}
           />
           
           {/* Vintage overlay effect */}
@@ -199,6 +205,12 @@ export function PhotoCarousel({ photos, accentColor }: PhotoCarouselProps) {
                   src={photo.url}
                   alt={photo.caption || 'Foto de lembrança'}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    // A broken photo shows the soft background instead of the browser's broken-image icon.
+                    e.currentTarget.style.visibility = 'hidden';
+                  }}
                 />
                 {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

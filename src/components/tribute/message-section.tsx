@@ -1,7 +1,7 @@
 'use client';
 
 import { Fragment, useRef, useState, useEffect, type ReactNode } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { MessageConfig } from '@/types/tribute';
 
@@ -21,27 +21,32 @@ export function MessageSection({ config, accentColor, authorName, recipient }: M
   const hasTypedRef = useRef(false);
 
   const { text, typingAnimation = false, highlightPhrases = [] } = config;
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (!typingAnimation || !isInView || hasTypedRef.current) return;
+    if (!typingAnimation || reduceMotion || !isInView || hasTypedRef.current) return;
 
-    setIsTyping(true);
     hasTypedRef.current = true;
+    // Long letters type more characters per tick, so no letter takes more than ~7 seconds.
+    const step = Math.max(1, Math.ceil(text.length / 230));
     let currentIndex = 0;
     const interval = setInterval(() => {
       if (currentIndex <= text.length) {
+        if (currentIndex === 0) setIsTyping(true);
         setDisplayedText(text.slice(0, currentIndex));
-        currentIndex++;
+        currentIndex += step;
       } else {
+        setDisplayedText(text);
         setIsTyping(false);
         clearInterval(interval);
       }
     }, 30);
 
     return () => clearInterval(interval);
-  }, [isInView, text, typingAnimation]);
+  }, [isInView, text, typingAnimation, reduceMotion]);
 
-  const displayText = typingAnimation ? displayedText : text;
+  // People who ask for less motion get the whole letter at once.
+  const displayText = typingAnimation && !reduceMotion ? displayedText : text;
 
   return (
     <section ref={containerRef} className="py-20 px-4 relative">

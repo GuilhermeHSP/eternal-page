@@ -15,9 +15,7 @@ import { ReasonsSection } from './reasons-section';
 import { VoiceMessageSection } from './voice-message-section';
 import { GuestbookSection } from './guestbook-section';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
 
 // Dynamic import to skip SSR for animations (avoids hydration mismatch)
 const BackgroundAnimations = dynamic(
@@ -30,11 +28,10 @@ interface TributeViewerProps {
   slug: string;
   // The published page: the guestbook takes real messages. Off in previews.
   live?: boolean;
-  showBackButton?: boolean;
   showIntro?: boolean;
 }
 
-export function TributeViewer({ config, slug, live = true, showBackButton = true, showIntro = true }: TributeViewerProps) {
+export function TributeViewer({ config, slug, live = true, showIntro = true }: TributeViewerProps) {
   // Get template style with overrides
   const templateStyle = useMemo<TemplateStyleConfig>(() => {
     const baseTemplate = getTemplate(config.template) || templates.romantic;
@@ -62,6 +59,7 @@ export function TributeViewer({ config, slug, live = true, showBackButton = true
   const hasGallery = config.gallery && config.gallery.length > 0;
   const hasMessage = config.message?.text;
   const hasClosing = config.closingMessage;
+  const inviteHref = `/?utm_source=homenagem&utm_medium=rodape&utm_campaign=${encodeURIComponent(slug)}`;
 
   return (
     <div 
@@ -91,20 +89,6 @@ export function TributeViewer({ config, slug, live = true, showBackButton = true
 
       {/* Background animations - client only */}
       <BackgroundAnimations config={templateStyle.backgroundAnimation} />
-
-      {/* Fixed back button */}
-      {showBackButton && (
-        <Link href="/">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="fixed top-4 left-4 z-50 gap-2 bg-white/80 backdrop-blur-sm hover:bg-white"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Crie a sua</span>
-          </Button>
-        </Link>
-      )}
 
       {/* Main content */}
       <main className="relative z-10">
@@ -187,10 +171,19 @@ export function TributeViewer({ config, slug, live = true, showBackButton = true
         <footer className={`${config.music?.url && !hasClosing ? 'pb-28' : 'pb-4'} pt-12 px-4`}>
           <p className="text-center font-title text-xs uppercase tracking-[0.2em] text-gray-400">
             Feito com{' '}
-            <Link href="/" className="hover:underline" style={{ color: templateStyle.accentColor }}>
+            <Link href={inviteHref} className="hover:underline" style={{ color: templateStyle.accentColor }}>
               EternalPage
             </Link>
           </p>
+          {/* Whoever just got this page is the warmest lead there is: invite them, without a back
+              arrow pulling them out of the gift halfway through. */}
+          {live && (
+            <p className="mt-3 text-center font-title text-sm text-gray-500">
+              <Link href={inviteHref} className="underline underline-offset-4 hover:text-gray-700">
+                Quer fazer uma para alguém especial?
+              </Link>
+            </p>
+          )}
         </footer>
 
         {/* Closing Message */}

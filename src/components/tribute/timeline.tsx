@@ -115,11 +115,17 @@ function TimelineItem({ item, index, accentColor, isLeft, isInView }: TimelineIt
         >
           {/* Image */}
           {item.imageUrl && (
-            <div className="relative aspect-video overflow-hidden">
+            <div className="relative aspect-video overflow-hidden bg-rose-50">
               <img
                 src={item.imageUrl}
                 alt={item.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                loading="lazy"
+                decoding="async"
+                onError={(e) => {
+                  // A broken photo shows the soft background instead of the browser's broken-image icon.
+                  e.currentTarget.style.visibility = 'hidden';
+                }}
               />
               <div 
                 className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"
