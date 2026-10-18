@@ -66,14 +66,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       draftId,
-      title,
-      recipient,
+      title: rawTitle,
+      recipient: rawRecipient,
       templateId,
-      message,
+      message: rawMessage,
       heroImage,
       musicUrl,
       packageType,
-      closingMessage,
+      closingMessage: rawClosing,
       accentColor,
       counterDate,
       counterLabel,
@@ -88,11 +88,22 @@ export async function POST(request: NextRequest) {
     } = body;
 
     // Validate required fields
-    if (!title || !recipient || !templateId) {
+    if (!rawTitle || !rawRecipient || !templateId) {
       return NextResponse.json(
         { error: 'Missing required fields: title, recipient, templateId' },
         { status: 400 }
       );
+    }
+
+    // Text lengths are capped here so a page can't grow without bound in the database.
+    const text = (value: unknown, max: number): string | null =>
+      typeof value === 'string' && value.trim() ? value.slice(0, max) : null;
+    const title = text(rawTitle, 80);
+    const recipient = text(rawRecipient, 80);
+    const message = text(rawMessage, 3000);
+    const closingMessage = text(rawClosing, 3000);
+    if (!title || !recipient) {
+      return NextResponse.json({ error: 'Missing required fields: title, recipient, templateId' }, { status: 400 });
     }
 
     // After payment the package is fixed to the one paid for (no free upgrade by editing).
@@ -119,12 +130,14 @@ export async function POST(request: NextRequest) {
       allowedPhotos = [];
       for (const p of (Array.isArray(photos) ? photos : []).slice(0, limits.momentsPhotos)) {
         const url = await normaliseMedia(p?.url, 'image');
-        if (url) allowedPhotos.push({ url, caption: typeof p.caption === 'string' ? p.caption : undefined });
+        if (url) allowedPhotos.push({ url, caption: text(p.caption, 200) ?? undefined });
       }
       allowedTimeline = [];
       for (const t of (Array.isArray(timeline) ? timeline : []).slice(0, limits.timelineMoments)) {
         allowedTimeline.push({
-          ...t,
+          title: text(t?.title, 200) ?? '',
+          description: text(t?.description, 200) ?? undefined,
+          year: text(t?.year, 20) ?? undefined,
           imageUrl: limits.timelineImages ? (await normaliseMedia(t?.imageUrl, 'image')) ?? undefined : undefined,
         });
       }
