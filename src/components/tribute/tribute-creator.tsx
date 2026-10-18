@@ -54,7 +54,7 @@ import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
 
 const tributeSchema = z.object({
-  title: z.string().min(1, 'O título é obrigatório').max(100),
+  title: z.string().min(1, 'O título é obrigatório').max(80),
   recipient: z.string().min(1, 'O nome do homenageado é obrigatório').max(50),
   templateId: z.string().min(1, 'Por favor, selecione um template'),
   message: z.string().max(2000).optional(),
@@ -345,7 +345,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     timelineImageInputRef.current?.click();
   };
 
-  const processTimelineImage = (files: FileList | null) => {
+  const processTimelineImage = async (files: FileList | null) => {
     if (!files || files.length === 0 || !activeTimelineItemId) return;
 
     const file = files[0];
@@ -356,26 +356,21 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       return;
     }
 
-    // Check file size (max 5MB for base64 encoding)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('A imagem deve ter menos de 5MB');
+    if (file.size > 15 * 1024 * 1024) {
+      setError('A imagem deve ter menos de 15 MB.');
       return;
     }
 
     setError(null);
-
-    // Convert to base64 for persistence
-    const reader = new FileReader();
-    reader.onload = () => {
-      const base64Url = reader.result as string;
-      updateTimelineItem(activeTimelineItemId, 'imageUrl', base64Url);
-      setActiveTimelineItemId(null);
-    };
-    reader.onerror = () => {
+    const itemId = activeTimelineItemId;
+    // Resized like the gallery photos, so it stays well under the server's size limit.
+    try {
+      updateTimelineItem(itemId, 'imageUrl', await fileToResizedDataUrl(file, 1400));
+    } catch {
       setError('Falha ao ler a imagem. Por favor, tente novamente.');
+    } finally {
       setActiveTimelineItemId(null);
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   const removeTimelineImage = (itemId: string) => {
@@ -1150,8 +1145,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 <p className="text-gray-500 text-sm mt-1">
                   {packageLimits && (
                     <>
-                      Envie até {packageLimits.momentsPhotos === 999 ? 'ilimitadas' : packageLimits.momentsPhotos} fotos
-                      {packageLimits.momentsPhotos !== 999 && ` (${photos.length}/${packageLimits.momentsPhotos} enviadas)`}
+                      Envie até {packageLimits.momentsPhotos} fotos ({photos.length}/{packageLimits.momentsPhotos} enviadas)
                     </>
                   )}
                 </p>
@@ -1184,7 +1178,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               )}
 
               {/* Photo limit reached message */}
-              {packageLimits && photos.length >= packageLimits.momentsPhotos && packageLimits.momentsPhotos !== 999 && (
+              {packageLimits && photos.length >= packageLimits.momentsPhotos && (
                 <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
                   <p className="text-rose-700 text-sm">
                     Você atingiu o limite de {packageLimits.momentsPhotos} fotos do plano {getPackage(selectedPackage!).displayName}.
@@ -1211,6 +1205,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                               placeholder="Adicione uma legenda..."
                               value={photo.caption}
                               onChange={(e) => updatePhotoCaption(photo.id, e.target.value)}
+                              maxLength={200}
                               className="mb-2"
                             />
                             <p className="text-xs text-gray-400">Foto {index + 1}</p>
@@ -1262,8 +1257,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                 <p className="text-gray-500 text-sm mt-1">
                   {packageLimits && (
                     <>
-                      {packageLimits.timelineMoments === 999 ? 'Adicione quantos momentos especiais quiser' : `Adicione até ${packageLimits.timelineMoments} momentos especiais`}
-                      {packageLimits.timelineMoments !== 999 && ` (${timelineItems.length}/${packageLimits.timelineMoments} adicionados)`}
+                      Adicione até {packageLimits.timelineMoments} momentos especiais ({timelineItems.length}/{packageLimits.timelineMoments} adicionados)
                     </>
                   )}
                 </p>
@@ -1290,6 +1284,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                   placeholder="2024"
                                   value={item.year}
                                   onChange={(e) => updateTimelineItem(item.id, 'year', e.target.value)}
+                                  maxLength={20}
                                   className="mt-1"
                                 />
                               </div>
@@ -1299,6 +1294,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                   placeholder="Primeiro encontro"
                                   value={item.title}
                                   onChange={(e) => updateTimelineItem(item.id, 'title', e.target.value)}
+                                  maxLength={200}
                                   className="mt-1"
                                 />
                               </div>
@@ -1309,6 +1305,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                                 placeholder="Uma breve descrição..."
                                 value={item.description}
                                 onChange={(e) => updateTimelineItem(item.id, 'description', e.target.value)}
+                                maxLength={200}
                                 className="mt-1 resize-none"
                                 rows={2}
                               />
@@ -1379,7 +1376,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               )}
 
               {/* Limit reached message */}
-              {packageLimits && timelineItems.length >= packageLimits.timelineMoments && packageLimits.timelineMoments !== 999 && (
+              {packageLimits && timelineItems.length >= packageLimits.timelineMoments && (
                 <div className="bg-rose-50 border border-rose-100 rounded-xl p-4 text-center">
                   <p className="text-rose-700 text-sm">
                     Você atingiu o limite de {packageLimits.timelineMoments} momentos do plano {getPackage(selectedPackage!).displayName}.

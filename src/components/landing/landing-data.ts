@@ -142,7 +142,7 @@ export const FAQ = [
   },
   {
     q: 'Quantas fotos cabem?',
-    a: 'Até 5 no Básico e sem limite no Completo.',
+    a: 'Até 5 no Básico e até 30 no Completo.',
   },
   {
     q: 'Dá para colocar música?',

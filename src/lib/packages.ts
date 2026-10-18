@@ -35,8 +35,8 @@ const COMPLETE: PackageConfig = {
   price: 29.9,
   originalPrice: 59.9,
   features: [
-    'Fotos ilimitadas na galeria',
-    'Linha do tempo ilimitada, com fotos',
+    'Até 30 fotos na galeria',
+    'Até 20 momentos na linha do tempo, com fotos',
     'Música de fundo',
     'Mensagem de voz gravada por você',
     'Carta, contador e motivos para te amar',
@@ -47,8 +47,8 @@ const COMPLETE: PackageConfig = {
     'Suporte prioritário',
   ],
   limits: {
-    momentsPhotos: 999,
-    timelineMoments: 999,
+    momentsPhotos: 30,
+    timelineMoments: 20,
     timelineImages: true,
     music: true,
     envelope: true,

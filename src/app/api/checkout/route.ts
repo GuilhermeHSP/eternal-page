@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getPackage, type PackageType } from '@/lib/packages';
 import { createPreference, mpConfigured } from '@/lib/mercadopago';
-import { normalisePackage } from '@/lib/fulfillment';
+import { normalisePackage, publishWithCoupon } from '@/lib/fulfillment';
+import { isTestCoupon, normaliseCoupon } from '@/lib/coupon';
 import { isHttpsSite, siteUrl } from '@/lib/site';
 
 // Starts the payment of a draft: saves the buyer's e-mail and
@@ -11,7 +12,7 @@ import { isHttpsSite, siteUrl } from '@/lib/site';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export async function POST(request: NextRequest) {
-  let body: { draftId?: unknown; email?: unknown };
+  let body: { draftId?: unknown; email?: unknown; coupon?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -20,6 +21,7 @@ export async function POST(request: NextRequest) {
 
   const draftId = typeof body.draftId === 'string' ? body.draftId : '';
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
+  const coupon = normaliseCoupon(body.coupon);
 
   if (!draftId) return NextResponse.json({ error: 'Homenagem não encontrada.' }, { status: 400 });
   if (!EMAIL_RE.test(email) || email.length > 120) {
@@ -36,12 +38,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: thanksUrl, alreadyPaid: true });
   }
 
+  if (coupon && !isTestCoupon(coupon)) {
+    return NextResponse.json({ error: 'Cupom inválido.' }, { status: 400 });
+  }
+
   const pkg = getPackage(normalisePackage(tribute.packageType) as PackageType);
 
   await db.tribute.update({
     where: { id: tribute.id },
     data: { buyerEmail: email },
   });
+
+  // Test coupon: publish right away, no Mercado Pago.
+  if (coupon) {
+    await publishWithCoupon(tribute.id);
+    return NextResponse.json({ url: thanksUrl, coupon: true });
+  }
 
   if (!mpConfigured()) {
     // Local development without Mercado Pago credentials: a pretend payment.
