@@ -180,6 +180,19 @@ export function TributeViewer({ config, slug, live = true, showBackButton = true
           )}
         </div>
 
+        {/* Sharing is for the giver (finalize page and WhatsApp), never on the page the person receives. */}
+
+        {/* Footer: before the closing image, so the page ends on that image (and the music bar
+            floats over it) instead of on a strip of plain background */}
+        <footer className={`${config.music?.url && !hasClosing ? 'pb-28' : 'pb-4'} pt-12 px-4`}>
+          <p className="text-center font-title text-xs uppercase tracking-[0.2em] text-gray-400">
+            Feito com{' '}
+            <Link href="/" className="hover:underline" style={{ color: templateStyle.accentColor }}>
+              EternalPage
+            </Link>
+          </p>
+        </footer>
+
         {/* Closing Message */}
         <div data-preview="closing">
           {hasClosing && (
@@ -192,18 +205,6 @@ export function TributeViewer({ config, slug, live = true, showBackButton = true
           />
         )}
         </div>
-
-        {/* Sharing is for the giver (finalize page and WhatsApp), never on the page the person receives. */}
-
-        {/* Footer */}
-        <footer className={`${config.music?.url ? 'pb-28' : 'pb-12'} pt-4 px-4`}>
-          <p className="text-center font-title text-xs uppercase tracking-[0.2em] text-gray-400">
-            Feito com{' '}
-            <Link href="/" className="hover:underline" style={{ color: templateStyle.accentColor }}>
-              EternalPage
-            </Link>
-          </p>
-        </footer>
       </main>
 
       {/* Music Player */}
