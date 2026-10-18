@@ -92,11 +92,18 @@ export function EnvelopeIntro({ recipient, accentColor, backgroundColor }: Envel
             transition={
               phase === 'opening'
                 ? { duration: 0.8, delay: 0.5 }
-                : { duration: 3, repeat: reduceMotion ? 0 : Infinity, ease: 'easeInOut', delay: 0.3 }
+                : {
+                    // Only the float loops: fading in and scaling up happen once (looping them
+                    // made the envelope fade out and back in every few seconds).
+                    duration: 0.6,
+                    delay: 0.3,
+                    y: { duration: 3, repeat: reduceMotion ? 0 : Infinity, ease: 'easeInOut', delay: 0.3 },
+                  }
             }
           >
-            {/* back */}
-            <div className="absolute inset-0 rounded-md" style={{ backgroundColor: shade(accentColor, -0.08) }} />
+            {/* back: the inside of the envelope, darker so the card and the flap stand out.
+                Only the bottom corners are rounded so the open flap meets it with no gaps. */}
+            <div className="absolute inset-0 rounded-b-md" style={{ backgroundColor: shade(accentColor, -0.4) }} />
 
             {/* card that slides out */}
             <motion.div
@@ -113,7 +120,7 @@ export function EnvelopeIntro({ recipient, accentColor, backgroundColor }: Envel
 
             {/* front pocket */}
             <div
-              className="absolute inset-0 rounded-md"
+              className="absolute inset-0 rounded-b-md"
               style={{
                 backgroundColor: accentColor,
                 clipPath: 'polygon(0 0, 50% 58%, 100% 0, 100% 100%, 0 100%)',
@@ -122,7 +129,7 @@ export function EnvelopeIntro({ recipient, accentColor, backgroundColor }: Envel
               }}
             />
             <div
-              className="absolute inset-0 rounded-md pointer-events-none"
+              className="absolute inset-0 rounded-b-md pointer-events-none"
               style={{
                 background: 'linear-gradient(to top, rgba(0,0,0,0.12), transparent 60%)',
                 clipPath: 'polygon(0 0, 50% 58%, 100% 0, 100% 100%, 0 100%)',
@@ -130,19 +137,33 @@ export function EnvelopeIntro({ recipient, accentColor, backgroundColor }: Envel
               }}
             />
 
-            {/* flap: above the card while closed, behind it once open */}
+            {/* flap: above the card while closed, behind it once open. It has two faces: the
+                outside, and the darker inside that shows once it has flipped up. */}
             <motion.div
               className="absolute left-0 right-0 top-0 h-[58%] origin-top"
-              style={{
-                backgroundColor: shade(accentColor, 0.06),
-                clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
-                transformStyle: 'preserve-3d',
-                zIndex: phase === 'opening' ? 0 : 3,
-              }}
+              style={{ transformStyle: 'preserve-3d', zIndex: phase === 'opening' ? 0 : 3 }}
               initial={{ rotateX: 0 }}
               animate={phase === 'opening' && !reduceMotion ? { rotateX: 180 } : { rotateX: 0 }}
               transition={{ duration: 0.5, ease: 'easeInOut' }}
-            />
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: shade(accentColor, 0.06),
+                  clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+                  backfaceVisibility: 'hidden',
+                }}
+              />
+              <div
+                className="absolute inset-0"
+                style={{
+                  backgroundColor: shade(accentColor, -0.3),
+                  clipPath: 'polygon(0 100%, 100% 100%, 50% 0)',
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateX(180deg)',
+                }}
+              />
+            </motion.div>
 
             {/* wax seal */}
             <motion.div
