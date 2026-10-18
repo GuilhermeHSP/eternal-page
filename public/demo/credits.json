@@ -130,5 +130,53 @@
   "credit": "\"Mother Woman\" by Jordan Whitt, CC0, via StockSnap",
   "notes": [],
   "saved": "2026-10-14T20:34:35.837Z"
+ },
+ {
+  "file": "public/demo/casal-abraco.jpg",
+  "media": "image",
+  "ref": "openverse:98d495a3-99e2-46a9-aea2-13fc991f9ff8",
+  "title": "Couple Love",
+  "creator": "Scott Webb",
+  "creatorUrl": "https://stocksnap.io/author/5007",
+  "date": null,
+  "license": "CC0",
+  "licenseCode": "cc0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "creditRequired": false,
+  "page": "https://stocksnap.io/photo/couple-love-MIMZ4PUM2F",
+  "via": "StockSnap",
+  "image": "https://cdn.stocksnap.io/img-thumbs/960w/MIMZ4PUM2F.jpg",
+  "width": 960,
+  "height": 638,
+  "bytes": 48022,
+  "credit": "\"Couple Love\" by Scott Webb, CC0, via StockSnap",
+  "notes": [
+   "recortada em retrato 3:4"
+  ],
+  "saved": "2026-10-14T21:16:33.158Z"
+ },
+ {
+  "file": "public/demo/casal-beijo.jpg",
+  "media": "image",
+  "ref": "openverse:36ec793a-a539-41fa-89f3-9cbf154931fd",
+  "title": "Couple Kissing",
+  "creator": "Nathan Walker",
+  "creatorUrl": "https://stocksnap.io/author/13721",
+  "date": null,
+  "license": "CC0",
+  "licenseCode": "cc0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "creditRequired": false,
+  "page": "https://stocksnap.io/photo/couple-kissing-JRTQVF9EQC",
+  "via": "StockSnap",
+  "image": "https://cdn.stocksnap.io/img-thumbs/960w/JRTQVF9EQC.jpg",
+  "width": 960,
+  "height": 640,
+  "bytes": 62574,
+  "credit": "\"Couple Kissing\" by Nathan Walker, CC0, via StockSnap",
+  "notes": [
+   "recortada em retrato 3:4"
+  ],
+  "saved": "2026-10-14T21:16:39.859Z"
  }
 ]

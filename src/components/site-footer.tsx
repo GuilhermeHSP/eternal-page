@@ -1,10 +1,11 @@
 import { Lock, Mail, ShieldCheck, Instagram } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { COMPANY, LEGAL_LINKS } from '@/lib/legal';
+import { DEMO_SLUG } from '@/lib/demo-slug';
 
 const PRODUCT_LINKS = [
   { href: '/#como-funciona', label: 'Como funciona' },
-  { href: '/para-melhor-mae-demo', label: 'Ver um exemplo' },
+  { href: `/${DEMO_SLUG}`, label: 'Ver um exemplo' },
   { href: '/#modelos', label: 'Modelos' },
   { href: '/#precos', label: 'Preços' },
 ];

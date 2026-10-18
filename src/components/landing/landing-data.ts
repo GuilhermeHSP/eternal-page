@@ -156,5 +156,5 @@ export const FAQ = [
   },
 ];
 
-// The complete example tribute (Maria's page), shown in the phone on the landing page.
+// The complete example tribute (Ana's page), shown in the phone on the landing page.
 export const DEMO_CONFIG = demoTribute;
