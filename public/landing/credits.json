@@ -50,26 +50,26 @@
  {
   "file": "public/landing/amor-ana.jpg",
   "media": "image",
-  "ref": "openverse:98d495a3-99e2-46a9-aea2-13fc991f9ff8",
-  "title": "Couple Love",
-  "creator": "Scott Webb",
-  "creatorUrl": "https://stocksnap.io/author/5007",
+  "ref": "stocksnap:BF7WW6HVDH",
+  "title": "Hiking Couple",
+  "creator": null,
+  "creatorUrl": null,
   "date": null,
   "license": "CC0",
   "licenseCode": "cc0",
   "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
   "creditRequired": false,
-  "page": "https://stocksnap.io/photo/couple-love-MIMZ4PUM2F",
+  "page": "https://stocksnap.io/photo/hiking-couple-BF7WW6HVDH",
   "via": "StockSnap",
-  "image": "https://cdn.stocksnap.io/img-thumbs/960w/MIMZ4PUM2F.jpg",
-  "width": 960,
-  "height": 638,
-  "bytes": 48022,
-  "credit": "\"Couple Love\" by Scott Webb, CC0, via StockSnap",
+  "image": null,
+  "width": 6720,
+  "height": 4480,
+  "bytes": 9627981,
+  "credit": "\"Hiking Couple\", CC0, via StockSnap",
   "notes": [
    "recortada em retrato 3:4"
   ],
-  "saved": "2026-10-14T21:16:33.158Z"
+  "saved": "2026-10-18T03:02:00.000Z"
  },
  {
   "file": "public/landing/namorados.jpg",
