@@ -89,6 +89,36 @@ export async function handlePayment(payment: MpPayment): Promise<FulfillResult> 
   return { outcome: 'published', tributeId: tribute.id };
 }
 
+// Publishes a draft with the test coupon (see lib/coupon.ts): no payment, amount zero.
+export async function publishWithCoupon(tributeId: string): Promise<FulfillResult> {
+  const tribute = await db.tribute.findUnique({ where: { id: tributeId } });
+  if (!tribute) return { outcome: 'ignored', reason: `no tribute ${tributeId}` };
+  if (tribute.isPublished && tribute.paidAt) {
+    await sendDeliveryEmailOnce(tribute.id);
+    return { outcome: 'already-published', tributeId: tribute.id };
+  }
+
+  const pkg = normalisePackage(tribute.packageType);
+  const paidAt = new Date();
+  await db.tribute.update({
+    where: { id: tribute.id },
+    data: {
+      isPublished: true,
+      isPremium: pkg === 'premium',
+      packageType: pkg,
+      paidPackage: pkg,
+      paymentId: `CUPOM-${paidAt.getTime()}`,
+      paymentStatus: 'approved',
+      paidAmount: 0,
+      paidAt,
+      expiresAt: expiryForPackage(pkg, paidAt),
+    },
+  });
+
+  await sendDeliveryEmailOnce(tribute.id);
+  return { outcome: 'published', tributeId: tribute.id };
+}
+
 // Sends the link + QR e-mail at most once per tribute (the webhook and the return page can
 // both arrive at the same time, so the "sent" mark is claimed before sending).
 export async function sendDeliveryEmailOnce(tributeId: string): Promise<boolean> {
