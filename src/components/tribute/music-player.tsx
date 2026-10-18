@@ -37,13 +37,18 @@ interface TrackEvents {
 function audioTrack(audio: HTMLAudioElement, ev: TrackEvents): Track {
   audio.volume = MUSIC_VOLUME;
   const onTime = () => ev.onTime(audio.currentTime);
-  const onMeta = () => ev.onDuration(audio.duration);
+  const onMeta = () => {
+    if (Number.isFinite(audio.duration)) ev.onDuration(audio.duration);
+  };
   const onPlay = () => ev.onPlaying(true);
   const onPause = () => ev.onPlaying(false);
   audio.addEventListener('timeupdate', onTime);
   audio.addEventListener('loadedmetadata', onMeta);
   audio.addEventListener('play', onPlay);
   audio.addEventListener('pause', onPause);
+  audio.addEventListener('durationchange', onMeta);
+  // The server-rendered <audio> may have loaded its metadata before these listeners existed.
+  if (audio.readyState >= 1) onMeta();
   return {
     play: () => void audio.play().catch(() => {}),
     pause: () => audio.pause(),
@@ -71,6 +76,7 @@ function audioTrack(audio: HTMLAudioElement, ev: TrackEvents): Track {
       audio.removeEventListener('loadedmetadata', onMeta);
       audio.removeEventListener('play', onPlay);
       audio.removeEventListener('pause', onPause);
+      audio.removeEventListener('durationchange', onMeta);
     },
   };
 }

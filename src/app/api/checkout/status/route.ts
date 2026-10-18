@@ -11,6 +11,14 @@ export type CheckoutStatus = 'paid' | 'pending' | 'rejected' | 'unpaid';
 
 const PENDING = new Set(['pending', 'in_process', 'authorized', 'in_mediation']);
 
+// The buyer already knows their e-mail; show only enough to recognise it ("g***@gmail.com").
+function maskEmail(email: string | null): string | null {
+  if (!email) return null;
+  const [user, domain] = email.split('@');
+  if (!domain) return null;
+  return `${user.slice(0, 1)}***@${domain}`;
+}
+
 export async function GET(request: NextRequest) {
   const draftId = request.nextUrl.searchParams.get('draft_id') || '';
   const paymentId = request.nextUrl.searchParams.get('payment_id') || '';
@@ -51,7 +59,7 @@ export async function GET(request: NextRequest) {
     recipient: tribute.recipient,
     packageType: normalisePackage(tribute.paidPackage || tribute.packageType),
     expiresAt: tribute.expiresAt,
-    email: tribute.buyerEmail,
+    email: maskEmail(tribute.buyerEmail),
     emailSent: !!tribute.deliveryEmailSentAt,
   });
 }

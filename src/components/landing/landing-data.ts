@@ -131,6 +131,10 @@ export const FAQ = [
     a: 'Não. Você monta a página inteira e vê a prévia de graça. O pagamento só acontece quando você decide publicar.',
   },
   {
+    q: 'E se eu não gostar depois de pagar?',
+    a: 'Você tem 7 dias de garantia: é só escrever para o nosso e-mail com o link da homenagem e devolvemos 100% do valor pelo Mercado Pago.',
+  },
+  {
     q: 'Quem recebe precisa criar conta?',
     a: 'Não. A pessoa abre o link no celular ou no computador, como qualquer site, sem baixar aplicativo.',
   },

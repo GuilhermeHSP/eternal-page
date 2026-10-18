@@ -30,6 +30,11 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
       const saved = localStorage.getItem('ep_buyer_email');
       if (saved) setEmail(saved);
     } catch {}
+    const linkCoupon = new URLSearchParams(window.location.search).get('cupom');
+    if (linkCoupon !== null) {
+      setShowCoupon(true);
+      if (linkCoupon) setCoupon(linkCoupon);
+    }
     const t = setTimeout(() => emailRef.current?.focus(), 50);
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && !sending && onClose();
     window.addEventListener('keydown', onKey);
@@ -114,6 +119,8 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
             />
           </div>
 
+          {/* The coupon field only shows for links that carry ?cupom=, so buyers aren't sent off
+              hunting for codes that don't exist. */}
           {showCoupon ? (
             <div>
               <label htmlFor="checkout-coupon" className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
@@ -129,11 +136,7 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
                 className="mt-2 w-full h-12 rounded-xl border border-gray-200 px-4 text-base uppercase outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"
               />
             </div>
-          ) : (
-            <button type="button" onClick={() => setShowCoupon(true)} className="text-xs text-gray-500 underline underline-offset-2 hover:text-rose-600">
-              Tenho um cupom
-            </button>
-          )}
+          ) : null}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
@@ -164,8 +167,10 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
               ? sending ? 'Publicando...' : 'Usar cupom e publicar'
               : sending ? 'Abrindo o Mercado Pago...' : `Pagar ${formatPrice(pkg.price)} no Mercado Pago`}
           </button>
-          <p className="text-center text-xs text-gray-400">
+          <p className="text-center text-xs text-gray-500">
             Pagamento seguro pelo Mercado Pago · Pix ou cartão
+            <br />
+            <span className="font-medium text-gray-600">Garantia de 7 dias:</span> se mudar de ideia, devolvemos 100%.
           </p>
           <p className="text-center text-[11px] leading-relaxed text-gray-400">
             Ao continuar, você concorda com os{' '}

@@ -52,6 +52,7 @@ import { CoachMarks } from './coach-marks';
 import { fileToResizedDataUrl } from '@/lib/image';
 import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
+import { hintsFor } from '@/lib/occasion-hints';
 
 const tributeSchema = z.object({
   title: z.string().min(1, 'O título é obrigatório').max(80),
@@ -91,20 +92,13 @@ interface MusicFile {
 }
 
 // Steps including plan selection as first step
-const REASON_PLACEHOLDERS = [
-  'Seu sorriso que ilumina o dia',
-  'O jeito como você cuida de todos',
-  'Seu abraço que resolve tudo',
-  'Sua risada no meio do almoço',
-];
-
 const steps = [
   { id: 0, title: 'Plano', icon: Package },
-  { id: 1, title: 'Template', icon: Sparkles },
+  { id: 1, title: 'Ocasião', icon: Sparkles },
   { id: 2, title: 'Para quem', icon: Heart },
   { id: 3, title: 'Detalhes', icon: PenLine },
   { id: 4, title: 'Fotos', icon: ImagePlus },
-  { id: 5, title: 'Timeline', icon: Calendar },
+  { id: 5, title: 'Momentos', icon: Calendar },
   { id: 6, title: 'Voz', icon: Mic },
   { id: 7, title: 'Música', icon: Music },
 ];
@@ -240,6 +234,9 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   }, [editDraftId, setValue]);
 
   const selectedTemplateId = watch('templateId');
+  const hints = hintsFor(selectedTemplateId);
+  const authorNameValue = watch('authorName');
+  const messageValue = watch('message');
   const selectedTemplate = templateList.find((t) => t.name === selectedTemplateId);
   const musicUrlValue = watch('musicUrl');
   const heroImageValue = watch('heroImage');
@@ -548,6 +545,17 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   const [navOnScreen, setNavOnScreen] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
 
+  // The floating Continuar / Ver prévia buttons sit over the bottom of the screen; keep the field
+  // being typed in (and its error message) clear of them when the browser scrolls to it.
+  useEffect(() => {
+    const root = document.documentElement;
+    const before = root.style.scrollPaddingBottom;
+    root.style.scrollPaddingBottom = '6rem';
+    return () => {
+      root.style.scrollPaddingBottom = before;
+    };
+  }, []);
+
   // First time a phone visitor reaches the occasion step, a short tour points at the preview
   // button and at Continuar/Próximo. Shown once per browser.
   const [showTour, setShowTour] = useState(false);
@@ -699,8 +707,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           e.preventDefault();
         }}
         onKeyDown={(e) => {
-          // Prevent Enter key from submitting the form on inputs and textareas
-          if (e.key === 'Enter' && (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+          // Enter must not submit the form from a one-line field; in textareas it starts a new line
+          if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
             e.preventDefault();
           }
         }}
@@ -884,7 +892,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   <Label htmlFor="recipient">Nome do Homenageado *</Label>
                   <Input
                     id="recipient"
-                    placeholder="Maria"
+                    placeholder={hints.recipient}
                     {...register('recipient')}
                     onFocus={focusOn('hero')}
                     aria-invalid={!!errors.recipient}
@@ -899,12 +907,24 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   <Label htmlFor="title">Título *</Label>
                   <Input
                     id="title"
-                    placeholder="A melhor mãe do mundo!"
+                    placeholder={hints.title}
                     {...register('title')}
                     onFocus={focusOn('hero')}
                     aria-invalid={!!errors.title}
                     className="mt-1.5"
                   />
+                  <div className="flex flex-wrap gap-1.5 mt-2" aria-label="Sugestões de título">
+                    {hints.titles.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setValue('title', t, { shouldValidate: !!errors.title })}
+                        className="text-xs px-2.5 py-1.5 rounded-full border border-rose-200 text-rose-600 bg-rose-50/60 hover:bg-rose-100 transition-colors"
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                   {errors.title && (
                     <p role="alert" className="text-sm text-red-500 mt-1">{errors.title.message}</p>
                   )}
@@ -914,13 +934,13 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   <Label htmlFor="authorName">Seu nome (opcional)</Label>
                   <Input
                     id="authorName"
-                    placeholder="Ex.: Raquel, ou Seus filhos"
+                    placeholder={hints.author}
                     maxLength={50}
                     {...register('authorName')}
                     onFocus={focusOn('message')}
                     className="mt-1.5"
                   />
-                  <p className="text-xs text-gray-400 mt-1">Assina a carta e a despedida: "Com amor, Raquel".</p>
+                  <p className="text-xs text-gray-400 mt-1">Assina a carta e a despedida: "Com amor, {authorNameValue?.trim() || 'seu nome'}".</p>
                 </div>
 
                 <div>
@@ -995,17 +1015,32 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="message">Sua Mensagem</Label>
+                  <Label htmlFor="message">Sua carta</Label>
+                  {!messageValue?.trim() && (
+                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                      <span className="text-xs text-gray-400">Sem ideias? Comece com:</span>
+                      {hints.letters.map((text, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setValue('message', text)}
+                          className="text-xs px-2.5 py-1.5 rounded-full border border-rose-200 text-rose-600 bg-rose-50/60 hover:bg-rose-100 transition-colors"
+                        >
+                          {hints.letters.length > 1 ? `Modelo de carta ${i + 1}` : 'Um modelo de carta'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <Textarea
                     id="message"
                     placeholder="Escreva sua mensagem de carinho aqui..."
-                    rows={6}
+                    rows={8}
                     {...register('message')}
                     onFocus={focusOn('message')}
-                    className="mt-1.5 resize-none"
+                    className="mt-1.5 resize-none min-h-[200px]"
                   />
                   <p className="text-xs text-gray-400 mt-1">
-                    Dica: Use **texto** para destacar frases importantes
+                    Pode editar o modelo à vontade. Enter cria um novo parágrafo.
                   </p>
                 </div>
 
@@ -1026,7 +1061,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     />
                     <Input
                       id="counterLabel"
-                      placeholder="Juntos há"
+                      placeholder={hints.counter}
                       maxLength={40}
                       list="counter-labels"
                       aria-label="Frase do contador"
@@ -1061,7 +1096,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                         <Input
                           value={reason}
                           maxLength={160}
-                          placeholder={REASON_PLACEHOLDERS[i % REASON_PLACEHOLDERS.length]}
+                          placeholder={hints.reasons[i % hints.reasons.length]}
                           aria-label={`Motivo ${i + 1}`}
                           onFocus={focusOn('reasons')}
                           onChange={(e) => setReasons((prev) => prev.map((r, j) => (j === i ? e.target.value : r)))}
@@ -1118,7 +1153,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                   <Label htmlFor="closingMessage">Mensagem de Encerramento (opcional)</Label>
                   <Textarea
                     id="closingMessage"
-                    placeholder="Para sempre no meu coração..."
+                    placeholder={hints.closing}
                     rows={2}
                     {...register('closingMessage')}
                     onFocus={focusOn('closing')}
@@ -1776,7 +1811,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         type="button"
         data-tour="continue"
         onClick={continueDown}
-        className="fixed bottom-6 left-4 lg:left-[calc(50%-10rem)] lg:-translate-x-1/2 z-40 inline-flex items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
+        className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-4 lg:left-[calc(50%-10rem)] lg:-translate-x-1/2 z-40 inline-flex items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
       >
         Continuar
         <ChevronDown className="h-4 w-4 animate-bounce" />

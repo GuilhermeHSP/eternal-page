@@ -19,6 +19,7 @@ import {
   Gift,
   MessageCircleHeart,
   Mic,
+  ShieldCheck,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PACKAGE_LIST, LOWEST_PRICE, formatPrice, type PackageType } from '@/lib/packages';
@@ -185,7 +186,7 @@ function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
             <p className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-gray-500">
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Prévia grátis</span>
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pagamento único</span>
-              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pronta em minutos</span>
+              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />A partir de {formatPrice(LOWEST_PRICE)}</span>
             </p>
           </form>
         </div>
@@ -425,6 +426,13 @@ function Pricing({ onPick }: { onPick: (packageType: PackageType) => void }) {
             </div>
           ))}
         </div>
+        <p className="mt-8 flex items-center justify-center gap-2 text-center text-sm text-gray-600">
+          <ShieldCheck className="h-5 w-5 shrink-0 text-rose-500" />
+          <span>
+            <strong className="font-semibold text-gray-800">Garantia de 7 dias:</strong> se mudar de ideia, devolvemos
+            100% do valor.
+          </span>
+        </p>
       </div>
     </section>
   );
@@ -465,7 +473,7 @@ function FinalCta({ onStart }: { onStart: () => void }) {
           data-cta-anchor
           type="button"
           onClick={onStart}
-          className="press relative mt-8 inline-flex items-center gap-2 h-14 px-10 rounded-full bg-white text-rose-600 text-lg font-semibold hover:bg-rose-50"
+          className="press relative mt-8 inline-flex items-center gap-2 h-14 px-6 sm:px-10 whitespace-nowrap rounded-full bg-white text-rose-600 text-base sm:text-lg font-semibold hover:bg-rose-50"
         >
           <Heart className="h-5 w-5" fill="currentColor" />
           Criar minha homenagem
