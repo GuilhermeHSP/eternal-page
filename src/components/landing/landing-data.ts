@@ -15,7 +15,18 @@ export interface Occasion {
   alt: string;
 }
 
+// Amor comes first: it is the flagship occasion and the one the hero opens on.
 export const OCCASIONS: Occasion[] = [
+  {
+    templateId: 'romantic',
+    label: 'Amor',
+    recipient: 'Ana',
+    title: (name) => `Para ${name}, com todo o meu amor`,
+    phrase: 'Com todo o meu amor',
+    when: 'Qualquer dia do ano',
+    photo: '/landing/amor-ana.jpg',
+    alt: 'Mulher de cabelos castanhos olhando para a câmera numa escada',
+  },
   {
     templateId: 'mothersDay',
     label: 'Mãe',
@@ -35,16 +46,6 @@ export const OCCASIONS: Occasion[] = [
     when: '2º domingo de agosto',
     photo: '/landing/pai-jose.jpg',
     alt: 'Pai sorrindo com o filho pendurado nas suas costas num parque',
-  },
-  {
-    templateId: 'romantic',
-    label: 'Amor',
-    recipient: 'Ana',
-    title: (name) => `Para ${name}, com todo o meu amor`,
-    phrase: 'Com todo o meu amor',
-    when: 'Qualquer dia do ano',
-    photo: '/landing/amor-ana.jpg',
-    alt: 'Casal abraçado num campo ao pôr do sol',
   },
   {
     templateId: 'birthday',
@@ -87,13 +88,14 @@ export interface GalleryTile {
   alt: string;
 }
 
+// The couple models lead the gallery, then the family and other dates.
 export const GALLERY: GalleryTile[] = [
+  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor-ana.jpg', alt: 'Mulher de cabelos castanhos olhando para a câmera' },
+  { templateId: 'valentine', name: 'Namorados', when: '12 de junho', detail: 'Para o casal', photo: '/landing/namorados.jpg', alt: 'Casal sorrindo abraçado numa selfie' },
+  { templateId: 'anniversary', name: 'Bodas', when: 'Papel a ouro', detail: 'Anos de casados', photo: '/landing/bodas-rita-renato.jpg', alt: 'Casal de idosos abraçados' },
   { templateId: 'mothersDay', name: 'Dia das Mães', when: 'Maio', detail: 'Mãe, avó, madrinha', photo: '/demo/mother-joy.jpg', alt: 'Mãe rindo com o bebê no colo' },
   { templateId: 'fathersDay', name: 'Dia dos Pais', when: 'Agosto', detail: 'Pai, avô, padrasto', photo: '/landing/pai-jose.jpg', alt: 'Pai sorrindo com o filho nas costas' },
-  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor-ana.jpg', alt: 'Casal abraçado num campo' },
-  { templateId: 'valentine', name: 'Namorados', when: '12 de junho', detail: 'Para o casal', photo: '/landing/namorados.jpg', alt: 'Casal quase se beijando' },
   { templateId: 'birthday', name: 'Aniversário', when: 'O dia certo', detail: 'Qualquer idade', photo: '/landing/aniversario-pedro.jpg', alt: 'Bolo de aniversário com velas acesas' },
-  { templateId: 'anniversary', name: 'Bodas', when: 'Papel a ouro', detail: 'Anos de casados', photo: '/landing/bodas-rita-renato.jpg', alt: 'Casal de idosos abraçados' },
   { templateId: 'friendship', name: 'Amizade', when: '20 de julho', detail: 'Amigas e amigos', photo: '/landing/amizade-gabriela.jpg', alt: 'Duas amigas abraçadas rindo' },
   { templateId: 'memorial', name: 'Memória', when: 'Para lembrar', detail: 'Quem partiu', photo: '/landing/saudade.jpg', alt: 'Pai e filha caminhando de mãos dadas num bosque' },
 ];
