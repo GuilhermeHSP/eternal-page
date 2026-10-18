@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { siteUrl } from "@/lib/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "EternalPage · Páginas de homenagem para presentear",
     template: "%s | EternalPage",
@@ -29,6 +31,7 @@ export const metadata: Metadata = {
     description: "Crie uma página de homenagem para quem você ama em poucos minutos.",
     type: "website",
     locale: "pt_BR",
+    siteName: "EternalPage",
   },
   twitter: {
     card: "summary_large_image",
