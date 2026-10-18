@@ -8,6 +8,9 @@ import {
   Edit3,
   CreditCard,
   Lock,
+  Sparkles,
+  Check,
+  Music,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TributeViewer } from '@/components/tribute/tribute-viewer';
@@ -40,6 +43,9 @@ function PreviewContent() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
+  const [upgraded, setUpgraded] = useState(false);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
 
   const draftId = searchParams.get('id');
 
@@ -94,6 +100,36 @@ function PreviewContent() {
 
   const handleEditPage = () => {
     router.push(`/?edit=${draftId}`);
+  };
+
+  // Switches the plan here or in the checkout, then reloads the page so the preview shows it
+  // (Completo opens with the envelope). Returns an error message, or null when it worked.
+  const changePackage = async (packageType: PackageType): Promise<string | null> => {
+    if (!draft) return null;
+    try {
+      const res = await fetch('/api/draft/package', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ draftId: draft.id, packageType }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) return data.error || 'Não foi possível trocar o plano. Tente de novo.';
+      const fresh = await fetch(`/api/draft?id=${draft.id}`);
+      if (fresh.ok) setDraft(await fresh.json());
+      return null;
+    } catch {
+      return 'Sem conexão. Confira a internet e tente de novo.';
+    }
+  };
+
+  const upgrade = async () => {
+    setUpgrading(true);
+    setUpgradeError(null);
+    const err = await changePackage('premium');
+    setUpgrading(false);
+    if (err) setUpgradeError(err);
+    // The envelope opening shows right away, over the page, so the person sees what they got.
+    else setUpgraded(true);
   };
 
   // Asks for the e-mail and goes to Mercado Pago; an already paid page goes to its link.
@@ -153,6 +189,7 @@ function PreviewContent() {
   // Get package info
   const selectedPackage = (draft?.packageType as PackageType) || 'basic';
   const packageInfo = PACKAGES[selectedPackage];
+  const upgradePrice = PACKAGES.premium.price - PACKAGES.basic.price;
 
   if (loading) {
     return (
@@ -185,6 +222,7 @@ function PreviewContent() {
         draftId={draft.id}
         recipient={draft.recipient}
         pkg={packageInfo}
+        onChangePackage={changePackage}
       />
       {/* Preview Mode Header */}
       <div className="fixed top-0 left-0 right-0 z-[9999] bg-rose-500">
@@ -242,7 +280,70 @@ function PreviewContent() {
         </div>
 
         {/* Action Buttons Section */}
-        <div className="max-w-2xl mx-auto px-4 mt-8">
+        <div className="max-w-2xl mx-auto px-4 mt-8 space-y-6">
+          {/* Upsell while the person is looking at their own page: what Completo adds, unlocked
+              here without going back to the editor. */}
+          {!draft.isPaid && selectedPackage === 'basic' && (
+            <div className="bg-white rounded-2xl shadow-xl ring-1 ring-rose-200 p-6">
+              <p className="text-xs uppercase tracking-[0.2em] text-rose-500 font-semibold">Deixe a página completa</p>
+              <h2 className="mt-1 text-2xl font-title font-semibold text-gray-900">
+                Mais emoção por + {formatPrice(upgradePrice)}
+              </h2>
+              <ul className="mt-4 space-y-2 text-gray-700">
+                {[
+                  'Abertura com envelope surpresa',
+                  'Música de fundo',
+                  'Mensagem com a sua voz',
+                  `Até ${PACKAGES.premium.limits.momentsPhotos} fotos e momentos com foto`,
+                  'No ar para sempre (o Básico fica 1 ano)',
+                ].map((item) => (
+                  <li key={item} className="flex items-center gap-2.5">
+                    <span className="shrink-0 w-7 h-7 rounded-full bg-rose-50 text-rose-500 inline-flex items-center justify-center">
+                      <Lock className="h-3.5 w-3.5" />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+              {upgradeError && <p className="mt-4 text-sm text-red-600">{upgradeError}</p>}
+              <Button
+                size="lg"
+                onClick={upgrade}
+                disabled={upgrading}
+                className="mt-5 w-full gap-2 bg-rose-500 hover:bg-rose-600 text-white"
+              >
+                {upgrading ? (
+                  <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Sparkles className="h-5 w-5" />
+                )}
+                Liberar por + {formatPrice(upgradePrice)}
+              </Button>
+              <p className="mt-2 text-center text-xs text-gray-500">
+                Pagamento único de {formatPrice(PACKAGES.premium.price)} no total. Nada é cobrado agora.
+              </p>
+            </div>
+          )}
+
+          {upgraded && selectedPackage !== 'basic' && !draft.isPaid && (
+            <div className="bg-white rounded-2xl shadow-xl ring-1 ring-rose-200 p-6 text-center">
+              <span className="mx-auto w-10 h-10 rounded-full bg-rose-500 text-white inline-flex items-center justify-center">
+                <Check className="h-5 w-5" />
+              </span>
+              <h2 className="mt-3 text-xl font-title font-semibold text-gray-900">Pronto, a página agora é Completa</h2>
+              <p className="mt-1 text-gray-600">Ela já abre com o envelope surpresa. Quer colocar a música de vocês e a sua voz?</p>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => router.push(`/?edit=${draft.id}&etapa=6`)}
+                className="mt-4 gap-2 border-rose-200 text-rose-600"
+              >
+                <Music className="h-5 w-5" />
+                Adicionar música e voz
+              </Button>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             {/* Header */}
             <div className="bg-gradient-to-r from-rose-500 to-rose-500 p-6 text-center">

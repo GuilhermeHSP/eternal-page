@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Lock, Mail, ShieldCheck, Ticket, X } from 'lucide-react';
-import { formatPrice, type PackageConfig } from '@/lib/packages';
+import { Lock, Mail, ShieldCheck, Sparkles, Ticket, X } from 'lucide-react';
+import { PACKAGES, formatPrice, type PackageConfig, type PackageType } from '@/lib/packages';
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -10,13 +10,18 @@ interface CheckoutDialogProps {
   draftId: string;
   recipient: string;
   pkg: PackageConfig;
+  // Switches the draft's plan; resolves to an error message, or null when it worked.
+  onChangePackage?: (packageType: PackageType) => Promise<string | null>;
 }
+
+const UPGRADE_PRICE = PACKAGES.premium.price - PACKAGES.basic.price;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Asks for the e-mail that receives the link and opens the Mercado Pago
 // payment page. Shown above the preview's pink bar, so it is a plain overlay with a high z-index.
-export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: CheckoutDialogProps) {
+export function CheckoutDialog({ open, onClose, draftId, recipient, pkg, onChangePackage }: CheckoutDialogProps) {
+  const [switching, setSwitching] = useState(false);
   const [email, setEmail] = useState('');
   const [coupon, setCoupon] = useState('');
   const [showCoupon, setShowCoupon] = useState(false);
@@ -100,6 +105,33 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
           </div>
         </div>
 
+        {/* The plan was chosen in the creator; a Básico buyer is only offered the step up, which
+            needs no editing (everything on a Básico page fits Completo). */}
+        {onChangePackage && pkg.id === 'basic' && (
+          <div className="mx-6 mt-5 flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50/60 px-4 py-3">
+            <Sparkles className="h-5 w-5 shrink-0 text-rose-500" />
+            <p className="flex-1 text-xs leading-snug text-gray-700">
+              <strong className="block text-sm text-gray-900">Completo por + {formatPrice(UPGRADE_PRICE)}</strong>
+              Envelope surpresa, música, sua voz e no ar para sempre.
+            </p>
+            <button
+              type="button"
+              disabled={sending || switching}
+              onClick={async () => {
+                setSwitching(true);
+                setError(null);
+                const err = await onChangePackage('premium');
+                setSwitching(false);
+                if (err) setError(err);
+              }}
+              className="shrink-0 h-9 px-4 rounded-full bg-rose-500 text-white text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-70"
+            >
+              {switching && <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              Trocar
+            </button>
+          </div>
+        )}
+
         <form onSubmit={submit} className="px-6 pt-5 pb-6 space-y-4" noValidate>
           <div>
             <label htmlFor="checkout-email" className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
@@ -155,7 +187,7 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
 
           <button
             type="submit"
-            disabled={sending}
+            disabled={sending || switching}
             className="w-full h-12 rounded-full bg-rose-500 hover:bg-rose-600 text-white font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-70"
           >
             {sending ? (

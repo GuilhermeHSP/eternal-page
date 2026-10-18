@@ -77,15 +77,20 @@ function structuredData() {
   };
 }
 
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ edit?: string | string[] }> }) {
-  const { edit } = await searchParams;
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string | string[]; etapa?: string | string[] }>;
+}) {
+  const { edit, etapa } = await searchParams;
+  const editDraftId = typeof edit === 'string' && edit ? edit : null;
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()).replace(/</g, '\\u003c') }}
       />
-      <HomeClient editDraftId={typeof edit === 'string' && edit ? edit : null} />
+      <HomeClient editDraftId={editDraftId} reopening={!!editDraftId || etapa !== undefined} />
     </>
   );
 }
