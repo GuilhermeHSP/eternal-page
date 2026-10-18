@@ -9,16 +9,31 @@ export { DEMO_SLUG };
 // Its content lives in prisma/demo-tribute.json and only uses files shipped in public/, so it can
 // be rebuilt on any database.
 
-// Creates the demo tribute. With replace, an existing one is deleted first (and its guestbook
-// messages with it); without, an existing demo is left as it is.
+// The message wall is seeded from guestMessages; the rest of the file is the page's config.
+const { guestMessages = [], ...demoConfig } = demo as typeof demo & { guestMessages?: { name: string; message: string }[] };
+
+// True when the stored demo was built from an older version of demo-tribute.json.
+function isStale(storedConfig: string): boolean {
+  try {
+    const { createdAt: _createdAt, ...stored } = JSON.parse(storedConfig);
+    return JSON.stringify(stored) !== JSON.stringify(demoConfig);
+  } catch {
+    return true;
+  }
+}
+
+// Creates the demo tribute. An existing one is rebuilt (with its guestbook messages) when replace
+// is set or when demo-tribute.json changed since it was built; otherwise it is left as it is.
 export async function seedDemoTribute(db: PrismaClient, { replace = false } = {}): Promise<'created' | 'kept'> {
   const existing = await db.tribute.findUnique({ where: { slug: DEMO_SLUG } });
   if (existing) {
-    if (!replace) return 'kept';
+    if (!replace && !isStale(existing.config)) return 'kept';
     await db.tribute.delete({ where: { id: existing.id } });
   }
 
-  const config: TributeConfig = { ...(demo as TributeConfig), createdAt: new Date().toISOString() };
+  const config: TributeConfig = { ...(demoConfig as TributeConfig), createdAt: new Date().toISOString() };
+  // The first message in the file is the newest, so it opens the wall.
+  const now = Date.now();
 
   await db.tribute.create({
     data: {
@@ -44,6 +59,9 @@ export async function seedDemoTribute(db: PrismaClient, { replace = false } = {}
           imageUrl: t.imageUrl,
           order: i,
         })),
+      },
+      guestMessages: {
+        create: guestMessages.map((m, i) => ({ name: m.name, message: m.message, createdAt: new Date(now - i * 3_600_000) })),
       },
     },
   });

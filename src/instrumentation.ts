@@ -1,5 +1,6 @@
 // Runs once when the server starts. Makes sure the example tribute linked from the home page
-// exists, so a new or reset database still has it, and starts the daily database backup.
+// exists and matches prisma/demo-tribute.json, so a new or reset database still has it and edits to
+// the file reach production, and starts the daily database backup.
 export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
   try {

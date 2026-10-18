@@ -1,5 +1,5 @@
-// Content for the landing page. The photographs are free stock pictures (CC0), used only as
-// examples of what a tribute can hold; none of them shows a customer.
+// Content for the landing page. The photographs are free stock pictures (CC0) or pictures supplied
+// by the project owner, used only as examples of what a tribute can hold; none of them shows a customer.
 
 import demoTribute from '../../../prisma/demo-tribute.json';
 
@@ -25,7 +25,7 @@ export const OCCASIONS: Occasion[] = [
     phrase: 'Com todo o meu amor',
     when: 'Qualquer dia do ano',
     photo: '/landing/amor.jpg',
-    alt: 'Mulher de cabelos castanhos olhando para a câmera numa escada',
+    alt: 'Ana sorrindo num jantar à luz de velas',
   },
   {
     templateId: 'mothersDay',
@@ -90,7 +90,7 @@ export interface GalleryTile {
 
 // The couple models lead the gallery, then the family and other dates.
 export const GALLERY: GalleryTile[] = [
-  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor.jpg', alt: 'Mulher de cabelos castanhos olhando para a câmera' },
+  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor.jpg', alt: 'Ana sorrindo num jantar à luz de velas' },
   { templateId: 'valentine', name: 'Namorados', when: '12 de junho', detail: 'Para o casal', photo: '/landing/namorados-casal.jpg', alt: 'Casal sorrindo abraçado numa selfie' },
   { templateId: 'anniversary', name: 'Bodas', when: 'Papel a ouro', detail: 'Anos de casados', photo: '/landing/bodas-rita-renato.jpg', alt: 'Casal de idosos abraçados' },
   { templateId: 'mothersDay', name: 'Dia das Mães', when: 'Maio', detail: 'Mãe, avó, madrinha', photo: '/demo/mother-joy.jpg', alt: 'Mãe rindo com o bebê no colo' },
