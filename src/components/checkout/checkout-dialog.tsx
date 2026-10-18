@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Lock, Mail, MessageCircle, ShieldCheck, X } from 'lucide-react';
+import { Lock, Mail, MessageCircle, ShieldCheck, Ticket, X } from 'lucide-react';
 import { formatPrice, type PackageConfig } from '@/lib/packages';
 
 interface CheckoutDialogProps {
@@ -19,6 +19,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: CheckoutDialogProps) {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [coupon, setCoupon] = useState('');
+  const [showCoupon, setShowCoupon] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -57,7 +59,7 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ draftId, email: clean, phone }),
+        body: JSON.stringify({ draftId, email: clean, phone, coupon: coupon.trim() || undefined }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
@@ -129,6 +131,27 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
             />
           </div>
 
+          {showCoupon ? (
+            <div>
+              <label htmlFor="checkout-coupon" className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
+                <Ticket className="h-4 w-4 text-rose-500" /> Cupom
+              </label>
+              <input
+                id="checkout-coupon"
+                type="text"
+                autoComplete="off"
+                autoCapitalize="characters"
+                value={coupon}
+                onChange={(e) => setCoupon(e.target.value)}
+                className="mt-2 w-full h-12 rounded-xl border border-gray-200 px-4 text-base uppercase outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"
+              />
+            </div>
+          ) : (
+            <button type="button" onClick={() => setShowCoupon(true)} className="text-xs text-gray-500 underline underline-offset-2 hover:text-rose-600">
+              Tenho um cupom
+            </button>
+          )}
+
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           {/* On phones the bank step often opens the Mercado Pago app; say so before it happens. */}
@@ -154,7 +177,9 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
             ) : (
               <Lock className="h-4 w-4" />
             )}
-            {sending ? 'Abrindo o Mercado Pago...' : `Pagar ${formatPrice(pkg.price)} no Mercado Pago`}
+            {coupon.trim()
+              ? sending ? 'Publicando...' : 'Usar cupom e publicar'
+              : sending ? 'Abrindo o Mercado Pago...' : `Pagar ${formatPrice(pkg.price)} no Mercado Pago`}
           </button>
           <p className="text-center text-xs text-gray-400">
             Pagamento seguro pelo Mercado Pago · Pix ou cartão
