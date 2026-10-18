@@ -32,17 +32,70 @@
     "Com você, até o silêncio é bom"
   ],
   "gallery": [
-    { "id": "photo-1", "url": "/landing/namorados-casal.jpg", "caption": "Nossa trilha favorita", "order": 0 },
-    { "id": "photo-2", "url": "/demo/casal-abraco.jpg", "caption": "Aquele fim de tarde", "order": 1 },
-    { "id": "photo-3", "url": "/landing/amor.jpg", "caption": "Meu sorriso preferido", "order": 2 },
-    { "id": "photo-4", "url": "/demo/casal-beijo.jpg", "caption": "O dia do sim", "order": 3 }
+    {
+      "id": "photo-1",
+      "url": "/demo/casal-cafe.jpg",
+      "caption": "O café de sempre",
+      "order": 0
+    },
+    {
+      "id": "photo-2",
+      "url": "/demo/casal-outono.jpg",
+      "caption": "Passeio de outono",
+      "order": 1
+    },
+    {
+      "id": "photo-3",
+      "url": "/demo/casal-praia.jpg",
+      "caption": "Nosso pôr do sol",
+      "order": 2
+    },
+    {
+      "id": "photo-4",
+      "url": "/demo/casal-jantar.jpg",
+      "caption": "Jantar de comemoração",
+      "order": 3
+    }
   ],
   "timeline": [
-    { "id": "timeline-1", "year": "2019", "title": "O primeiro encontro", "description": "Um café rápido que virou três horas de conversa.", "imageUrl": "/landing/amor.jpg", "order": 0 },
-    { "id": "timeline-2", "year": "2020", "title": "O primeiro \"eu te amo\"", "description": "Você disse primeiro, e eu nunca vou esquecer.", "order": 1 },
-    { "id": "timeline-3", "year": "2022", "title": "A nossa primeira casa", "description": "Caixas por todo lado e a certeza de que era o nosso lugar.", "imageUrl": "/demo/casal-abraco.jpg", "order": 2 },
-    { "id": "timeline-4", "year": "2024", "title": "O pedido", "description": "Você disse sim antes de eu terminar a frase.", "imageUrl": "/demo/casal-beijo.jpg", "order": 3 },
-    { "id": "timeline-5", "year": "Um dia", "title": "Envelhecer do seu lado", "description": "É o único plano que eu tenho certeza que quero cumprir.", "imageUrl": "/landing/bodas-rita-renato.jpg", "order": 4 }
+    {
+      "id": "timeline-1",
+      "year": "2019",
+      "title": "O primeiro encontro",
+      "description": "Um café rápido que virou três horas de conversa.",
+      "imageUrl": "/demo/casal-cafe.jpg",
+      "order": 0
+    },
+    {
+      "id": "timeline-2",
+      "year": "2020",
+      "title": "O primeiro \"eu te amo\"",
+      "description": "Você disse primeiro, e eu nunca vou esquecer.",
+      "order": 1,
+      "imageUrl": "/demo/casal-praia.jpg"
+    },
+    {
+      "id": "timeline-3",
+      "year": "2022",
+      "title": "A nossa primeira casa",
+      "description": "Caixas por todo lado e a certeza de que era o nosso lugar.",
+      "order": 2
+    },
+    {
+      "id": "timeline-4",
+      "year": "2024",
+      "title": "O pedido",
+      "description": "Você disse sim antes de eu terminar a frase.",
+      "imageUrl": "/demo/casal-jantar.jpg",
+      "order": 3
+    },
+    {
+      "id": "timeline-5",
+      "year": "Um dia",
+      "title": "Envelhecer do seu lado",
+      "description": "É o único plano que eu tenho certeza que quero cumprir.",
+      "order": 4
+    }
   ],
   "guestbook": true,
   "closingMessage": "Você é o meu lugar preferido no mundo. Te amo, Ana!"
