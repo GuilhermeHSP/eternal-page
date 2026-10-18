@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { isYouTubeUrl, parseMusicLink } from '@/lib/music-link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -53,6 +53,7 @@ import { fileToResizedDataUrl } from '@/lib/image';
 import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
 import { hintsFor } from '@/lib/occasion-hints';
+import { saveSnapshot, type CreatorSnapshot } from '@/lib/draft-store';
 
 const tributeSchema = z.object({
   title: z.string().min(1, 'O título é obrigatório').max(80),
@@ -103,34 +104,53 @@ const steps = [
   { id: 7, title: 'Música', icon: Music },
 ];
 
+function stepInUrl(): number | null {
+  const raw = new URLSearchParams(window.location.search).get('etapa');
+  const n = raw === null ? NaN : Number(raw);
+  return Number.isInteger(n) && n >= 0 && n < steps.length ? n : null;
+}
+
+function stepUrl(step: number) {
+  const params = new URLSearchParams(window.location.search);
+  params.set('etapa', String(step));
+  return `${window.location.pathname}?${params}`;
+}
+
 interface TributeCreatorProps {
   editDraftId?: string | null;
   initialRecipient?: string;
   initialTemplateId?: string;
   initialPackage?: PackageType;
+  // A tribute kept in this browser (lib/draft-store) to pick up where the person stopped.
+  resume?: CreatorSnapshot | null;
 }
 
-export function TributeCreator({ editDraftId, initialRecipient, initialTemplateId, initialPackage }: TributeCreatorProps) {
+export function TributeCreator({ editDraftId, initialRecipient, initialTemplateId, initialPackage, resume }: TributeCreatorProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(0);
+  // A kept tribute reopens at the step in the address (a reload, back/forward) or where it stopped.
+  const [currentStep, setCurrentStep] = useState(() => (resume ? (stepInUrl() ?? Math.min(Math.max(resume.step, 0), steps.length - 1)) : 0));
   const [isLoading, setIsLoading] = useState(false);
   // A colour picked by the person; null keeps the template's own colour.
-  const [customColor, setCustomColor] = useState<string | null>(null);
-  const [reasons, setReasons] = useState<string[]>([]);
-  const [voiceMessage, setVoiceMessage] = useState<string | null>(null);
-  const [guestbook, setGuestbook] = useState(true);
+  const [customColor, setCustomColor] = useState<string | null>(resume?.customColor ?? null);
+  const [reasons, setReasons] = useState<string[]>(resume?.reasons ?? []);
+  const [voiceMessage, setVoiceMessage] = useState<string | null>(resume?.voiceMessage ?? null);
+  const [guestbook, setGuestbook] = useState(resume?.guestbook ?? true);
   // Completo pages open with the envelope unless the giver turns it off.
-  const [envelope, setEnvelope] = useState(true);
-  const [musicTitle, setMusicTitle] = useState('');
-  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(initialPackage ?? null);
-  const [photos, setPhotos] = useState<PhotoItem[]>([]);
-  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([]);
-  const [musicFile, setMusicFile] = useState<MusicFile | null>(null);
-  const [musicInputType, setMusicInputType] = useState<'upload' | 'url'>('upload');
+  const [envelope, setEnvelope] = useState(resume?.envelope ?? true);
+  const [musicTitle, setMusicTitle] = useState(resume?.musicTitle ?? '');
+  const [selectedPackage, setSelectedPackage] = useState<PackageType | null>(
+    (resume?.packageType as PackageType | null | undefined) ?? initialPackage ?? null
+  );
+  const [photos, setPhotos] = useState<PhotoItem[]>(resume?.photos ?? []);
+  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>(resume?.timeline ?? []);
+  const [musicFile, setMusicFile] = useState<MusicFile | null>(
+    resume?.music ? { id: 'restored-music', url: resume.music.url, name: resume.music.name } : null
+  );
+  const [musicInputType, setMusicInputType] = useState<'upload' | 'url'>(resume?.musicInputType ?? 'upload');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingMusic, setIsUploadingMusic] = useState(false);
-  const [draftId, setDraftId] = useState<string | null>(null);
+  const [draftId, setDraftId] = useState<string | null>(resume?.draftId ?? null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const timelineImageInputRef = useRef<HTMLInputElement>(null);
@@ -146,19 +166,22 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     reset,
     trigger,
     setFocus,
+    getValues,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(tributeSchema),
     mode: 'onTouched',
-    defaultValues: {
-      templateId: initialTemplateId || 'romantic',
-      recipient: initialRecipient || '',
-    },
+    defaultValues: resume
+      ? (resume.values as Partial<FormData>)
+      : {
+          templateId: initialTemplateId || 'romantic',
+          recipient: initialRecipient || '',
+        },
   });
 
-  // Load existing draft when editing
+  // Load existing draft when editing (unless this browser kept a newer copy of it)
   useEffect(() => {
-    if (editDraftId) {
+    if (editDraftId && !resume) {
       setIsLoading(true);
       setDraftId(editDraftId);
       
@@ -224,6 +247,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           
           // Go directly to "Dados" step (step 2) when editing
           setCurrentStep(2);
+          window.history.replaceState(window.history.state, '', stepUrl(2));
+          canSave.current = true;
         })
         .catch(err => {
           console.error('Error loading draft:', err);
@@ -232,6 +257,82 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         .finally(() => setIsLoading(false));
     }
   }, [editDraftId, setValue]);
+
+  // Each step has its own address (/?etapa=3), so the phone's back button goes to the previous
+  // step instead of leaving the creator, and a reload comes back to the same step.
+  useEffect(() => {
+    window.history.replaceState(window.history.state, '', stepUrl(currentStep));
+    const onPop = () => {
+      const n = stepInUrl();
+      if (n !== null) setCurrentStep(n);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  const goToStep = (n: number) => {
+    if (n === currentStep) return;
+    // "Voltar" right after moving on is the same as the browser's back: no new history entry.
+    const state = window.history.state as { epPrev?: number } | null;
+    if (n === currentStep - 1 && state?.epPrev === n) {
+      window.history.back();
+      return;
+    }
+    window.history.pushState({ ...window.history.state, epPrev: currentStep }, '', stepUrl(n));
+    setCurrentStep(n);
+  };
+
+  // The tribute is kept in this browser from "Para quem" on, so a reload or a closed tab
+  // doesn't lose it (lib/draft-store). It's only written once a loaded draft has been applied.
+  const canSave = useRef(!editDraftId || !!resume);
+  const saveTimer = useRef<number | undefined>(undefined);
+  const snapshot = (): Omit<CreatorSnapshot, 'v' | 'savedAt'> => ({
+    step: currentStep,
+    draftId,
+    previewed: false,
+    packageType: selectedPackage,
+    values: getValues() as Record<string, string | undefined>,
+    customColor,
+    reasons,
+    voiceMessage,
+    guestbook,
+    envelope,
+    musicTitle,
+    musicInputType,
+    music: musicFile ? { url: musicFile.url, name: musicFile.name } : null,
+    photos: photos.map(({ id, url, caption }) => ({ id, url, caption })),
+    timeline: timelineItems,
+  });
+  const snapshotRef = useRef(snapshot);
+  useEffect(() => {
+    snapshotRef.current = snapshot;
+  });
+  const saveNow = useCallback(() => {
+    window.clearTimeout(saveTimer.current);
+    if (!canSave.current) return;
+    const snap = snapshotRef.current();
+    if (snap.values.recipient?.trim()) void saveSnapshot(snap);
+  }, []);
+  const scheduleSave = useCallback(() => {
+    window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(saveNow, 800);
+  }, [saveNow]);
+  useEffect(() => {
+    const sub = watch(() => scheduleSave());
+    return () => sub.unsubscribe();
+  }, [watch, scheduleSave]);
+  useEffect(scheduleSave, [
+    scheduleSave, currentStep, draftId, selectedPackage, customColor, reasons, voiceMessage, guestbook,
+    envelope, musicTitle, musicInputType, musicFile, photos, timelineItems,
+  ]);
+  // Phones may close a tab in the background without warning: save as soon as it's hidden.
+  useEffect(() => {
+    const onHide = () => document.visibilityState === 'hidden' && saveNow();
+    document.addEventListener('visibilitychange', onHide);
+    return () => {
+      document.removeEventListener('visibilitychange', onHide);
+      saveNow();
+    };
+  }, [saveNow]);
 
   const selectedTemplateId = watch('templateId');
   const hints = hintsFor(selectedTemplateId);
@@ -502,6 +603,11 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
       const result = await response.json();
 
+      // Back on the home, the person is offered this preview again.
+      window.clearTimeout(saveTimer.current);
+      canSave.current = false;
+      await saveSnapshot({ ...snapshotRef.current(), draftId: result.id, previewed: true });
+
       // Navigate to preview page
       router.push(`/preview?id=${result.id}`);
     } catch (err) {
@@ -512,7 +618,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     }
   };
 
-  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+  const nextStep = () => goToStep(Math.min(currentStep + 1, steps.length - 1));
 
   // Required fields per step: the person can only move on once they are filled.
   const goNext = async () => {
@@ -535,7 +641,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
     setError(null);
     nextStep();
   };
-  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
+  const prevStep = () => goToStep(Math.max(currentStep - 1, 0));
 
   // Until the step's Voltar/Próximo row is on screen, a "Continuar" button takes the person
   // down to the next field, so nobody moves on without seeing everything the step asks.
@@ -550,7 +656,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   useEffect(() => {
     const root = document.documentElement;
     const before = root.style.scrollPaddingBottom;
-    root.style.scrollPaddingBottom = '6rem';
+    root.style.scrollPaddingBottom = '7rem';
     return () => {
       root.style.scrollPaddingBottom = before;
     };
@@ -655,7 +761,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
   return (
     <div className={currentStep >= 1 ? 'max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-12 xl:gap-16 items-start' : ''}>
-    <div className="max-w-3xl w-full mx-auto pb-24 md:pb-0">
+    <div className="max-w-3xl w-full mx-auto pb-28 lg:pb-0">
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between relative">
@@ -673,7 +779,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
               onClick={() => {
                 // Can only go back or to completed steps
                 if (step.id <= currentStep) {
-                  setCurrentStep(step.id);
+                  goToStep(step.id);
                 }
               }}
               className="relative z-10 flex flex-col items-center"
@@ -1465,7 +1571,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     type="button"
                     variant="outline"
                     className="border-rose-500 text-rose-500 hover:bg-rose-100"
-                    onClick={() => setCurrentStep(0)}
+                    onClick={() => goToStep(0)}
                   >
                     Ver Planos
                   </Button>
@@ -1516,7 +1622,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
                     type="button"
                     variant="outline"
                     className="border-rose-500 text-rose-500 hover:bg-rose-100"
-                    onClick={() => setCurrentStep(0)}
+                    onClick={() => goToStep(0)}
                   >
                     Ver Planos
                   </Button>
@@ -1806,12 +1912,38 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       </form>
     </div>
 
+    {/* Until the step's own Voltar/Próximo row is on screen, one bar at the bottom carries the
+        preview and Continuar (on phones), clear of the iPhone's home bar. The form keeps room
+        for it below its last field. */}
+    {!navOnScreen && (
+      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t border-gray-100 bg-white/95 backdrop-blur-md px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        {currentStep >= 1 && (
+          <button
+            type="button"
+            data-tour="preview"
+            onClick={() => setPreviewOpen(true)}
+            className="flex-1 inline-flex items-center justify-center gap-2 h-12 rounded-full border border-rose-200 bg-white text-rose-600 text-sm font-semibold"
+          >
+            <Eye className="h-4 w-4" />
+            Ver prévia
+          </button>
+        )}
+        <button
+          type="button"
+          data-tour="continue"
+          onClick={continueDown}
+          className="flex-1 inline-flex items-center justify-center gap-2 h-12 rounded-full bg-rose-500 text-white text-sm font-semibold"
+        >
+          Continuar
+          <ChevronDown className="h-4 w-4" />
+        </button>
+      </div>
+    )}
     {!navOnScreen && (
       <button
         type="button"
-        data-tour="continue"
         onClick={continueDown}
-        className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] left-4 lg:left-[calc(50%-10rem)] lg:-translate-x-1/2 z-40 inline-flex items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
+        className="hidden lg:inline-flex fixed bottom-6 left-[calc(50%-10rem)] -translate-x-1/2 z-40 items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
       >
         Continuar
         <ChevronDown className="h-4 w-4 animate-bounce" />
@@ -1836,7 +1968,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       />
     )}
 
-    {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} open={previewOpen} onOpenChange={setPreviewOpen} hideButton={navOnScreen} />}
+    {currentStep >= 1 && <LivePreview config={previewConfig} focus={previewFocus} accentColor={accentColor} open={previewOpen} onOpenChange={setPreviewOpen} hideButton />}
     </div>
   );
 }

@@ -42,12 +42,14 @@ export interface StartOptions {
 
 interface LandingPageProps {
   onStart: (options: StartOptions) => void;
+  // A tribute this browser kept unfinished (lib/draft-store), offered at the top.
+  resume?: { recipient: string; previewed: boolean; onResume: () => void; onDiscard: () => void };
 }
 
 const DEMO_HREF = `/${DEMO_SLUG}`;
 const delay = (i: number) => ({ '--i': i }) as CSSProperties;
 
-export function LandingPage({ onStart }: LandingPageProps) {
+export function LandingPage({ onStart, resume }: LandingPageProps) {
   const [occasionIndex, setOccasionIndex] = useState(0);
   const occasion = OCCASIONS[occasionIndex];
 
@@ -58,6 +60,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-white via-rose-50/30 to-white text-gray-800">
       <Header onStart={() => start()} />
       <main className="flex-1 pt-16">
+        {resume && <ResumeBar {...resume} />}
         <Hero
           occasionIndex={occasionIndex}
           onOccasionChange={setOccasionIndex}
@@ -74,6 +77,38 @@ export function LandingPage({ onStart }: LandingPageProps) {
       <SiteFooter className="pb-28 sm:pb-8" />
       <MobileCta onStart={() => start()} />
       <RevealObserver />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+function ResumeBar({ recipient, previewed, onResume, onDiscard }: NonNullable<LandingPageProps['resume']>) {
+  return (
+    <div className="bg-rose-50 border-b border-rose-100">
+      <div className="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <p className="text-sm text-gray-700 flex-1 min-w-[12rem]">
+          {previewed ? 'A prévia da homenagem para ' : 'Continuar a homenagem para '}
+          <strong className="font-semibold text-gray-900">{recipient}</strong>
+          {previewed ? ' está pronta.' : '?'}
+        </p>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onDiscard}
+            className="text-sm text-gray-500 underline underline-offset-2 hover:text-gray-700"
+          >
+            Descartar
+          </button>
+          <button
+            type="button"
+            onClick={onResume}
+            className="press h-10 px-5 rounded-full bg-rose-500 hover:bg-rose-600 text-white text-sm font-semibold"
+          >
+            {previewed ? 'Ver a prévia' : 'Continuar'}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

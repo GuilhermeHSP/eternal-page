@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PACKAGES, PackageType, formatPrice } from '@/lib/packages';
+import { clearSnapshot, loadSnapshot } from '@/lib/draft-store';
 
 type CheckoutStatus = 'paid' | 'pending' | 'rejected' | 'unpaid';
 
@@ -86,6 +87,14 @@ function FinalizeContent() {
   }, [draftId, paymentId]);
 
   const slug = info?.status === 'paid' ? info.slug : null;
+
+  // Once paid, the copy this browser kept of the tribute isn't offered on the home anymore.
+  useEffect(() => {
+    if (!slug || !draftId) return;
+    loadSnapshot().then((snap) => {
+      if (snap?.draftId === draftId) void clearSnapshot();
+    });
+  }, [slug, draftId]);
   const recipient = info?.recipient;
   const pkg = useMemo(() => PACKAGES[(info?.packageType as PackageType) || 'premium'] || PACKAGES.premium, [info?.packageType]);
   const hasPayment = !!paymentId && paymentId !== 'null';
