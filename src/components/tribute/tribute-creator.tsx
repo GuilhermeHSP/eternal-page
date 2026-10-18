@@ -245,9 +245,11 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
             });
           }
           
-          // Go directly to "Dados" step (step 2) when editing
-          setCurrentStep(2);
-          window.history.replaceState(window.history.state, '', stepUrl(2));
+          // Go directly to "Para quem" (step 2) when editing, or to the step the link names
+          // (the preview's "Adicionar música e voz" opens the Voz step).
+          const step = stepInUrl() ?? 2;
+          setCurrentStep(step);
+          window.history.replaceState(window.history.state, '', stepUrl(step));
           canSave.current = true;
         })
         .catch(err => {
@@ -261,7 +263,8 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
   // Each step has its own address (/?etapa=3), so the phone's back button goes to the previous
   // step instead of leaving the creator, and a reload comes back to the same step.
   useEffect(() => {
-    window.history.replaceState(window.history.state, '', stepUrl(currentStep));
+    // A draft being loaded sets its own step once it arrives.
+    if (!editDraftId || resume) window.history.replaceState(window.history.state, '', stepUrl(currentStep));
     const onPop = () => {
       const n = stepInUrl();
       if (n !== null) setCurrentStep(n);
