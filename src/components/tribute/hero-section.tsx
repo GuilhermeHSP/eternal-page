@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform, useInView, useReducedMotion } from 'framer-motion';
 import { HeroConfig } from '@/types/tribute';
 
@@ -27,6 +27,14 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
 
   const reduceMotion = useReducedMotion();
   const hasImage = config?.image;
+  // A portrait photo stretched over a wide screen is cropped down to a close-up of the faces, so
+  // from md up it is shown in a wider frame, cropped less and fading into a blurred copy of itself. Phones keep the full-bleed crop.
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [portrait, setPortrait] = useState(false);
+  const measure = (img: HTMLImageElement | null) => {
+    if (img?.naturalWidth) setPortrait(img.naturalHeight > img.naturalWidth);
+  };
+  useEffect(() => measure(imgRef.current), [config?.image]);
   const gradientColor = config?.gradient || accentColor;
 
   return (
@@ -42,17 +50,35 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
           style={{ y }}
           className="absolute inset-0"
         >
+          {portrait && (
+            <img
+              src={config.image}
+              alt=""
+              aria-hidden
+              className="hidden md:block absolute inset-0 w-full h-full object-cover scale-110 blur-2xl"
+            />
+          )}
           {/* Slow push-in, like the opening shot of a film */}
-          <motion.img
-            src={config.image}
-            alt=""
-            className="w-full h-full object-cover object-[center_30%]"
-            fetchPriority="high"
-            decoding="async"
-            initial={{ scale: 1 }}
-            animate={reduceMotion ? { scale: 1 } : { scale: 1.12 }}
-            transition={{ duration: 20, ease: 'easeOut' }}
-          />
+          <div
+            className={`relative h-full ${
+              portrait
+                ? 'md:mx-auto md:max-w-full md:aspect-[4/3] md:[mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]'
+                : ''
+            }`}
+          >
+            <motion.img
+              ref={imgRef}
+              src={config.image}
+              alt=""
+              onLoad={(e) => measure(e.currentTarget)}
+              className="w-full h-full object-cover object-[center_30%]"
+              fetchPriority="high"
+              decoding="async"
+              initial={{ scale: 1 }}
+              animate={reduceMotion ? { scale: 1 } : { scale: 1.12 }}
+              transition={{ duration: 20, ease: 'easeOut' }}
+            />
+          </div>
           {/* Darken from the bottom up only, so the face stays clear and the text reads */}
           <div
             className="absolute inset-0"
