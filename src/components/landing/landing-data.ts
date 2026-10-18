@@ -25,7 +25,7 @@ export const OCCASIONS: Occasion[] = [
     phrase: 'Com todo o meu amor',
     when: 'Qualquer dia do ano',
     photo: '/landing/amor-ana.jpg',
-    alt: 'Casal sorrindo abraçado numa selfie ao ar livre',
+    alt: 'Mulher de cabelos castanhos olhando para a câmera numa escada',
   },
   {
     templateId: 'mothersDay',
@@ -90,8 +90,8 @@ export interface GalleryTile {
 
 // The couple models lead the gallery, then the family and other dates.
 export const GALLERY: GalleryTile[] = [
-  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor-ana.jpg', alt: 'Casal sorrindo abraçado numa selfie' },
-  { templateId: 'valentine', name: 'Namorados', when: '12 de junho', detail: 'Para o casal', photo: '/landing/namorados.jpg', alt: 'Casal quase se beijando' },
+  { templateId: 'romantic', name: 'Amor', when: 'Qualquer dia', detail: 'Para o casal', photo: '/landing/amor-ana.jpg', alt: 'Mulher de cabelos castanhos olhando para a câmera' },
+  { templateId: 'valentine', name: 'Namorados', when: '12 de junho', detail: 'Para o casal', photo: '/landing/namorados.jpg', alt: 'Casal sorrindo abraçado numa selfie' },
   { templateId: 'anniversary', name: 'Bodas', when: 'Papel a ouro', detail: 'Anos de casados', photo: '/landing/bodas-rita-renato.jpg', alt: 'Casal de idosos abraçados' },
   { templateId: 'mothersDay', name: 'Dia das Mães', when: 'Maio', detail: 'Mãe, avó, madrinha', photo: '/demo/mother-joy.jpg', alt: 'Mãe rindo com o bebê no colo' },
   { templateId: 'fathersDay', name: 'Dia dos Pais', when: 'Agosto', detail: 'Pai, avô, padrasto', photo: '/landing/pai-jose.jpg', alt: 'Pai sorrindo com o filho nas costas' },

@@ -50,6 +50,30 @@
  {
   "file": "public/landing/amor-ana.jpg",
   "media": "image",
+  "ref": "stocksnap:COOWAKH2W5",
+  "title": "Urban Female",
+  "creator": null,
+  "creatorUrl": null,
+  "date": null,
+  "license": "CC0",
+  "licenseCode": "cc0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "creditRequired": false,
+  "page": "https://stocksnap.io/photo/urban-female-COOWAKH2W5",
+  "via": "StockSnap",
+  "image": null,
+  "width": 960,
+  "height": 640,
+  "bytes": 558016,
+  "credit": "\"Urban Female\", CC0, via StockSnap",
+  "notes": [
+   "recortada em retrato 3:4"
+  ],
+  "saved": "2026-10-18T03:12:00.000Z"
+ },
+ {
+  "file": "public/landing/namorados.jpg",
+  "media": "image",
   "ref": "stocksnap:BF7WW6HVDH",
   "title": "Hiking Couple",
   "creator": null,
@@ -70,30 +94,6 @@
    "recortada em retrato 3:4"
   ],
   "saved": "2026-10-18T03:02:00.000Z"
- },
- {
-  "file": "public/landing/namorados.jpg",
-  "media": "image",
-  "ref": "openverse:36ec793a-a539-41fa-89f3-9cbf154931fd",
-  "title": "Couple Kissing",
-  "creator": "Nathan Walker",
-  "creatorUrl": "https://stocksnap.io/author/13721",
-  "date": null,
-  "license": "CC0",
-  "licenseCode": "cc0",
-  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
-  "creditRequired": false,
-  "page": "https://stocksnap.io/photo/couple-kissing-JRTQVF9EQC",
-  "via": "StockSnap",
-  "image": "https://cdn.stocksnap.io/img-thumbs/960w/JRTQVF9EQC.jpg",
-  "width": 960,
-  "height": 640,
-  "bytes": 62574,
-  "credit": "\"Couple Kissing\" by Nathan Walker, CC0, via StockSnap",
-  "notes": [
-   "recortada em retrato 3:4"
-  ],
-  "saved": "2026-10-14T21:16:39.859Z"
  },
  {
   "file": "public/landing/bodas-rita-renato.jpg",
