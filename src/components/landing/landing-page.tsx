@@ -445,13 +445,14 @@ function Faq() {
     <section id="duvidas" className="py-20 px-4 bg-white">
       <div className="max-w-3xl mx-auto">
         <SectionTitle kicker="Dúvidas" title="Perguntas frequentes" />
-        <Accordion type="single" collapsible className="rounded-2xl ring-1 ring-gray-100 bg-white px-6">
+        {/* The answers are always in the HTML (forceMount) so search engines read them; closed ones are hidden. */}
+        <Accordion type="single" collapsible className="rounded-2xl ring-1 ring-gray-100 bg-white px-6 [&_[data-slot=accordion-content][data-state=closed]]:hidden">
           {FAQ.map((item) => (
             <AccordionItem key={item.q} value={item.q}>
               <AccordionTrigger className="text-left font-title text-lg font-semibold text-gray-800 hover:no-underline">
                 {item.q}
               </AccordionTrigger>
-              <AccordionContent className="text-gray-600 text-base leading-relaxed">{item.a}</AccordionContent>
+              <AccordionContent forceMount className="text-gray-600 text-base leading-relaxed">{item.a}</AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>
