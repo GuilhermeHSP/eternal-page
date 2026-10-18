@@ -15,14 +15,9 @@ interface GuestbookSectionProps {
   slug: string;
   accentColor: string;
   recipient: string;
-  // On previews nothing is saved; the wall shows examples and a disabled form.
+  // On previews nothing is saved; the wall starts empty and the form is disabled.
   live: boolean;
 }
-
-const SAMPLE: GuestMessage[] = [
-  { id: 's1', name: 'Tia Rosa', message: 'Que homenagem linda! Você merece cada palavra.', createdAt: '' },
-  { id: 's2', name: 'Pedro', message: 'Chorei aqui. Te amamos muito!', createdAt: '' },
-];
 
 const ROTATE = [-1.5, 1, -0.5, 1.5, -1, 0.5];
 
@@ -30,7 +25,8 @@ const ROTATE = [-1.5, 1, -0.5, 1.5, -1, 0.5];
 export function GuestbookSection({ slug, accentColor, recipient, live }: GuestbookSectionProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
-  const [messages, setMessages] = useState<GuestMessage[]>(live ? [] : SAMPLE);
+  const [messages, setMessages] = useState<GuestMessage[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [name, setName] = useState('');
   const [message, setMessage] = useState('');
   const [website, setWebsite] = useState('');
@@ -43,7 +39,8 @@ export function GuestbookSection({ slug, accentColor, recipient, live }: Guestbo
     fetch(`/api/tributes/${encodeURIComponent(slug)}/messages`)
       .then((r) => (r.ok ? r.json() : { messages: [] }))
       .then((d) => setMessages(d.messages ?? []))
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setLoaded(true));
   }, [slug, live]);
 
   const submit = async (e: FormEvent) => {
@@ -142,6 +139,10 @@ export function GuestbookSection({ slug, accentColor, recipient, live }: Guestbo
             {sent && !error && <p className="text-center text-sm" style={{ color: accentColor }}>Recado enviado com carinho!</p>}
           </div>
         </form>
+
+        {messages.length === 0 && live && loaded && (
+          <p className="mt-10 text-center font-title text-sm text-gray-400">Seja o primeiro a deixar um recado.</p>
+        )}
 
         {messages.length > 0 && (
           <ul className="mt-10 columns-1 sm:columns-2 md:columns-3 gap-4">
