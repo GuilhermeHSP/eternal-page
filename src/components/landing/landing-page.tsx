@@ -20,6 +20,7 @@ import {
   MessageCircleHeart,
   Mic,
   ShieldCheck,
+  Tag,
 } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { PACKAGE_LIST, LOWEST_PRICE, formatPrice, type PackageType } from '@/lib/packages';
@@ -135,9 +136,10 @@ function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="max-w-6xl mx-auto px-4 pt-10 md:pt-16 pb-16 grid lg:grid-cols-[1fr_auto] gap-12 lg:gap-20 items-center">
-        <div>
-          <h1 className="font-title text-[2.6rem] md:text-6xl font-semibold leading-[1.08] tracking-tight text-gray-900" data-reveal>
+      {/* On phones the page in the phone sits beside the intro, so the product and the price are
+          on the first screen; on wide screens it is the column on the right. One frame for both. */}
+      <div className="max-w-6xl mx-auto px-4 pt-6 md:pt-16 pb-16 grid grid-cols-[minmax(0,1fr)_150px] gap-x-4 gap-y-6 lg:grid-cols-[1fr_auto] lg:gap-x-20 lg:gap-y-0 items-center [grid-template-areas:'title_title'_'text_phone'_'form_form'] lg:[grid-template-areas:'._phone'_'title_phone'_'text_phone'_'form_phone'_'._phone'] lg:[grid-template-rows:1fr_auto_auto_auto_1fr]">
+          <h1 className="[grid-area:title] font-title text-[2.3rem] md:text-6xl font-semibold leading-[1.08] tracking-tight text-gray-900" data-reveal>
             Uma{' '}
             <span className="relative inline-block whitespace-nowrap text-rose-500">
               <span className="relative z-10">página eterna</span>
@@ -154,12 +156,22 @@ function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
             <br className="hidden md:block" />
             para quem você ama
           </h1>
-          <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-xl leading-relaxed" data-reveal style={delay(1)}>
-            Para o seu amor: a história de vocês em fotos, carta, linha do tempo e música, numa página que você
-            monta em minutos e envia de presente. Também para a mãe, o pai, os amigos ou quem deixou saudade.
-          </p>
+          <div className="[grid-area:text] self-center lg:self-start" data-reveal style={delay(1)}>
+            <p className="lg:mt-6 text-base sm:text-lg md:text-xl text-gray-600 max-w-xl leading-relaxed">
+              <span className="sm:hidden">A história de vocês em fotos, carta e música, numa página para dar de presente.</span>
+              <span className="hidden sm:inline">
+                Para o seu amor: a história de vocês em fotos, carta, linha do tempo e música, numa página que você
+                monta em minutos e envia de presente. Também para a mãe, o pai, os amigos ou quem deixou saudade.
+              </span>
+            </p>
+            <p className="mt-4 lg:hidden">
+              <span className="block text-xs uppercase tracking-[0.15em] text-gray-500">A partir de</span>
+              <span className="block font-title text-3xl font-semibold text-rose-600">{formatPrice(LOWEST_PRICE)}</span>
+              <span className="block text-xs text-gray-500">pagamento único</span>
+            </p>
+          </div>
 
-          <form data-cta-anchor onSubmit={submit} className="mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
+          <form data-cta-anchor onSubmit={submit} className="[grid-area:form] lg:self-start lg:mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
             <p className="text-sm font-semibold text-gray-700">Qual é a ocasião?</p>
             <div role="group" aria-label="Ocasião" className="mt-3 flex flex-wrap gap-2">
               {OCCASIONS.map((o, i) => (
@@ -186,14 +198,18 @@ function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
             <p className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-gray-500">
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Prévia grátis</span>
               <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />Pagamento único</span>
-              <span className="inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />A partir de {formatPrice(LOWEST_PRICE)}</span>
+              <span className="hidden lg:inline-flex items-center gap-1"><Check className="h-3.5 w-3.5 text-rose-500" />A partir de {formatPrice(LOWEST_PRICE)}</span>
             </p>
           </form>
-        </div>
 
-        <div className="flex flex-col items-center" data-reveal style={delay(1)}>
-          <PhoneFrame config={config} focus="hero" width={280} />
-          <p className="mt-4 text-sm text-gray-500 text-center max-w-[260px]">
+        <div className="[grid-area:phone] flex flex-col items-center" data-reveal style={delay(1)}>
+          {/* 280 px wide frame, shown at half size on phones without a second frame */}
+          <div className="w-[150px] h-[297px] lg:w-auto lg:h-auto">
+            <div className="origin-top-left scale-50 lg:scale-100">
+              <PhoneFrame config={config} focus="hero" width={280} />
+            </div>
+          </div>
+          <p className="hidden lg:block mt-4 text-sm text-gray-500 text-center max-w-[260px]">
             Assim abre a página que a pessoa vai receber. Troque a ocasião para ver.
           </p>
         </div>
@@ -206,7 +222,7 @@ function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
 
 function Benefits() {
   const items = [
-    { icon: Clock, title: 'Pronta em minutos', text: 'Sem instalar nada, direto no navegador.' },
+    { icon: Tag, title: `A partir de ${formatPrice(LOWEST_PRICE)}`, text: 'Pagamento único. Pronta em minutos, direto no navegador.' },
     { icon: Eye, title: 'Prévia grátis', text: 'Veja a página inteira antes de pagar.' },
     { icon: Link2, title: 'Link para presentear', text: 'Envie por WhatsApp ou num cartão.' },
     { icon: Smartphone, title: 'Linda no celular', text: 'Feita para abrir e emocionar em qualquer tela.' },
