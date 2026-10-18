@@ -28,7 +28,7 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
   const reduceMotion = useReducedMotion();
   const hasImage = config?.image;
   // A portrait photo stretched over a wide screen is cropped down to a close-up of the faces, so
-  // from md up it is shown whole, over a blurred copy of itself. Phones keep the full-bleed crop.
+  // from md up it is shown in a wider frame, cropped less and fading into a blurred copy of itself. Phones keep the full-bleed crop.
   const imgRef = useRef<HTMLImageElement>(null);
   const [portrait, setPortrait] = useState(false);
   const measure = (img: HTMLImageElement | null) => {
@@ -59,18 +59,26 @@ export function HeroSection({ title, recipient, config, accentColor }: HeroSecti
             />
           )}
           {/* Slow push-in, like the opening shot of a film */}
-          <motion.img
-            ref={imgRef}
-            src={config.image}
-            alt=""
-            onLoad={(e) => measure(e.currentTarget)}
-            className={`relative w-full h-full object-cover object-[center_30%] ${portrait ? 'md:object-contain' : ''}`}
-            fetchPriority="high"
-            decoding="async"
-            initial={{ scale: 1 }}
-            animate={reduceMotion ? { scale: 1 } : { scale: 1.12 }}
-            transition={{ duration: 20, ease: 'easeOut' }}
-          />
+          <div
+            className={`relative h-full ${
+              portrait
+                ? 'md:mx-auto md:max-w-full md:aspect-[4/3] md:[mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]'
+                : ''
+            }`}
+          >
+            <motion.img
+              ref={imgRef}
+              src={config.image}
+              alt=""
+              onLoad={(e) => measure(e.currentTarget)}
+              className="w-full h-full object-cover object-[center_30%]"
+              fetchPriority="high"
+              decoding="async"
+              initial={{ scale: 1 }}
+              animate={reduceMotion ? { scale: 1 } : { scale: 1.12 }}
+              transition={{ duration: 20, ease: 'easeOut' }}
+            />
+          </div>
           {/* Darken from the bottom up only, so the face stays clear and the text reads */}
           <div
             className="absolute inset-0"
