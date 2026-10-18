@@ -18,8 +18,8 @@ export const metadata: Metadata = {
     default: "EternalPage · Páginas de homenagem para presentear",
     template: "%s | EternalPage",
   },
-  description: "Crie uma página de homenagem para quem você ama, com fotos, música, mensagens e linha do tempo, e envie o link de presente. Perfeito para Dia das Mães, Dia dos Pais, aniversários, bodas e mais.",
-  keywords: ["página de homenagem", "presente personalizado", "homenagem dia das mães", "homenagem dia dos pais", "bodas", "aniversário", "presente digital"],
+  description: "Crie uma página de homenagem para quem você ama, com fotos, música, mensagens e linha do tempo, e envie o link de presente. Perfeito para o seu amor, namorados e bodas, e também Dia das Mães, Dia dos Pais, aniversários e mais.",
+  keywords: ["página de homenagem", "presente personalizado", "presente para namorado", "presente para namorada", "dia dos namorados", "homenagem dia das mães", "homenagem dia dos pais", "bodas", "aniversário", "presente digital"],
   authors: [{ name: "EternalPage" }],
   icons: {
     icon: "/logo.svg",

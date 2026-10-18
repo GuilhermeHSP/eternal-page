@@ -153,8 +153,8 @@ function Hero({ occasionIndex, onOccasionChange, onStart }: HeroProps) {
             para quem você ama
           </h1>
           <p className="mt-6 text-lg md:text-xl text-gray-600 max-w-xl leading-relaxed" data-reveal style={delay(1)}>
-            Para a mãe, o pai, os avós, o amor, a melhor amiga ou quem deixou saudade. Fotos, carta, linha do
-            tempo e música numa homenagem que você monta em minutos e envia de presente.
+            Para o seu amor: a história de vocês em fotos, carta, linha do tempo e música, numa página que você
+            monta em minutos e envia de presente. Também para a mãe, o pai, os amigos ou quem deixou saudade.
           </p>
 
           <form data-cta-anchor onSubmit={submit} className="mt-8 max-w-lg rounded-2xl bg-white p-5 shadow-xl shadow-rose-100/60 ring-1 ring-rose-100" data-reveal style={delay(2)}>
