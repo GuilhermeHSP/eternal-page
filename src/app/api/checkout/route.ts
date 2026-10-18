@@ -5,13 +5,13 @@ import { createPreference, mpConfigured } from '@/lib/mercadopago';
 import { normalisePackage } from '@/lib/fulfillment';
 import { isHttpsSite, siteUrl } from '@/lib/site';
 
-// Starts the payment of a draft: saves the buyer's e-mail (and WhatsApp, for later) and
+// Starts the payment of a draft: saves the buyer's e-mail and
 // returns the Mercado Pago page to send the buyer to. The price always comes from the server.
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export async function POST(request: NextRequest) {
-  let body: { draftId?: unknown; email?: unknown; phone?: unknown };
+  let body: { draftId?: unknown; email?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
 
   const draftId = typeof body.draftId === 'string' ? body.draftId : '';
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
-  const phone = typeof body.phone === 'string' ? body.phone.replace(/[^\d+]/g, '').slice(0, 20) : '';
 
   if (!draftId) return NextResponse.json({ error: 'Homenagem não encontrada.' }, { status: 400 });
   if (!EMAIL_RE.test(email) || email.length > 120) {
@@ -41,7 +40,7 @@ export async function POST(request: NextRequest) {
 
   await db.tribute.update({
     where: { id: tribute.id },
-    data: { buyerEmail: email, buyerPhone: phone || null },
+    data: { buyerEmail: email },
   });
 
   if (!mpConfigured()) {

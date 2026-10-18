@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Lock, Mail, MessageCircle, ShieldCheck, X } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, X } from 'lucide-react';
 import { formatPrice, type PackageConfig } from '@/lib/packages';
 
 interface CheckoutDialogProps {
@@ -14,11 +14,10 @@ interface CheckoutDialogProps {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-// Asks where to send the link (e-mail, plus WhatsApp for later) and opens the Mercado Pago
+// Asks for the e-mail that receives the link and opens the Mercado Pago
 // payment page. Shown above the preview's pink bar, so it is a plain overlay with a high z-index.
 export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: CheckoutDialogProps) {
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -57,7 +56,7 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ draftId, email: clean, phone }),
+        body: JSON.stringify({ draftId, email: clean }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.url) {
@@ -110,22 +109,6 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg }: Check
               onChange={(e) => setEmail(e.target.value)}
               placeholder="voce@email.com"
               className={`mt-2 w-full h-12 rounded-xl border px-4 text-base outline-none focus:ring-2 focus:ring-rose-200 ${error ? 'border-red-400' : 'border-gray-200 focus:border-rose-400'}`}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="checkout-phone" className="flex items-center gap-1.5 text-sm font-medium text-gray-800">
-              <MessageCircle className="h-4 w-4 text-rose-500" /> WhatsApp <span className="font-normal text-gray-400">(opcional)</span>
-            </label>
-            <input
-              id="checkout-phone"
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="(11) 91234-5678"
-              className="mt-2 w-full h-12 rounded-xl border border-gray-200 px-4 text-base outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"
             />
           </div>
 
