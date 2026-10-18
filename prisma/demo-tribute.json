@@ -29,7 +29,8 @@
     "A sua coragem para sonhar alto",
     "Você lembra de cada detalhezinho sobre mim",
     "O abraço que vira casa em qualquer lugar",
-    "Com você, até o silêncio é bom"
+    "Com você, até o silêncio é bom",
+    "Você acredita em mim mesmo quando eu duvido"
   ],
   "gallery": [
     {
@@ -55,6 +56,18 @@
       "url": "/demo/casal-jantar.jpg",
       "caption": "Jantar de comemoração",
       "order": 3
+    },
+    {
+      "id": "photo-5",
+      "url": "/demo/casal-terraco.jpg",
+      "caption": "Jantar no terraço",
+      "order": 4
+    },
+    {
+      "id": "photo-6",
+      "url": "/demo/casal-rio.jpg",
+      "caption": "Amanhecer no Rio",
+      "order": 5
     }
   ],
   "timeline": [
@@ -98,5 +111,24 @@
     }
   ],
   "guestbook": true,
-  "closingMessage": "Você é o meu lugar preferido no mundo. Te amo, Ana!"
+  "closingMessage": "Você é o meu lugar preferido no mundo. Te amo, Ana!",
+  "voiceMessage": "/demo/voz-rafael.mp3",
+  "guestMessages": [
+    {
+      "name": "Rafael",
+      "message": "Espero que goste, meu amor ❤️"
+    },
+    {
+      "name": "Juliana",
+      "message": "Ana, que homenagem mais linda! Chorei lendo os motivos. Vocês são inspiração 🥹"
+    },
+    {
+      "name": "Camila",
+      "message": "Que coisa mais fofa, Rafa caprichou demais! As fotos ficaram perfeitas, amiga 💕"
+    },
+    {
+      "name": "Bruna",
+      "message": "Morri com a parte do café que virou três horas de conversa. Felicidades pra vocês dois!"
+    }
+  ]
 }
