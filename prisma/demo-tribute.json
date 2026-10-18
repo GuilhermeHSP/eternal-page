@@ -1,10 +1,10 @@
 {
-  "title": "A melhor mãe do mundo!",
-  "recipient": "Maria",
-  "template": "mothersDay",
-  "authorName": "Raquel",
+  "title": "Com todo o meu amor",
+  "recipient": "Ana",
+  "template": "romantic",
+  "authorName": "Rafael",
   "hero": {
-    "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=1200&h=800&fit=crop",
+    "image": "/landing/namorados-casal.jpg",
     "overlay": true
   },
   "music": {
@@ -14,39 +14,89 @@
     "autoplay": false
   },
   "message": {
-    "text": "Mãe, você é a luz que ilumina meu caminho. **Obrigado por todo amor**, carinho e dedicação ao longo dos anos. Cada sacrifício que você fez por mim, cada noite sem dormir, cada palavra de incentivo... tudo isso me moldou na pessoa que sou hoje.\n\nVocê é meu exemplo de força, bondade e amor incondicional. **Te amo mais do que palavras podem expressar**.",
+    "text": "Ana, desde aquele primeiro café que virou três horas de conversa, **a minha vida ficou mais bonita**. Você transforma os dias comuns em lembranças que eu quero guardar para sempre: as caminhadas sem pressa, as risadas na cozinha, o seu jeito de me olhar quando acha que eu não estou vendo.\n\nObrigado por escolher dividir a vida comigo. **Eu te escolheria de novo, em todas as vidas**.",
     "typingAnimation": true
   },
   "counter": {
-    "date": "1995-03-18",
-    "label": "Sendo a melhor mãe do mundo há"
+    "date": "2019-06-12",
+    "label": "Juntos há"
   },
-  "voiceMessage": "/demo/voz-mensagem.mp3",
   "reasons": [
-    "Seu abraço que resolve qualquer problema",
-    "O cheiro do seu bolo de cenoura aos domingos",
-    "Você sempre sabe quando eu não estou bem",
-    "As ligações só para saber se eu já comi",
-    "Sua risada que contagia a casa inteira",
-    "Nunca desistir de mim, nem nos dias difíceis",
-    "Os bilhetinhos na lancheira da escola",
-    "Me ensinar a ser forte sem deixar de ser gentil"
+    "O seu sorriso logo de manhã",
+    "O jeito que você segura a minha mão na rua",
+    "Você me faz rir até nos dias difíceis",
+    "Os nossos domingos sem hora para acabar",
+    "A sua coragem para sonhar alto",
+    "Você lembra de cada detalhezinho sobre mim",
+    "O abraço que vira casa em qualquer lugar",
+    "Com você, até o silêncio é bom"
   ],
   "gallery": [
-    { "id": "photo-1", "url": "https://images.unsplash.com/photo-1493894473891-10fc1e5dbd22?w=600&h=600&fit=crop", "caption": "Esperando por mim", "order": 0 },
-    { "id": "photo-2", "url": "/demo/mother-joy.jpg", "caption": "Meu primeiro sorriso", "order": 1 },
-    { "id": "photo-3", "url": "/demo/mother-daughter.jpg", "caption": "Abraço de domingo", "order": 2 },
-    { "id": "photo-4", "url": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&h=600&fit=crop", "caption": "Dia das mães 2023", "order": 3 },
-    { "id": "photo-5", "url": "/demo/mother-child-2.jpg", "caption": "Nosso jeitinho", "order": 4 },
-    { "id": "photo-6", "url": "https://images.unsplash.com/photo-1609220136736-443140cffec6?w=600&h=600&fit=crop", "caption": "Sempre ao meu lado", "order": 5 }
+    {
+      "id": "photo-1",
+      "url": "/demo/casal-cafe.jpg",
+      "caption": "O café de sempre",
+      "order": 0
+    },
+    {
+      "id": "photo-2",
+      "url": "/demo/casal-outono.jpg",
+      "caption": "Passeio de outono",
+      "order": 1
+    },
+    {
+      "id": "photo-3",
+      "url": "/demo/casal-praia.jpg",
+      "caption": "Nosso pôr do sol",
+      "order": 2
+    },
+    {
+      "id": "photo-4",
+      "url": "/demo/casal-jantar.jpg",
+      "caption": "Jantar de comemoração",
+      "order": 3
+    }
   ],
   "timeline": [
-    { "id": "timeline-1", "year": "1995", "title": "Quando eu nasci", "description": "O dia mais feliz da sua vida, você sempre diz.", "imageUrl": "/demo/mother-child.jpg", "order": 0 },
-    { "id": "timeline-2", "year": "2001", "title": "Primeiro dia de escola", "description": "Você estava mais nervosa que eu, e me esperou no portão.", "imageUrl": "/demo/mother-woman.jpg", "order": 1 },
-    { "id": "timeline-3", "year": "2012", "title": "Nossa primeira viagem juntas", "description": "Só nós duas, rindo de tudo pela estrada.", "order": 2 },
-    { "id": "timeline-4", "year": "2017", "title": "Minha formatura", "description": "Lágrimas de orgulho nos seus olhos.", "order": 3 },
-    { "id": "timeline-5", "year": "2023", "title": "Você virou avó", "description": "E descobriu um jeito novo de amar.", "imageUrl": "/demo/grandmother-child.jpg", "order": 4 }
+    {
+      "id": "timeline-1",
+      "year": "2019",
+      "title": "O primeiro encontro",
+      "description": "Um café rápido que virou três horas de conversa.",
+      "imageUrl": "/demo/casal-cafe.jpg",
+      "order": 0
+    },
+    {
+      "id": "timeline-2",
+      "year": "2020",
+      "title": "O primeiro \"eu te amo\"",
+      "description": "Você disse primeiro, e eu nunca vou esquecer.",
+      "order": 1,
+      "imageUrl": "/demo/casal-praia.jpg"
+    },
+    {
+      "id": "timeline-3",
+      "year": "2022",
+      "title": "A nossa primeira casa",
+      "description": "Caixas por todo lado e a certeza de que era o nosso lugar.",
+      "order": 2
+    },
+    {
+      "id": "timeline-4",
+      "year": "2024",
+      "title": "O pedido",
+      "description": "Você disse sim antes de eu terminar a frase.",
+      "imageUrl": "/demo/casal-jantar.jpg",
+      "order": 3
+    },
+    {
+      "id": "timeline-5",
+      "year": "Um dia",
+      "title": "Envelhecer do seu lado",
+      "description": "É o único plano que eu tenho certeza que quero cumprir.",
+      "order": 4
+    }
   ],
   "guestbook": true,
-  "closingMessage": "Você será para sempre meu refúgio seguro. Te amo, mãe!"
+  "closingMessage": "Você é o meu lugar preferido no mundo. Te amo, Ana!"
 }

@@ -30,6 +30,7 @@ import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
 import { PhoneFrame } from '@/components/tribute/live-preview';
 import { OCCASIONS, GALLERY, FAQ, DEMO_CONFIG } from './landing-data';
+import { DEMO_SLUG } from '@/lib/demo-slug';
 
 export interface StartOptions {
   recipient?: string;
@@ -41,7 +42,7 @@ interface LandingPageProps {
   onStart: (options: StartOptions) => void;
 }
 
-const DEMO_HREF = '/para-melhor-mae-demo';
+const DEMO_HREF = `/${DEMO_SLUG}`;
 const delay = (i: number) => ({ '--i': i }) as CSSProperties;
 
 export function LandingPage({ onStart }: LandingPageProps) {
@@ -295,7 +296,8 @@ function WhatTheyGet({ onStart }: { onStart: () => void }) {
     { key: 'guestbook', icon: MessageCircleHeart, title: 'Mural de recados', text: 'Família e amigos deixam mensagens na mesma página.' },
     { key: 'music', icon: Music, title: 'Música de fundo', text: 'A música de vocês tocando enquanto ela rola a página.' },
     { key: 'closing', icon: Heart, title: 'Despedida', text: 'Uma frase final sobre a foto, para fechar com emoção.' },
-  ];
+    // The phone shows the example page, so list only the sections it has.
+  ].filter((p) => p.key !== 'voice' || (DEMO_CONFIG as TributeConfig).voiceMessage);
   const [focus, setFocus] = useState('hero');
 
   // Walk through the parts on its own until the visitor picks one.
