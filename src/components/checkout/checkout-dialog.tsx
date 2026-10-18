@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Lock, Mail, ShieldCheck, Ticket, X } from 'lucide-react';
-import { PACKAGE_LIST, formatPrice, type PackageConfig, type PackageType } from '@/lib/packages';
+import { Lock, Mail, ShieldCheck, Sparkles, Ticket, X } from 'lucide-react';
+import { PACKAGES, formatPrice, type PackageConfig, type PackageType } from '@/lib/packages';
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -14,18 +14,14 @@ interface CheckoutDialogProps {
   onChangePackage?: (packageType: PackageType) => Promise<string | null>;
 }
 
-// One line on what each plan gives, for the plan switch.
-const PLAN_NOTE: Record<string, string> = {
-  basic: 'Até 5 fotos, no ar por 1 ano',
-  premium: 'Envelope, música, voz e 30 fotos, para sempre',
-};
+const UPGRADE_PRICE = PACKAGES.premium.price - PACKAGES.basic.price;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Asks for the e-mail that receives the link and opens the Mercado Pago
 // payment page. Shown above the preview's pink bar, so it is a plain overlay with a high z-index.
 export function CheckoutDialog({ open, onClose, draftId, recipient, pkg, onChangePackage }: CheckoutDialogProps) {
-  const [switching, setSwitching] = useState<PackageType | null>(null);
+  const [switching, setSwitching] = useState(false);
   const [email, setEmail] = useState('');
   const [coupon, setCoupon] = useState('');
   const [showCoupon, setShowCoupon] = useState(false);
@@ -104,63 +100,35 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg, onChang
           <h2 id="checkout-title" className="font-script text-4xl text-rose-500 mt-1" style={{ fontFamily: "'Great Vibes', cursive" }}>
             {recipient}
           </h2>
-          {!onChangePackage && (
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-1.5 text-sm text-gray-700">
-              Plano <strong>{pkg.name}</strong> · <strong className="text-rose-600">{formatPrice(pkg.price)}</strong>
-            </div>
-          )}
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-rose-50 px-4 py-1.5 text-sm text-gray-700">
+            Plano <strong>{pkg.name}</strong> · <strong className="text-rose-600">{formatPrice(pkg.price)}</strong>
+          </div>
         </div>
 
-        {/* The plan can still be changed here, without going back to the editor. */}
-        {onChangePackage && (
-          <div role="radiogroup" aria-label="Plano" className="px-6 pt-5 grid gap-2">
-            {PACKAGE_LIST.map((option) => {
-              const selected = option.id === pkg.id || (option.id === 'premium' && pkg.id === 'plus');
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  disabled={sending || !!switching}
-                  onClick={async () => {
-                    if (selected) return;
-                    setSwitching(option.id);
-                    setError(null);
-                    const err = await onChangePackage(option.id);
-                    setSwitching(null);
-                    if (err) setError(err);
-                  }}
-                  className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-colors ${
-                    selected ? 'border-rose-400 bg-rose-50 ring-1 ring-rose-300' : 'border-gray-200 hover:border-rose-200'
-                  }`}
-                >
-                  <span
-                    className={`shrink-0 w-5 h-5 rounded-full border-2 inline-flex items-center justify-center ${
-                      selected ? 'border-rose-500' : 'border-gray-300'
-                    }`}
-                  >
-                    {switching === option.id ? (
-                      <span className="w-3 h-3 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      selected && <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
-                    )}
-                  </span>
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-sm font-semibold text-gray-900">
-                      {option.name}
-                      {option.popular && !selected && (
-                        <span className="ml-2 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
-                          Mais escolhido
-                        </span>
-                      )}
-                    </span>
-                    <span className="block text-xs text-gray-500">{PLAN_NOTE[option.id]}</span>
-                  </span>
-                  <span className="text-sm font-semibold text-rose-600">{formatPrice(option.price)}</span>
-                </button>
-              );
-            })}
+        {/* The plan was chosen in the creator; a Básico buyer is only offered the step up, which
+            needs no editing (everything on a Básico page fits Completo). */}
+        {onChangePackage && pkg.id === 'basic' && (
+          <div className="mx-6 mt-5 flex items-center gap-3 rounded-2xl border border-rose-200 bg-rose-50/60 px-4 py-3">
+            <Sparkles className="h-5 w-5 shrink-0 text-rose-500" />
+            <p className="flex-1 text-xs leading-snug text-gray-700">
+              <strong className="block text-sm text-gray-900">Completo por + {formatPrice(UPGRADE_PRICE)}</strong>
+              Envelope surpresa, música, sua voz e no ar para sempre.
+            </p>
+            <button
+              type="button"
+              disabled={sending || switching}
+              onClick={async () => {
+                setSwitching(true);
+                setError(null);
+                const err = await onChangePackage('premium');
+                setSwitching(false);
+                if (err) setError(err);
+              }}
+              className="shrink-0 h-9 px-4 rounded-full bg-rose-500 text-white text-sm font-semibold inline-flex items-center gap-1.5 disabled:opacity-70"
+            >
+              {switching && <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              Trocar
+            </button>
           </div>
         )}
 
@@ -219,7 +187,7 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg, onChang
 
           <button
             type="submit"
-            disabled={sending || !!switching}
+            disabled={sending || switching}
             className="w-full h-12 rounded-full bg-rose-500 hover:bg-rose-600 text-white font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-70"
           >
             {sending ? (
