@@ -1,4 +1,4 @@
-import { Heart, Lock, Mail, ShieldCheck, Instagram } from 'lucide-react';
+import { Lock, Mail, ShieldCheck, Instagram } from 'lucide-react';
 import { Logo } from '@/components/logo';
 import { COMPANY, LEGAL_LINKS } from '@/lib/legal';
 
@@ -73,7 +73,7 @@ export function SiteFooter({ className = '' }: { className?: string }) {
           <FooterColumn title="Legal" links={LEGAL_LINKS} />
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-y border-rose-100 py-5 text-sm text-gray-600 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-4 border-y border-rose-100 py-5 text-sm text-gray-600">
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="h-5 w-5 text-rose-400" />
@@ -84,9 +84,6 @@ export function SiteFooter({ className = '' }: { className?: string }) {
               Conexão protegida
             </span>
           </div>
-          <span className="inline-flex items-center gap-1.5 text-gray-500">
-            Feito com <Heart className="h-3.5 w-3.5 text-rose-500" fill="currentColor" aria-label="amor" /> no Brasil
-          </span>
         </div>
 
         <div className="mt-6 space-y-2 text-xs leading-relaxed text-gray-500">
