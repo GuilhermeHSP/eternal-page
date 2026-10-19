@@ -565,7 +565,7 @@ function MobileCta({ onStart }: { onStart: () => void }) {
 
   return (
     <div
-      className={'sm:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 border-t border-gray-100 transition-transform duration-300 ' + (show ? 'translate-y-0' : 'translate-y-full')}
+      className={'sm:hidden fixed bottom-[var(--consent-h,0px)] inset-x-0 z-40 p-3 bg-white/95 border-t border-gray-100 transition-transform duration-300 ' + (show ? 'translate-y-0' : 'translate-y-full')}
       aria-hidden={!show}
     >
       <button type="button" tabIndex={show ? 0 : -1} onClick={onStart} className="press w-full h-12 rounded-full bg-rose-500 text-white font-semibold inline-flex items-center justify-center gap-2">
