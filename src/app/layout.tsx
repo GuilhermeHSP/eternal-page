@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import Script from "next/script";
 import { siteUrl } from "@/lib/site";
+import { GA_ID, gaInitScript } from "@/lib/analytics";
+import { ConsentBanner } from "@/components/analytics/consent-banner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -49,6 +52,7 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
+        {GA_ID && <script dangerouslySetInnerHTML={{ __html: gaInitScript(GA_ID) }} />}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Great+Vibes&family=Josefin+Sans:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -58,6 +62,12 @@ export default function RootLayout({
       >
         {children}
         <Toaster />
+        {GA_ID && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+            <ConsentBanner />
+          </>
+        )}
       </body>
     </html>
   );

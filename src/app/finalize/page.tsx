@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { PACKAGES, PackageType, formatPrice } from '@/lib/packages';
 import { clearSnapshot, loadSnapshot } from '@/lib/draft-store';
+import { planItem, track } from '@/lib/analytics';
 
 type CheckoutStatus = 'paid' | 'pending' | 'rejected' | 'unpaid';
 
@@ -27,6 +28,7 @@ interface StatusResponse {
   expiresAt?: string | null;
   email?: string | null;
   emailSent?: boolean;
+  paidAmount?: number | null;
 }
 
 // "Obrigado" page. Mercado Pago sends the buyer back here (with payment_id) after paying;
@@ -95,6 +97,24 @@ function FinalizeContent() {
       if (snap?.draftId === draftId) void clearSnapshot();
     });
   }, [slug, draftId]);
+  // One purchase per tribute in this browser; GA also drops repeats of the same transaction_id.
+  useEffect(() => {
+    if (!slug || !draftId || !info) return;
+    const key = `ep_ga_purchase_${draftId}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+    } catch {}
+    const paid = PACKAGES[(info.packageType as PackageType) || 'premium'] || PACKAGES.premium;
+    const value = typeof info.paidAmount === 'number' ? info.paidAmount : paid.price;
+    track('purchase', {
+      transaction_id: draftId,
+      currency: 'BRL',
+      value,
+      items: [{ ...planItem(paid.id, paid.name, paid.price), price: value }],
+    });
+  }, [slug, draftId, info]);
+
   const recipient = info?.recipient;
   const pkg = useMemo(() => PACKAGES[(info?.packageType as PackageType) || 'premium'] || PACKAGES.premium, [info?.packageType]);
   const hasPayment = !!paymentId && paymentId !== 'null';
