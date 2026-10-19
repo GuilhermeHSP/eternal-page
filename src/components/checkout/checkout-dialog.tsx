@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Lock, Mail, ShieldCheck, Sparkles, Ticket, X } from 'lucide-react';
 import { PACKAGES, formatPrice, type PackageConfig, type PackageType } from '@/lib/packages';
+import { planItem, track } from '@/lib/analytics';
 
 interface CheckoutDialogProps {
   open: boolean;
@@ -28,6 +29,11 @@ export function CheckoutDialog({ open, onClose, draftId, recipient, pkg, onChang
   const [error, setError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const emailRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    track('begin_checkout', { currency: 'BRL', value: pkg.price, items: [planItem(pkg.id, pkg.name, pkg.price)] });
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;

@@ -99,7 +99,7 @@ const sections: LegalSection[] = [
         <li>Não vendemos nem alugamos dados pessoais.</li>
         <li>Não usamos fotos, textos ou áudios das homenagens em anúncios ou divulgação sem autorização expressa.</li>
         <li>Não enviamos e-mails de propaganda sem o seu consentimento; os e-mails que mandamos são sobre a sua compra.</li>
-        <li>Não usamos cookies de publicidade nem ferramentas de rastreamento de terceiros no site.</li>
+        <li>Não usamos cookies de publicidade. Cookies de análise do Google Analytics só são gravados se você aceitar.</li>
       </ul>
     ),
   },
@@ -122,6 +122,10 @@ const sections: LegalSection[] = [
           <li>
             <strong>YouTube (Google)</strong>, quando a homenagem toca uma música por link do YouTube: o player é
             carregado do próprio YouTube no aparelho de quem visita.
+          </li>
+          <li>
+            <strong>Google Analytics</strong>, que mede de forma agregada as visitas e as etapas da compra (páginas
+            vistas, aparelho, cidade aproximada). Não enviamos nome, e-mail nem o conteúdo das homenagens.
           </li>
           <li>Autoridades públicas e Judiciário, quando houver obrigação legal ou ordem judicial.</li>
         </ul>
@@ -217,8 +221,9 @@ const sections: LegalSection[] = [
     title: 'Cookies e armazenamento no navegador',
     content: (
       <p>
-        O EternalPage não usa cookies de publicidade ou rastreamento. Guardamos no seu navegador apenas pequenas
-        informações para facilitar o uso, como o e-mail digitado no pagamento. Veja os detalhes na{' '}
+        O EternalPage não usa cookies de publicidade. Guardamos no seu navegador pequenas informações para facilitar o
+        uso, como o e-mail digitado no pagamento, e usamos o Google Analytics para medir visitas e etapas da compra,
+        com cookies de análise apenas se você aceitar no aviso. Veja os detalhes na{' '}
         <a href="/cookies">Política de Cookies</a>.
       </p>
     ),

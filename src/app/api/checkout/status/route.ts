@@ -61,5 +61,6 @@ export async function GET(request: NextRequest) {
     expiresAt: tribute.expiresAt,
     email: maskEmail(tribute.buyerEmail),
     emailSent: !!tribute.deliveryEmailSentAt,
+    paidAmount: status === 'paid' ? tribute.paidAmount : null,
   });
 }

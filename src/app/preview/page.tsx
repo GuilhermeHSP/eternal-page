@@ -18,6 +18,7 @@ import { WatermarkOverlay } from '@/components/preview/watermark-overlay';
 import { CheckoutDialog } from '@/components/checkout/checkout-dialog';
 import { PACKAGES, PackageType, formatPrice } from '@/lib/packages';
 import { TributeConfig } from '@/types/tribute';
+import { planItem, track } from '@/lib/analytics';
 
 interface DraftData {
   id: string;
@@ -75,6 +76,14 @@ function PreviewContent() {
 
     loadDraft();
   }, [draftId, router]);
+
+  // One preview view per draft opened (not again when the plan is switched).
+  const draftLoadedId = draft?.id;
+  useEffect(() => {
+    if (!draftLoadedId || !draft || draft.isPaid) return;
+    const pkg = PACKAGES[(draft.packageType as PackageType) || 'basic'] || PACKAGES.basic;
+    track('view_item', { currency: 'BRL', value: pkg.price, items: [planItem(pkg.id, pkg.name, pkg.price)] });
+  }, [draftLoadedId]);
 
   // Protection measures
   useEffect(() => {
