@@ -764,7 +764,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
 
   return (
     <div className={currentStep >= 1 ? 'max-w-6xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-12 xl:gap-16 items-start' : ''}>
-    <div className="max-w-3xl w-full mx-auto pb-28 lg:pb-0">
+    <div className="max-w-3xl w-full mx-auto pb-[calc(7rem+var(--consent-h,0px))] lg:pb-0">
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between relative">
@@ -1919,7 +1919,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
         preview and Continuar (on phones), clear of the iPhone's home bar. The form keeps room
         for it below its last field. */}
     {!navOnScreen && (
-      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t border-gray-100 bg-white/95 backdrop-blur-md px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <div className="lg:hidden fixed inset-x-0 bottom-[var(--consent-h,0px)] z-40 flex gap-3 border-t border-gray-100 bg-white/95 backdrop-blur-md px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {currentStep >= 1 && (
           <button
             type="button"
@@ -1946,7 +1946,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       <button
         type="button"
         onClick={continueDown}
-        className="hidden lg:inline-flex fixed bottom-6 left-[calc(50%-10rem)] -translate-x-1/2 z-40 items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
+        className="hidden lg:inline-flex fixed bottom-[calc(1.5rem+var(--consent-h,0px))] left-[calc(50%-10rem)] -translate-x-1/2 z-40 items-center gap-2 h-11 pl-5 pr-4 rounded-full bg-white text-rose-600 text-sm font-semibold shadow-lg ring-1 ring-rose-200 hover:bg-rose-50"
       >
         Continuar
         <ChevronDown className="h-4 w-4 animate-bounce" />
