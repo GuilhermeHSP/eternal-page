@@ -20,7 +20,7 @@ const HELP_LINKS = [
 // `className` adds room at the bottom on phones, where the home page has a fixed button.
 export function SiteFooter({ className = '' }: { className?: string }) {
   const year = new Date().getFullYear();
-  const companyLine = [COMPANY.legalName, COMPANY.cnpj && `CNPJ ${COMPANY.cnpj}`, COMPANY.city]
+  const companyLine = [COMPANY.legalName || (COMPANY.cnpj && COMPANY.brand), COMPANY.cnpj && `CNPJ ${COMPANY.cnpj}`, COMPANY.city]
     .filter(Boolean)
     .join(' · ');
 
