@@ -7,8 +7,9 @@ import { SUPPORT_EMAIL } from '@/lib/site';
 // placeholder to visitors.
 export const COMPANY = {
   brand: 'EternalPage',
-  // Razão social, e.g. 'ETERNALPAGE TECNOLOGIA LTDA'.
-  legalName: '63.694.979 VITOR VIEIRA DOS SANTOS',
+  // Razão social, e.g. 'ETERNALPAGE TECNOLOGIA LTDA'. Left empty on purpose: the MEI's razão social
+  // carries the owner's name, so the site shows "EternalPage" with the CNPJ instead.
+  legalName: '',
   // e.g. '00.000.000/0001-00'.
   cnpj: '63.694.979/0001-65',
   // City and state, e.g. 'São Paulo/SP'.
