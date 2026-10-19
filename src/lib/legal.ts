@@ -8,11 +8,11 @@ import { SUPPORT_EMAIL } from '@/lib/site';
 export const COMPANY = {
   brand: 'EternalPage',
   // Razão social, e.g. 'ETERNALPAGE TECNOLOGIA LTDA'.
-  legalName: '',
+  legalName: '63.694.979 VITOR VIEIRA DOS SANTOS',
   // e.g. '00.000.000/0001-00'.
-  cnpj: '',
+  cnpj: '63.694.979/0001-65',
   // City and state, e.g. 'São Paulo/SP'.
-  city: '',
+  city: 'Joinville/SC',
   // Full address of the registered office, shown only in the Privacy Policy.
   address: '',
   // Data protection officer (encarregado, LGPD art. 41). Defaults to the support e-mail.
@@ -27,7 +27,7 @@ export const COMPANY = {
 };
 
 // Date shown at the top of every legal page. Change it whenever a text changes.
-export const LEGAL_UPDATED_AT = '18 de outubro de 2026';
+export const LEGAL_UPDATED_AT = '19 de outubro de 2026';
 
 // "EternalPage (RAZÃO SOCIAL LTDA, CNPJ 00.000.000/0001-00)" or just "EternalPage" while unset.
 export function companyIdentity(): string {
