@@ -21,7 +21,7 @@ export const COMPANY = {
   dpoEmail: SUPPORT_EMAIL,
   email: SUPPORT_EMAIL,
   // Full profile URLs; leave empty to hide the icon.
-  instagram: '',
+  instagram: 'https://www.instagram.com/eternalpageoficial/',
   tiktok: '',
   // Courts for disputes (foro), e.g. 'São Paulo/SP'. Consumers can always sue at home (CDC art. 101).
   forum: '',
