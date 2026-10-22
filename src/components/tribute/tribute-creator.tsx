@@ -54,6 +54,7 @@ import { TRIBUTE_COLORS, isValidHex, styleForColor } from '@/lib/colors';
 import type { TributeConfig } from '@/types/tribute';
 import { hintsFor } from '@/lib/occasion-hints';
 import { saveSnapshot, type CreatorSnapshot } from '@/lib/draft-store';
+import { UploadError, uploadIfDataUrl } from '@/lib/upload-media';
 
 const tributeSchema = z.object({
   title: z.string().min(1, 'O título é obrigatório').max(80),
@@ -593,15 +594,33 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
           })),
       };
 
+      // Photos and audio go one by one first; the draft itself then carries only their addresses.
+      payload.heroImage = await uploadIfDataUrl(payload.heroImage, 'image');
+      for (const p of payload.photos) p.url = await uploadIfDataUrl(p.url, 'image');
+      for (const t of payload.timeline) t.imageUrl = await uploadIfDataUrl(t.imageUrl, 'image');
+      payload.musicUrl = await uploadIfDataUrl(payload.musicUrl, 'audio');
+      payload.voiceMessage = await uploadIfDataUrl(payload.voiceMessage, 'audio');
+
       // Save draft to API
-      const response = await fetch('/api/draft', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+      let response: Response;
+      try {
+        response = await fetch('/api/draft', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } catch {
+        throw new UploadError(
+          'A conexão caiu ao gerar a prévia. Verifique a internet e toque em "Gerar prévia" de novo. Nada do que você fez foi perdido.',
+        );
+      }
 
       if (!response.ok) {
-        throw new Error('Failed to save draft');
+        // "message" is written for the person (a link that can't be played, a file too large...).
+        const body = await response.json().catch(() => null);
+        throw new UploadError(
+          typeof body?.message === 'string' ? body.message : 'Falha ao gerar preview. Por favor, tente novamente.',
+        );
       }
 
       const result = await response.json();
@@ -614,7 +633,7 @@ export function TributeCreator({ editDraftId, initialRecipient, initialTemplateI
       // Navigate to preview page
       router.push(`/preview?id=${result.id}`);
     } catch (err) {
-      setError('Falha ao gerar preview. Por favor, tente novamente.');
+      setError(err instanceof UploadError ? err.message : 'Falha ao gerar preview. Por favor, tente novamente.');
       console.error(err);
     } finally {
       setIsSubmitting(false);
