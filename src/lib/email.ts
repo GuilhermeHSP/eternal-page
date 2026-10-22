@@ -144,17 +144,13 @@ export function deliveryEmail(d: DeliveryEmailData): { subject: string; html: st
   return { subject, html, text };
 }
 
+// Only what finance needs to book the sale: no buyer or tribute data.
 export interface SaleNotificationData {
-  tributeUrl: string;
-  recipient: string;
   packageName: string;
   amount: number;
   coupon: boolean;
-  buyerEmail: string | null;
-  buyerPhone: string | null;
   paymentId: string | null;
   paidAt: Date;
-  expiresAt: Date | null;
 }
 
 function formatMoney(n: number): string {
@@ -178,21 +174,11 @@ export function saleNotificationEmail(d: SaleNotificationData): { subject: strin
     ['Valor pago', amount],
     ['Cupom', d.coupon ? 'Sim, cupom de teste (sem cobrança)' : 'Não'],
     ['Data e hora', `${formatDateTime(d.paidAt)} (horário de Brasília)`],
-    ['E-mail do comprador', d.buyerEmail || '(não informado)'],
-    ...(d.buyerPhone ? [['Telefone do comprador', d.buyerPhone] as [string, string]] : []),
-    ['Homenagem para', d.recipient],
-    ['Link da homenagem', d.tributeUrl],
-    ['No ar até', d.expiresAt ? formatDate(d.expiresAt) : 'Para sempre'],
     ['Pagamento Mercado Pago', d.paymentId || '(sem id)'],
   ];
 
   const htmlRows = rows
-    .map(([k, v]) => {
-      const value = k === 'Link da homenagem'
-        ? `<a href="${escapeHtml(v)}" style="color:${ROSE}">${escapeHtml(v)}</a>`
-        : escapeHtml(v);
-      return `<tr><td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#6b7280;white-space:nowrap;vertical-align:top">${escapeHtml(k)}</td><td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#111827;word-break:break-all">${value}</td></tr>`;
-    })
+    .map(([k, v]) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#6b7280;white-space:nowrap;vertical-align:top">${escapeHtml(k)}</td><td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#111827;word-break:break-all">${escapeHtml(v)}</td></tr>`)
     .join('\n');
 
   const html = `<!doctype html>

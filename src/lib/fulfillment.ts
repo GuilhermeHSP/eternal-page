@@ -188,16 +188,11 @@ export async function notifySaleOnce(tributeId: string): Promise<boolean> {
 
     const pkg = getPackage(normalisePackage(tribute.paidPackage || tribute.packageType) as PackageType);
     const mail = saleNotificationEmail({
-      tributeUrl: `${siteUrl()}/${tribute.slug}`,
-      recipient: tribute.recipient,
       packageName: pkg.name,
       amount: tribute.paidAmount ?? 0,
       coupon: !!tribute.paymentId?.startsWith('CUPOM-'),
-      buyerEmail: tribute.buyerEmail,
-      buyerPhone: tribute.buyerPhone,
       paymentId: tribute.paymentId,
       paidAt: tribute.paidAt,
-      expiresAt: tribute.expiresAt,
     });
 
     const result = await sendEmail({ to, ...mail });
