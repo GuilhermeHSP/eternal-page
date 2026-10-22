@@ -107,10 +107,9 @@ export async function POST(request: NextRequest) {
     }
 
     // After payment the package is fixed to the one paid for (no free upgrade by editing).
+    // A browser can still hold the id of a draft that no longer exists here (deleted in the admin,
+    // or saved before a database reset): the page is then saved as a new draft, not refused.
     const existing = draftId ? await db.tribute.findUnique({ where: { id: draftId } }) : null;
-    if (draftId && !existing) {
-      return NextResponse.json({ error: 'Draft not found' }, { status: 404 });
-    }
     const isPaid = !!existing && existing.isPublished && !!existing.paidAt;
     const requestedPackage: PackageType = packageType === 'premium' ? 'premium' : packageType === 'plus' ? 'plus' : 'basic';
     const effectivePackage: PackageType = isPaid
@@ -191,7 +190,7 @@ export async function POST(request: NextRequest) {
     // Generate slug if creating new draft
     const slug = nanoid(10);
 
-    if (draftId) {
+    if (existing) {
       // Update existing draft
       const updatedTribute = await db.tribute.update({
         where: { id: draftId },
