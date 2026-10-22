@@ -49,6 +49,7 @@ model Tribute {
   paidAmount          Float?
   paidAt              DateTime?
   deliveryEmailSentAt DateTime?
+  saleNotifiedAt      DateTime? // sale notice e-mailed to the finance inbox
   
   // Relations
   photos      Photo[]

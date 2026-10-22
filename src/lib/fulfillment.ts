@@ -2,7 +2,7 @@ import QRCode from 'qrcode';
 import { db } from '@/lib/db';
 import { getPackage, type PackageType } from '@/lib/packages';
 import { expiryForPackage } from '@/lib/tribute-access';
-import { deliveryEmail, sendEmail } from '@/lib/email';
+import { deliveryEmail, saleNotificationEmail, sendEmail } from '@/lib/email';
 import { siteUrl } from '@/lib/site';
 import type { MpPayment } from '@/lib/mercadopago';
 
@@ -65,6 +65,7 @@ export async function handlePayment(payment: MpPayment): Promise<FulfillResult> 
 
   if (tribute.isPublished && tribute.paidAt) {
     await sendDeliveryEmailOnce(tribute.id);
+    await notifySaleOnce(tribute.id);
     return { outcome: 'already-published', tributeId: tribute.id };
   }
 
@@ -86,6 +87,7 @@ export async function handlePayment(payment: MpPayment): Promise<FulfillResult> 
   });
 
   await sendDeliveryEmailOnce(tribute.id);
+  await notifySaleOnce(tribute.id);
   return { outcome: 'published', tributeId: tribute.id };
 }
 
@@ -95,6 +97,7 @@ export async function publishWithCoupon(tributeId: string): Promise<FulfillResul
   if (!tribute) return { outcome: 'ignored', reason: `no tribute ${tributeId}` };
   if (tribute.isPublished && tribute.paidAt) {
     await sendDeliveryEmailOnce(tribute.id);
+    await notifySaleOnce(tribute.id);
     return { outcome: 'already-published', tributeId: tribute.id };
   }
 
@@ -116,6 +119,7 @@ export async function publishWithCoupon(tributeId: string): Promise<FulfillResul
   });
 
   await sendDeliveryEmailOnce(tribute.id);
+  await notifySaleOnce(tribute.id);
   return { outcome: 'published', tributeId: tribute.id };
 }
 
@@ -158,4 +162,47 @@ export async function sendDeliveryEmailOnce(tributeId: string): Promise<boolean>
     return false;
   }
   return true;
+}
+
+export const DEFAULT_FINANCE_EMAIL = 'financeiro@eternalpage.com.br';
+
+// Sales older than this are not announced: keeps tributes paid before this notice existed
+// from being reported when their webhook is retried or their "obrigado" page is reopened.
+const NOTIFY_WINDOW_MS = 3 * 24 * 60 * 60 * 1000;
+
+// E-mails the finance inbox (FINANCE_EMAIL, default financeiro@eternalpage.com.br) once per
+// paid tribute. Same claim-then-send pattern as the delivery e-mail; a failure never blocks
+// the sale, it only releases the claim so the next webhook retry or page visit tries again.
+export async function notifySaleOnce(tributeId: string): Promise<boolean> {
+  try {
+    const to = (process.env.FINANCE_EMAIL || DEFAULT_FINANCE_EMAIL).trim();
+    const tribute = await db.tribute.findUnique({ where: { id: tributeId } });
+    if (!to || !tribute || !tribute.isPublished || !tribute.paidAt || tribute.saleNotifiedAt) return false;
+    if (Date.now() - tribute.paidAt.getTime() > NOTIFY_WINDOW_MS) return false;
+
+    const claim = await db.tribute.updateMany({
+      where: { id: tributeId, saleNotifiedAt: null },
+      data: { saleNotifiedAt: new Date() },
+    });
+    if (claim.count !== 1) return false;
+
+    const pkg = getPackage(normalisePackage(tribute.paidPackage || tribute.packageType) as PackageType);
+    const mail = saleNotificationEmail({
+      packageName: pkg.name,
+      amount: tribute.paidAmount ?? 0,
+      coupon: !!tribute.paymentId?.startsWith('CUPOM-'),
+      paymentId: tribute.paymentId,
+      paidAt: tribute.paidAt,
+    });
+
+    const result = await sendEmail({ to, ...mail });
+    if (!result.sent) {
+      await db.tribute.update({ where: { id: tributeId }, data: { saleNotifiedAt: null } });
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[sale-notice]', e);
+    return false;
+  }
 }

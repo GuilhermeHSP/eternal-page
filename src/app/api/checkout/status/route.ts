@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { findPaymentForTribute, getPayment, mpConfigured } from '@/lib/mercadopago';
-import { handlePayment, normalisePackage, sendDeliveryEmailOnce } from '@/lib/fulfillment';
+import { handlePayment, normalisePackage, notifySaleOnce, sendDeliveryEmailOnce } from '@/lib/fulfillment';
 
 // Polled by the "obrigado" page (/finalize). When the buyer comes back from Mercado Pago with
 // a payment_id, the payment is checked right here, so the page works even before (or without)
@@ -46,6 +46,9 @@ export async function GET(request: NextRequest) {
   // A previous e-mail attempt may have failed (e.g. Resend not configured yet); try again.
   if (tribute.isPublished && tribute.paidAt && !tribute.deliveryEmailSentAt) {
     sendDeliveryEmailOnce(tribute.id).catch((e) => console.error('[checkout/status] email', e));
+  }
+  if (tribute.isPublished && tribute.paidAt && !tribute.saleNotifiedAt) {
+    notifySaleOnce(tribute.id);
   }
 
   let status: CheckoutStatus = 'unpaid';

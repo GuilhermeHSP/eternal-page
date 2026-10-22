@@ -143,3 +143,67 @@ export function deliveryEmail(d: DeliveryEmailData): { subject: string; html: st
 
   return { subject, html, text };
 }
+
+// Only what finance needs to book the sale: no buyer or tribute data.
+export interface SaleNotificationData {
+  packageName: string;
+  amount: number;
+  coupon: boolean;
+  paymentId: string | null;
+  paidAt: Date;
+}
+
+function formatMoney(n: number): string {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n);
+}
+
+function formatDateTime(d: Date): string {
+  return d.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' });
+}
+
+// Internal notice to the finance inbox for each completed sale (see notifySaleOnce in
+// lib/fulfillment.ts).
+export function saleNotificationEmail(d: SaleNotificationData): { subject: string; html: string; text: string } {
+  const amount = formatMoney(d.amount);
+  const subject = d.coupon
+    ? `Homenagem liberada com cupom: ${d.packageName} (${amount})`
+    : `Nova venda: ${d.packageName}, ${amount}`;
+
+  const rows: [string, string][] = [
+    ['Plano', d.packageName],
+    ['Valor pago', amount],
+    ['Cupom', d.coupon ? 'Sim, cupom de teste (sem cobrança)' : 'Não'],
+    ['Data e hora', `${formatDateTime(d.paidAt)} (horário de Brasília)`],
+    ['Pagamento Mercado Pago', d.paymentId || '(sem id)'],
+  ];
+
+  const htmlRows = rows
+    .map(([k, v]) => `<tr><td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#6b7280;white-space:nowrap;vertical-align:top">${escapeHtml(k)}</td><td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#111827;word-break:break-all">${escapeHtml(v)}</td></tr>`)
+    .join('\n');
+
+  const html = `<!doctype html>
+<html lang="pt-BR">
+<body style="margin:0;padding:24px 12px;background:#f9fafb;font-family:Arial,Helvetica,sans-serif;color:#374151">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden">
+    <tr><td style="padding:20px 24px 8px">
+      <p style="margin:0;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#9ca3af">${d.coupon ? 'Liberada com cupom' : 'Venda concluída'}</p>
+      <h1 style="margin:6px 0 0;font-size:22px;color:#111827;font-weight:normal">${escapeHtml(d.packageName)} · <strong>${escapeHtml(amount)}</strong></h1>
+    </td></tr>
+    <tr><td style="padding:12px 12px 20px">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;line-height:1.5">
+${htmlRows}
+      </table>
+    </td></tr>
+  </table>
+  <p style="margin:12px 0 0;text-align:center;font-size:11px;color:#9ca3af">Aviso automático do site EternalPage</p>
+</body>
+</html>`;
+
+  const text = [
+    d.coupon ? 'Homenagem liberada com cupom' : 'Venda concluída',
+    '',
+    ...rows.map(([k, v]) => `${k}: ${v}`),
+  ].join('\n');
+
+  return { subject, html, text };
+}
