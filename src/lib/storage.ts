@@ -22,10 +22,16 @@ const IMAGE_TYPES: Record<string, string> = {
 const AUDIO_TYPES: Record<string, string> = {
   'audio/mpeg': 'mp3',
   'audio/mp3': 'mp3',
+  'audio/x-mp3': 'mp3',
+  'audio/mpeg3': 'mp3',
+  'audio/x-mpeg': 'mp3',
+  'audio/x-mpeg-3': 'mp3',
   'audio/mp4': 'm4a',
   'audio/x-m4a': 'm4a',
   'audio/m4a': 'm4a',
   'audio/aac': 'aac',
+  'audio/x-aac': 'aac',
+  'audio/aacp': 'aac',
   'audio/wav': 'wav',
   'audio/x-wav': 'wav',
   'audio/wave': 'wav',
@@ -35,7 +41,7 @@ const AUDIO_TYPES: Record<string, string> = {
 
 // Photos arrive already resized by the creator (well under 1 MB), so 2 MB leaves room.
 const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
-const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
+export const MAX_AUDIO_BYTES = 12 * 1024 * 1024;
 
 export type MediaKind = 'image' | 'audio';
 
@@ -69,9 +75,15 @@ export function parseDataUrl(dataUrl: string): ParsedDataUrl {
 
 // Stores a data URL (as sent by the creator) and returns the file's public address.
 export async function storeDataUrl(dataUrl: string, kind: MediaKind): Promise<string> {
-  const { contentType: rawType, bytes } = parseDataUrl(dataUrl);
+  const { contentType, bytes } = parseDataUrl(dataUrl);
+  return storeBytes(contentType, bytes, kind);
+}
+
+// Stores a file's bytes (sent one by one to /api/media, or decoded from a data URL) and returns
+// its public address.
+export async function storeBytes(rawType: string, bytes: Buffer, kind: MediaKind): Promise<string> {
   // Recorders often say "audio/webm;codecs=opus"; only the main type matters here.
-  const contentType = rawType.split(';')[0];
+  const contentType = rawType.split(';')[0].toLowerCase().trim();
   const types = kind === 'image' ? IMAGE_TYPES : AUDIO_TYPES;
   const ext = types[contentType];
   if (!ext) {

@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
         if (kept) allowedMusicUrl = kept;
         else {
           const parsed = parseMusicLink(musicUrl);
-          if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+          if (!parsed.ok) return NextResponse.json({ error: parsed.error, message: parsed.error }, { status: 400 });
           allowedMusicUrl = parsed.link.url;
         }
       } else if (limits.music) {
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       storedVoice = limits.music ? await normaliseMedia(voiceMessage, 'audio') : null;
     } catch (e) {
       if (e instanceof MediaError) {
-        return NextResponse.json({ error: e.message }, { status: 400 });
+        return NextResponse.json({ error: e.message, message: e.message }, { status: 400 });
       }
       throw e;
     }
